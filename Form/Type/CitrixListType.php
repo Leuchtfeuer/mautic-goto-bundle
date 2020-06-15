@@ -51,6 +51,21 @@ class CitrixListType extends AbstractType
                 'required' => true,
             ]
         );
+
+        $builder->add(
+            'product_select',
+            'choice',
+            [
+                'choices' => \MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper::getCitrixChoices('webinar', true, false), //TODO fix code, darf nur bei webinar angezeigt werden
+                'multiple' => true,
+                'label'      => 'selector',
+                'label_attr' => ['class' => 'control-label'],
+                'attr'       => [
+                    'class'       => 'form-control',
+                ],
+                'required' => true,
+            ]
+        );
     }
 
     /**
