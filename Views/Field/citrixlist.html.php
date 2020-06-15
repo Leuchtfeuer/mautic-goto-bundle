@@ -14,14 +14,17 @@ if (isset($field['customParameters']['listType'])) {
     $listType = $field['customParameters']['listType'];
 }
 
-$list = \MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper::getCitrixChoices($listType);
-
+$list = \MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper::getCitrixChoices($listType, true, false);
+$new_list = [];
+foreach ($field['properties']['product_select'] as $element){
+    $new_list[] = $list[$element];
+}
 echo $view->render(
     'MauticFormBundle:Field:select.html.php',
     [
         'field'    => $field,
         'inForm'   => (isset($inForm)) ? $inForm : false,
-        'list'     => $list,
+        'list'     => $new_list,
         'id'       => $id,
         'formId'   => (isset($formId)) ? $formId : 0,
         'formName' => (isset($formName)) ? $formName : '',

@@ -37,11 +37,11 @@ class CitrixHelper
 
     /**
      * @param IntegrationHelper $helper
-     * @param LoggerInterface   $logger
+     * @param LoggerInterface $logger
      */
     public static function init(IntegrationHelper $helper, LoggerInterface $logger)
     {
-        self::$logger           = $logger;
+        self::$logger = $logger;
         self::$integratonHelper = $helper;
     }
 
@@ -54,7 +54,7 @@ class CitrixHelper
     {
         static $g2mapi;
         if (null === $g2mapi) {
-            $class  = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotomeetingApi';
+            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotomeetingApi';
             $g2mapi = new $class(self::getIntegration('Gotomeeting'));
         }
 
@@ -70,7 +70,7 @@ class CitrixHelper
     {
         static $g2wapi;
         if (null === $g2wapi) {
-            $class  = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotowebinarApi';
+            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotowebinarApi';
             $g2wapi = new $class(self::getIntegration('Gotowebinar'));
         }
 
@@ -86,7 +86,7 @@ class CitrixHelper
     {
         static $g2tapi;
         if (null === $g2tapi) {
-            $class  = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GototrainingApi';
+            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GototrainingApi';
             $g2tapi = new $class(self::getIntegration('Gototraining'));
         }
 
@@ -102,7 +102,7 @@ class CitrixHelper
     {
         static $g2aapi;
         if (null === $g2aapi) {
-            $class  = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotoassistApi';
+            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotoassistApi';
             $g2aapi = new $class(self::getIntegration('Gotoassist'));
         }
 
@@ -129,6 +129,28 @@ class CitrixHelper
      *
      * @return \Generator
      */
+    public static function getKeyPairsWithDetails($results, $key, $values)
+    {
+        /** @var array $results */
+        foreach ($results as $result) {
+            $temp_str = '';
+            $result[$key] = '';
+            foreach ($values as $value){
+                if (array_key_exists($key, $result) && array_key_exists($value, $result)) {
+                    $temp_str .= $result[$value] . ' ';
+                }
+            }
+            yield $result[$key] => $temp_str;
+        }
+    }
+
+    /**
+     * @param array $results
+     * @param       $key
+     * @param       $value
+     *
+     * @return \Generator
+     */
     public static function getKeyPairs($results, $key, $value)
     {
         /** @var array $results */
@@ -141,7 +163,7 @@ class CitrixHelper
 
     /**
      * @param array $sessions
-     * @param bool  $showAll  Wether or not to show only active sessions
+     * @param bool $showAll Whether or not to show only active sessions
      *
      * @return \Generator
      */
@@ -161,31 +183,35 @@ class CitrixHelper
      *
      * @return array
      */
-    public static function getCitrixChoices($listType, $onlyFutures = true)
+    public static function getCitrixChoices($listType, $onlyFutures = true, $withDetails = false)
     {
         try {
             // Check if integration is enabled
             if (!self::isAuthorized(self::listToIntegration($listType))) {
-                throw new AuthenticationException('You are not authorized to view '.$listType);
+                throw new AuthenticationException('You are not authorized to view ' . $listType);
             }
             $currentYear = date('Y');
             // TODO: the date range can be configured elsewhere
-            $fromTime = ($currentYear - 10).'-01-01T00:00:00Z';
-            $toTime   = ($currentYear + 10).'-01-01T00:00:00Z';
-            if ('webinar' === $listType) {
-                $url    = 'upcomingWebinars';
-                $params = [];
-                if (!$onlyFutures) {
-                    $url                = 'historicalWebinars';
-                    $params['fromTime'] = $fromTime;
-                    $params['toTime']   = $toTime;
-                }
-                $results = self::getG2wApi()->request($url, $params);
+            $fromTime = ($currentYear - 10) . '-01-01T00:00:00Z';
+            $toTime = ($currentYear + 10) . '-01-01T00:00:00Z';
+            switch ($listType) {
+                case CitrixProducts::GOTOWEBINAR:
+                    $url = 'upcomingWebinars';
+                    $params = [];
+                    if (!$onlyFutures) {
+                        $url = 'historicalWebinars';
+                        $params['fromTime'] = $fromTime;
+                        $params['toTime'] = $toTime;
+                    }
+                    $results = self::getG2wApi()->request($url, $params);
+                    $test = '';
+                    if($withDetails){
+                        return iterator_to_array(self::getKeyPairsWithDetails($results, 'webinarID', ['subject']));
+                    }
+                    return iterator_to_array(self::getKeyPairs($results, 'webinarID', 'subject'));
 
-                return iterator_to_array(self::getKeyPairs($results, 'webinarID', 'subject'));
-            } else {
-                if ('meeting' === $listType) {
-                    $url    = 'upcomingMeetings';
+                case CitrixProducts::GOTOMEETING:
+                    $url = 'upcomingMeetings';
                     $params = [];
                     if (!$onlyFutures) {
                         $url = 'historicalMeetings';
