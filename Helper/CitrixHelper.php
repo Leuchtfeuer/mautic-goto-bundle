@@ -127,21 +127,23 @@ class CitrixHelper
      * @param       $key
      * @param       $value
      *
-     * @return \Generator
+     * @return mixed
      */
     public static function getKeyPairsWithDetails($results, $key, $values)
     {
+        $return_results = [];
         /** @var array $results */
         foreach ($results as $result) {
-            $temp_str = '';
-            $result[$key] = '';
+            $temp = [];
             foreach ($values as $value){
                 if (array_key_exists($key, $result) && array_key_exists($value, $result)) {
-                    $temp_str .= $result[$value] . ' ';
+                    $temp[$value] = $result[$value];
                 }
             }
-            yield $result[$key] => $temp_str;
+            $blablubb = $result[$key];
+            $return_results[$result[$key]] = $temp;
         }
+        return $return_results;
     }
 
     /**
@@ -196,17 +198,22 @@ class CitrixHelper
             $toTime = ($currentYear + 10) . '-01-01T00:00:00Z';
             switch ($listType) {
                 case CitrixProducts::GOTOWEBINAR:
-                    $url = 'upcomingWebinars';
+                    $url = 'webinars';
                     $params = [];
-                    if (!$onlyFutures) {
-                        $url = 'historicalWebinars';
-                        $params['fromTime'] = $fromTime;
-                        $params['toTime'] = $toTime;
-                    }
+
+                    $params['fromTime'] = $fromTime;
+                    $params['toTime'] = $toTime;
+                    $params['size'] = 200;
+
                     $results = self::getG2wApi()->request($url, $params);
-                    $test = '';
+
                     if($withDetails){
-                        return iterator_to_array(self::getKeyPairsWithDetails($results, 'webinarID', ['subject']));
+                        return self::getKeyPairsWithDetails($results['_embedded']['webinars'], 'webinarId', [
+                            'subject',
+                            'description',
+                            'webinarKey',
+                            'webinarId'
+                        ]);
                     }
                     return iterator_to_array(self::getKeyPairs($results, 'webinarID', 'subject'));
 
@@ -220,7 +227,7 @@ class CitrixHelper
                     }
                     $results = self::getG2mApi()->request($url, $params);
 
-                    return iterator_to_array(self::getKeyPairs($results, 'meetingId', 'subject'));
+                    return iterator_to_array(self::getKeyPairsWithDetails($results, 'meetingId', 'subject'));
 
                 case CitrixProducts::GOTOTRAINING:
                     $results = self::getG2tApi()->request('trainings');

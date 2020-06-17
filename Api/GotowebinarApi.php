@@ -22,13 +22,13 @@ class GotowebinarApi extends CitrixApi
             'method'          => $method,
             'parameters'      => $parameters,
             'requestSettings' => [
-              'headers' => [
-                  'Accept' => 'application/json;charset=UTF-8',
-              ],
+                'headers' => [
+                    'Accept' => 'application/json;charset=UTF-8',
+                ],
             ],
         ];
 
         return parent::_request($operation, $settings,
-            sprintf('rest/organizers/%s', $this->integration->getOrganizerKey()));
+            sprintf('rest/v2/organizers/%s', $this->integration->getOrganizerKey()));
     }
 }
