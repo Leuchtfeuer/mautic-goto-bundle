@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticCitrixBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticCrmBundle\Integration\Salesforce\Object\Contact;
 
 /**
  * @ORM\Table(name="plugin_citrix_events")
@@ -31,7 +32,13 @@ class CitrixEvent
     /**
      * @var Lead
      */
-    protected $lead;
+    protected $contact;
+
+    /**
+     * @var CitrixProduct
+     */
+
+    protected $citrix_product;
 
     /**
      * @ORM\Column(name="product", type="string", length=20)
@@ -86,8 +93,8 @@ class CitrixEvent
             ->addIndex(['product', 'event_type', 'event_date'], 'citrix_event_type')
             ->addIndex(['product', 'email', 'event_type'], 'citrix_event_product')
             ->addIndex(['product', 'email', 'event_type', 'event_name'], 'citrix_event_product_name')
-            ->addIndex(['product', 'event_type', 'event_name', 'lead_id'], 'citrix_event_product_name_lead')
-            ->addIndex(['product', 'event_type', 'lead_id'], 'citrix_event_product_type_lead')
+            ->addIndex(['product', 'event_type', 'event_name', 'contact_id'], 'citrix_event_product_name_contact')
+            ->addIndex(['product', 'event_type', 'contact_id'], 'citrix_event_product_type_contact')
             ->addIndex(['event_date'], 'citrix_event_date');
         $builder->addId();
         $builder->addNamedField('product', 'string', 'product');
@@ -99,7 +106,10 @@ class CitrixEvent
             ->length(50)
             ->build();
         $builder->addNamedField('eventDate', 'datetime', 'event_date');
-        $builder->addLead();
+        $builder->addContact();
+        $builder->createManyToOne('citrix_product', CitrixProduct::class)
+            ->addJoinColumn('citrix_product_id', 'id', true, false, 'SET NULL')
+            ->build();
     }
 
     /**
@@ -116,6 +126,38 @@ class CitrixEvent
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return Lead
+     */
+    public function getContact()
+    {
+        return $this->contact;
+    }
+
+    /**
+     * @param Lead $contact
+     */
+    public function setContact($contact)
+    {
+        $this->contact = $contact;
+    }
+
+    /**
+     * @return CitrixProduct
+     */
+    public function getCitrixProduct()
+    {
+        return $this->citrix_product;
+    }
+
+    /**
+     * @param CitrixProduct $citrix_product
+     */
+    public function setCitrixProduct($citrix_product)
+    {
+        $this->citrix_product = $citrix_product;
     }
 
     /**
@@ -272,23 +314,4 @@ class CitrixEvent
         return $this;
     }
 
-    /**
-     * @return Lead
-     */
-    public function getLead()
-    {
-        return $this->lead;
-    }
-
-    /**
-     * @param Lead $lead
-     *
-     * @return CitrixEvent
-     */
-    public function setLead(Lead $lead)
-    {
-        $this->lead = $lead;
-
-        return $this;
-    }
 }
