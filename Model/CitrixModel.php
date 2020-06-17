@@ -17,7 +17,10 @@ use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\MauticCitrixBundle\CitrixEvents;
 use MauticPlugin\MauticCitrixBundle\Entity\CitrixEvent;
+use MauticPlugin\MauticCitrixBundle\Entity\CitrixEventSubscriber;
 use MauticPlugin\MauticCitrixBundle\Entity\CitrixEventTypes;
+use MauticPlugin\MauticCitrixBundle\Entity\CitrixProduct;
+use MauticPlugin\MauticCitrixBundle\Entity\CitrixProductRepository;
 use MauticPlugin\MauticCitrixBundle\Event\CitrixEventUpdateEvent;
 use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
 use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
@@ -346,7 +349,7 @@ class CitrixModel extends FormModel
                 $citrixEvent->setEventName($eventName);
                 $citrixEvent->setEventDesc($eventDesc);
                 $citrixEvent->setEventType($eventType);
-                $citrixEvent->setLead($leads[$email]);
+                $citrixEvent->setContact($leads[$email]);
 
                 if (!empty($info['event_date'])) {
                     $citrixEvent->setEventDate($info['event_date']);
@@ -358,7 +361,7 @@ class CitrixModel extends FormModel
 
                 $newEntities[] = $citrixEvent;
 
-                if (null !== $output) {
+                if ($output !== null) {
                     $output->writeln(
                         ' + ' . $email . ' ' . $eventType . ' to ' .
                         substr($citrixEvent->getEventName(), 0, 40) . ((strlen(
@@ -436,5 +439,26 @@ class CitrixModel extends FormModel
         );
 
         return [$add, $delete];
+    }
+
+    public function syncProduct($productType, $product, $output = null)
+    {
+        /** @var CitrixProductRepository $productRepository */
+        $productRepository = $this->em->getRepository('MauticCitrixBundle:CitrixProduct');
+
+        /** @var CitrixProduct $persistedProduct */
+        $persistedProduct = $productRepository->findOneBy([
+            'product_id' => $product[$productType . 'Id'],
+            'product' => $productType
+        ]);
+        if($persistedProduct === null){
+            $persistedProduct = new CitrixProduct();
+        }
+        $persistedProduct->setName($product['subject']);
+        $persistedProduct->setProduct($productType);
+        $persistedProduct->setDescription($product['description']);
+        $persistedProduct->setProductId($product[$productType.'Key']);
+
+        $productRepository->saveEntity($persistedProduct);
     }
 }

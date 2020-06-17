@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticCitrixBundle\Command;
 use Mautic\CoreBundle\Command\ModeratedCommand;
 use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
 use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
+use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -51,6 +52,7 @@ class SyncCommand extends ModeratedCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var CitrixModel $model */
         $model   = $this->getContainer()->get('mautic.citrix.model.citrix');
         $options = $input->getOptions();
         $product = $options['product'];
@@ -92,7 +94,7 @@ class SyncCommand extends ModeratedCommand
             $productIds    = [];
             if (null === $options['id']) {
                 // all products
-                $citrixChoices = CitrixHelper::getCitrixChoices($product, false);
+                $citrixChoices = CitrixHelper::getCitrixChoices($product, false, true);
                 $productIds    = array_keys($citrixChoices);
             } else {
                 $productIds[]                  = $options['id'];
@@ -101,12 +103,12 @@ class SyncCommand extends ModeratedCommand
 
             foreach ($productIds as $productId) {
                 try {
-                    $eventDesc = $citrixChoices[$productId];
+                    $eventDesc = $citrixChoices[$productId]['subject'];
                     $eventName = CitrixHelper::getCleanString(
                             $eventDesc
                         ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
-
+                    $model->syncProduct($product, $citrixChoices[$productId], $output);
                     $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
                 } catch (\Exception $ex) {
                     $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');
