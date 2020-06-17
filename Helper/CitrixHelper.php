@@ -220,7 +220,7 @@ class CitrixHelper
                     }
                     $results = self::getG2mApi()->request($url, $params);
 
-                    return iterator_to_array(self::getKeyPairsWithDetails($results, 'meetingId', 'subject'));
+                    return iterator_to_array(self::getKeyPairs($results, 'meetingId', 'subject'));
 
                 case CitrixProducts::GOTOTRAINING:
                     $results = self::getG2tApi()->request('trainings');
