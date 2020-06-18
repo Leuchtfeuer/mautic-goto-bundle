@@ -279,7 +279,7 @@ class FormSubscriber extends CommonSubscriber
         $doValidation = CitrixHelper::isAuthorized('Goto'.$eventType);
 
         if ($doValidation) {
-            $list = CitrixHelper::getCitrixChoices($eventType);
+            $list = CitrixHelper::getCitrixChoices($eventType, true, false);
             /** @var array $values */
             $values = $event->getValue();
 
