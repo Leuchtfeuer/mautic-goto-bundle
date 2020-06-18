@@ -8,8 +8,20 @@ use Mautic\CoreBundle\Entity\CommonRepository;
 
 class CitrixProductRepository extends CommonRepository
 {
-    public function findByProductId($id)
+    /**
+     * @param $key
+     * @return CitrixProduct|null
+     */
+    public function findOneByProductKey($key)
     {
-        return $this->findBy(['product_id' => $id]);
+        return $this->findOneBy(['product_key' => $key]);
+    }
+
+    public function findSessionsByRecurrenceKey(){
+
+    }
+
+    public function getAllNonRecurringProducts(){
+        return $this->findBy(['recurrence_key' => null]);
     }
 }

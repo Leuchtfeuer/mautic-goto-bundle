@@ -14,11 +14,11 @@ namespace MauticPlugin\MauticCitrixBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticCitrixBundle\Entity\CitrixEventRepository;
 use MauticPlugin\MauticCrmBundle\Integration\Salesforce\Object\Contact;
-
 /**
  * @ORM\Table(name="plugin_citrix_events")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MauticPlugin\MauticCitrixBundle\Entity\CitrixEventRepository")
  */
 class CitrixEvent
 {
@@ -38,27 +38,7 @@ class CitrixEvent
      * @var CitrixProduct
      */
 
-    protected $citrix_product;
-
-    /**
-     * @ORM\Column(name="product", type="string", length=20)
-     */
-    protected $product;
-
-    /**
-     * @ORM\Column(name="email", type="string", length=255)
-     */
-    protected $email;
-
-    /**
-     * @ORM\Column(name="event_name", type="string", length=255)
-     */
-    protected $eventName;
-
-    /**
-     * @ORM\Column(name="event_desc", type="string", length=255)
-     */
-    protected $eventDesc;
+    protected $citrixProduct;
 
     /**
      * @ORM\Column(name="event_type", type="string", length=50)
@@ -70,12 +50,13 @@ class CitrixEvent
      */
     protected $eventDate;
 
+    /**
+     * @ORM\Column(name="join_url", type="datetime")
+     */
+    protected $joinUrl;
+
     public function __construct()
     {
-        $this->product   = 'undefined';
-        $this->email     = 'undefined';
-        $this->eventName = 'undefined';
-        $this->eventDesc = 'undefined';
         $this->eventDate = new \Datetime();
         $this->eventType = 'undefined';
     }
@@ -87,27 +68,16 @@ class CitrixEvent
     {
         $builder = new ClassMetadataBuilder($metadata);
         $builder->setTable('plugin_citrix_events')
-            ->setCustomRepositoryClass('MauticPlugin\MauticCitrixBundle\Entity\CitrixEventRepository')
-            ->addIndex(['product', 'email'], 'citrix_event_email')
-            ->addIndex(['product', 'event_name', 'event_type'], 'citrix_event_name')
-            ->addIndex(['product', 'event_type', 'event_date'], 'citrix_event_type')
-            ->addIndex(['product', 'email', 'event_type'], 'citrix_event_product')
-            ->addIndex(['product', 'email', 'event_type', 'event_name'], 'citrix_event_product_name')
-            ->addIndex(['product', 'event_type', 'event_name', 'contact_id'], 'citrix_event_product_name_contact')
-            ->addIndex(['product', 'event_type', 'contact_id'], 'citrix_event_product_type_contact')
-            ->addIndex(['event_date'], 'citrix_event_date');
+            ->setCustomRepositoryClass(CitrixEventRepository::class);
         $builder->addId();
-        $builder->addNamedField('product', 'string', 'product');
-        $builder->addNamedField('email', 'string', 'email');
-        $builder->addNamedField('eventName', 'string', 'event_name');
-        $builder->addNamedField('eventDesc', 'string', 'event_desc', true);
         $builder->createField('eventType', 'string')
             ->columnName('event_type')
             ->length(50)
             ->build();
         $builder->addNamedField('eventDate', 'datetime', 'event_date');
+        $builder->addNamedField('joinUrl', 'string', 'join_url', true);
         $builder->addContact();
-        $builder->createManyToOne('citrix_product', CitrixProduct::class)
+        $builder->createManyToOne('citrixProduct', CitrixProduct::class)
             ->addJoinColumn('citrix_product_id', 'id', true, false, 'SET NULL')
             ->build();
     }
@@ -149,117 +119,15 @@ class CitrixEvent
      */
     public function getCitrixProduct()
     {
-        return $this->citrix_product;
+        return $this->citrixProduct;
     }
 
     /**
-     * @param CitrixProduct $citrix_product
+     * @param CitrixProduct $citrixProduct
      */
-    public function setCitrixProduct($citrix_product)
+    public function setCitrixProduct($citrixProduct)
     {
-        $this->citrix_product = $citrix_product;
-    }
-
-    /**
-     * @return string
-     */
-    public function getProduct()
-    {
-        return $this->product;
-    }
-
-    /**
-     * @param $product
-     *
-     * @return $this
-     */
-    public function setProduct($product)
-    {
-        $this->product = $product;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * @param string $email
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEventName()
-    {
-        return $this->eventName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEventNameOnly()
-    {
-        $eventName = $this->eventName;
-
-        return substr($eventName, 0, strpos($eventName, '_#'));
-    }
-
-    /**
-     * @return string
-     */
-    public function getEventId()
-    {
-        $eventName = $this->eventName;
-
-        return substr($eventName, strpos($eventName, '_#') + 2);
-    }
-
-    /**
-     * @return string
-     */
-    public function getEventDesc()
-    {
-        $pos = strpos($this->eventDesc, '_!');
-        if (false === $pos) {
-            return $this->eventDesc;
-        }
-
-        return substr($this->eventDesc, 0, $pos);
-    }
-
-    /**
-     * @return string
-     */
-    public function getJoinUrl()
-    {
-        $pos = strpos($this->eventDesc, '_!');
-        if (false === $pos) {
-            return '';
-        }
-
-        return substr($this->eventDesc, $pos + 2);
-    }
-
-    /**
-     * @param $eventName
-     *
-     * @return $this
-     */
-    public function setEventName($eventName)
-    {
-        $this->eventName = $eventName;
-
-        return $this;
+        $this->citrixProduct = $citrixProduct;
     }
 
     /**
@@ -303,15 +171,22 @@ class CitrixEvent
     }
 
     /**
-     * @param $eventDesc
-     *
-     * @return $this
+     * @return mixed
      */
-    public function setEventDesc($eventDesc)
+    public function getJoinUrl()
     {
-        $this->eventDesc = $eventDesc;
-
-        return $this;
+        return $this->joinUrl;
     }
+
+    /**
+     * @param mixed $joinUrl
+     */
+    public function setJoinUrl($joinUrl)
+    {
+        $this->joinUrl = $joinUrl;
+    }
+
+
+
 
 }

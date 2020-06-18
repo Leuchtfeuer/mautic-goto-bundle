@@ -165,7 +165,7 @@ class CitrixEventRepository extends CommonRepository
     }
 
     /**
-     * @return string
+     * @return array
      */
     protected function getDefaultOrder()
     {
