@@ -49,15 +49,15 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * From there, create a OAuth token to use for your Mautic, using the following steps:
 * The client name/description can be chosen freely
 * In "Forwarding URL", enter the "Callback URL" that you wrote down above (from the Mautic Plugin settings)
-* In the permissions tab, give rights for the desired apps e.g. GoToMeeting/Webinar
-* At the end of the process, you will receive the Client ID / Client Secret. Make sure to store the Secret to a secure place immediately, it will not be displayed to you again.
+* In the "Ppermissions" tab, give rights for the desired apps e.g. GoToMeeting/Webinar
+* At the end of the process, you will receive the Client ID and Client Secret. Make sure to store the Secret to a secure place immediately, it will not be displayed to you again.
 
 ## Apply Authorization
-* Paste the Client ID / Client Secret in the plugin settings in Mautic
-* Click "Authorize App" in the plugin settings in Mautic
+* Paste Client ID and Client Secret into the plugin settings in Mautic
+* Now click "Authorize App"
 
 ## Set up Syncing
-* Finally, add Cron job for the syncing (via command line or other):
+* Finally, add Cron job for the syncing:
 
       [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
 
