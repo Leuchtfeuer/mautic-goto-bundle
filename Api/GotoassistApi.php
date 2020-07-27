@@ -4,7 +4,7 @@ namespace MauticPlugin\MauticCitrixBundle\Api;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
 
-class GotoassistApi extends CitrixApi
+class GotoassistApi extends GoToApi
 {
     /**
      * @param string $operation

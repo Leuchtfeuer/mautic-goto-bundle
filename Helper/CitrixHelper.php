@@ -251,6 +251,56 @@ class CitrixHelper
                         return iterator_to_array(self::getAssistPairs($results['sessions']));
                     }
             }
+            //todo remove comment
+            /*if ('webinar' === $listType) {
+                $url    = 'upcomingWebinars';
+                $params = [];
+                if (!$onlyFutures) {
+                    $url                = 'historicalWebinars';
+                    $params['fromTime'] = $fromTime;
+                    $params['toTime']   = $toTime;
+                }
+                $results = self::getG2wApi()->request($url, $params);
+
+                return iterator_to_array(self::getKeyPairs($results, 'webinarID', 'subject'));
+            } else {
+                if ('meeting' === $listType) {
+                    $url    = 'upcomingMeetings';
+                    $params = [];
+                    if (!$onlyFutures) {
+                        $url                 = 'historicalMeetings';
+                        $params['startDate'] = $fromTime;
+                        $params['endDate']   = $toTime;
+                    }
+                    $results = self::getG2mApi()->request($url, $params);
+
+                    return iterator_to_array(self::getKeyPairs($results, 'meetingId', 'subject'));
+                } else {
+                    if ('training' === $listType) {
+                        $results = self::getG2tApi()->request('trainings');
+
+                        return iterator_to_array(self::getKeyPairs($results, 'trainingKey', 'name'));
+                    } else {
+                        if ('assist' === $listType) {
+                            // show sessions in the last month
+                            // times must be in ISO format: YYYY-MM-ddTHH:mm:ssZ
+                            $params = [
+                                'fromTime' => preg_filter(
+                                    '/^(.+)[\+\-].+$/',
+                                    '$1Z',
+                                    date('c', strtotime('-1 month', time()))
+                                ),
+                                'toTime'      => preg_filter('/^(.+)[\+\-].+$/', '$1Z', date('c')),
+                                'sessionType' => 'screen_sharing',
+                            ];
+                            $results = self::getG2aApi()->request('sessions', $params);
+                            if ((array) $results && array_key_exists('sessions', $results)) {
+                                return iterator_to_array(self::getAssistPairs($results['sessions']));
+                            }
+                        }
+                    }
+                }
+            }*/
         } catch (\Exception $ex) {
             self::log($ex->getMessage());
         }

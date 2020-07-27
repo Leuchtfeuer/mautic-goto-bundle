@@ -12,9 +12,9 @@
 namespace MauticPlugin\MauticCitrixBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
-use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -52,7 +52,7 @@ class SyncCommand extends ModeratedCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var CitrixModel $model */
+        /** @var GoToModel $model */
         $model   = $this->getContainer()->get('mautic.citrix.model.citrix');
         $options = $input->getOptions();
         $product = $options['product'];
@@ -64,8 +64,8 @@ class SyncCommand extends ModeratedCommand
         $activeProducts = [];
         if (null === $product) {
             // all products
-            foreach (CitrixProducts::toArray() as $p) {
-                if (CitrixHelper::isAuthorized('Goto'.$p)) {
+            foreach (GoToProductTypes::toArray() as $p) {
+                if (GoToHelper::isAuthorized('Goto'.$p)) {
                     $activeProducts[] = $p;
                 }
             }
@@ -76,7 +76,7 @@ class SyncCommand extends ModeratedCommand
                 return;
             }
         } else {
-            if (!CitrixProducts::isValidValue($product)) {
+            if (!GoToProductTypes::isValidValue($product)) {
                 $output->writeln('<error>Invalid product: '.$product.'. Aborted</error>');
                 $this->completeRun();
 
@@ -94,21 +94,24 @@ class SyncCommand extends ModeratedCommand
             $productIds    = [];
             if (null === $options['id']) {
                 // all products
-                $citrixChoices = CitrixHelper::getCitrixChoices($product, false, true);
+                $citrixChoices = GoToHelper::getCitrixChoices($product, true, true);
                 $productIds    = array_keys($citrixChoices);
             } else {
                 $productIds[]                  = $options['id'];
                 $citrixChoices[$options['id']] = $options['id'];
             }
+            foreach ($productIds as $productId) {
+                $output->writeln('Persisting ['.$productId.'] to DB');
+                $model->syncProduct($product, $citrixChoices[$productId], $output);
+            }
 
             foreach ($productIds as $productId) {
                 try {
                     $eventDesc = $citrixChoices[$productId]['subject'];
-                    $eventName = CitrixHelper::getCleanString(
+                    $eventName = GoToHelper::getCleanString(
                             $eventDesc
                         ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
-                    $model->syncProduct($product, $citrixChoices[$productId], $output);
                     $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
                 } catch (\Exception $ex) {
                     $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');

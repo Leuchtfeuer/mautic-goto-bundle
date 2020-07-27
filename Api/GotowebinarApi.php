@@ -4,23 +4,52 @@ namespace MauticPlugin\MauticCitrixBundle\Api;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
 
-class GotowebinarApi extends CitrixApi
+class GotowebinarApi extends GoToApi
 {
     /**
      * @param string $operation
-     * @param array  $parameters
+     * @param array $parameters
+     * @param string $method
+     *
+     * @param null $organizerKey
+     * @return mixed|string
+     *
+     * @throws ApiErrorException
+     */
+    public function request($operation, array $parameters = [], $method = 'GET', $organizerKey = null)
+    {
+        $settings = [
+            'module' => 'G2W',
+            'method' => $method,
+            'parameters' => $parameters,
+            'requestSettings' => [
+                'headers' => [
+                    'Accept' => 'application/json;charset=UTF-8',
+                ],
+            ],
+        ];
+        if ($organizerKey === null) {
+            $organizerKey = $this->integration->getOrganizerKey();
+        }
+        return $this->_request($operation, $settings,
+            sprintf('rest/v2/organizers/%s', $organizerKey));
+    }
+
+    /**
+     * @param string $operation
+     * @param array $parameters
      * @param string $method
      *
      * @return mixed|string
      *
      * @throws ApiErrorException
      */
-    public function request($operation, array $parameters = [], $method = 'GET')
+    public function requestAllWebinars($operation, array $parameters = [], $method = 'GET')
     {
         $settings = [
-            'module'          => 'G2W',
-            'method'          => $method,
-            'parameters'      => $parameters,
+            'module' => 'G2W',
+            'method' => $method,
+            'parameters' => $parameters,
             'requestSettings' => [
                 'headers' => [
                     'Accept' => 'application/json;charset=UTF-8',
@@ -28,7 +57,7 @@ class GotowebinarApi extends CitrixApi
             ],
         ];
 
-        return parent::_request($operation, $settings,
-            sprintf('rest/v2/organizers/%s', $this->integration->getOrganizerKey()));
+        return $this->_request($operation, $settings,
+            sprintf('rest/v2/accounts/%s', $this->integration->getAccountKey()));
     }
 }

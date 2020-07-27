@@ -12,7 +12,7 @@
 namespace MauticPlugin\MauticCitrixBundle\Tests\Model;
 
 use Mautic\CoreBundle\Test\MauticWebTestCase;
-use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
+use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
 
 class CitrixModelTest extends MauticWebTestCase
 {
@@ -34,7 +34,7 @@ class CitrixModelTest extends MauticWebTestCase
 
     public function testCountEventsBy()
     {
-        /** @var CitrixModel $model */
+        /** @var GoToModel $model */
         $model = $this->container->get('mautic.citrix.model.citrix');
         $count = $model->countEventsBy('webinar', "joe.o'connor@domain.com", 'registered', ['sample-webinar_#0000']);
         $this->assertEquals($count, 1);

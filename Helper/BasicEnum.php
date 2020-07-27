@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticCitrixBundle\Helper;
 
+use Mautic\CoreBundle\Translation\Translator;
 use ReflectionClass;
 
 abstract class BasicEnum
@@ -78,4 +79,18 @@ abstract class BasicEnum
     {
         return array_keys(self::getConstants());
     }
+
+    /**
+     * @return array
+     */
+    public static function getKeyPairs()
+    {
+        $a = (self::getConstants());
+        $a = array_combine($a, $a);
+        /*foreach ($a as $key => $constant){
+            $name = 'plugin.citrix.product.' . $constant;
+        }*/
+        return $a;
+    }
 }
+

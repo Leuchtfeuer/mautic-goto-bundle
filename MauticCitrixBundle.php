@@ -12,7 +12,7 @@
 namespace MauticPlugin\MauticCitrixBundle;
 
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
 
 /**
  * Class MauticCitrixBundle.
@@ -23,6 +23,6 @@ class MauticCitrixBundle extends PluginBundleBase
     {
         parent::boot();
 
-        CitrixHelper::init($this->container->get('mautic.helper.integration'), $this->container->get('monolog.logger.mautic'));
+        GoToHelper::init($this->container->get('mautic.helper.integration'), $this->container->get('monolog.logger.mautic'));
     }
 }

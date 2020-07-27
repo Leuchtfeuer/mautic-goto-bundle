@@ -13,8 +13,8 @@ namespace MauticPlugin\MauticCitrixBundle\Controller;
 
 use Mautic\CoreBundle\Controller\CommonController;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -111,15 +111,15 @@ class PublicController extends CommonController
         $post = $request->request->all();
 
         try {
-            /** @var CitrixModel $citrixModel */
-            $citrixModel = $this->get('mautic.model.factory')->getModel('citrix.citrix');
+            /** @var GoToModel $goToModel */
+            $goToModel = $this->get('mautic.model.factory')->getModel('citrix.citrix');
             $productId   = $post['sessionId'];
             $eventDesc   = sprintf('%s (%s)', $productId, $post['status']);
-            $eventName   = CitrixHelper::getCleanString(
+            $eventName   = GoToHelper::getCleanString(
                     $eventDesc
                 ).'_#'.$productId;
             $product = 'assist';
-            $citrixModel->syncEvent($product, $productId, $eventName, $eventDesc);
+            $goToModel->syncEvent($product, $productId, $eventName, $eventDesc);
         } catch (\Exception $ex) {
             throw new BadRequestHttpException($ex->getMessage());
         }

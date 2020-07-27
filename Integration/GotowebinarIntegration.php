@@ -14,7 +14,7 @@ namespace MauticPlugin\MauticCitrixBundle\Integration;
 /**
  * Class HubspotIntegration.
  */
-class GotowebinarIntegration extends CitrixAbstractIntegration
+class GotowebinarIntegration extends GoToAbstractIntegration
 {
     /**
      * {@inheritdoc}

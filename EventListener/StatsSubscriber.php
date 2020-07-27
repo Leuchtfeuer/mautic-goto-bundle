@@ -34,7 +34,7 @@ class StatsSubscriber extends CommonStatsSubscriber
         $this->addContactRestrictedRepositories(
             $em,
             [
-                'MauticCitrixBundle:CitrixEvent',
+                'MauticCitrixBundle:GoToEvent',
             ]
         );
     }

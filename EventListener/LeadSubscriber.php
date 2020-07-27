@@ -17,11 +17,13 @@ use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersOperatorsEvent;
 use Mautic\LeadBundle\Event\LeadTimelineEvent;
 use Mautic\LeadBundle\LeadEvents;
-use MauticPlugin\MauticCitrixBundle\Entity\CitrixEvent;
-use MauticPlugin\MauticCitrixBundle\Entity\CitrixEventTypes;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
-use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
+use MauticPlugin\MauticCitrixBundle\Entity\GoToEvent;
+use MauticPlugin\MauticCitrixBundle\Entity\GoToEventTypes;
+use MauticPlugin\MauticCitrixBundle\Entity\GoToProduct;
+use MauticPlugin\MauticCitrixBundle\Entity\GoToProductRepository;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
 
 /**
  * Class LeadSubscriber.
@@ -29,16 +31,16 @@ use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
 class LeadSubscriber extends CommonSubscriber
 {
     /**
-     * @var CitrixModel
+     * @var GoToModel
      */
     protected $model;
 
     /**
      * LeadSubscriber constructor.
      *
-     * @param CitrixModel $model
+     * @param GoToModel $model
      */
-    public function __construct(CitrixModel $model)
+    public function __construct(GoToModel $model)
     {
         $this->model = $model;
     }
@@ -73,9 +75,11 @@ class LeadSubscriber extends CommonSubscriber
      */
     public function onTimelineGenerate(LeadTimelineEvent $event)
     {
+        /** @var GoToProductRepository $productRepository */
+        $productRepository = $this->em->getRepository(GoToProduct::class);
         $activeProducts = [];
-        foreach (CitrixProducts::toArray() as $p) {
-            if (CitrixHelper::isAuthorized('Goto'.$p)) {
+        foreach (GoToProductTypes::toArray() as $p) {
+            if (GoToHelper::isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -84,7 +88,7 @@ class LeadSubscriber extends CommonSubscriber
         }
 
         foreach ($activeProducts as $product) {
-            foreach ([CitrixEventTypes::REGISTERED, CitrixEventTypes::ATTENDED] as $type) {
+            foreach ([GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED] as $type) {
                 $eventType = $product.'.'.$type;
                 if (!$event->isApplicable($eventType)) {
                     continue;
@@ -106,26 +110,24 @@ class LeadSubscriber extends CommonSubscriber
                 if (!$event->isEngagementCount()) {
                     if ($citrixEvents['total']) {
                         // Use a single entity class to help parse the name, description, etc without hydrating entities for every single event
-                        $entity = new CitrixEvent();
+                        $entity = new GoToEvent();
 
                         foreach ($citrixEvents['results'] as $citrixEvent) {
-                            $entity->setProduct($citrixEvent['product'])
-                                ->setEventName($citrixEvent['event_name'])
-                                ->setEventDesc($citrixEvent['event_desc'])
-                                ->setEventType($citrixEvent['event_type'])
-                                ->setEventDate($citrixEvent['event_date']);
+                            $entity->setGoToProduct($productRepository->find((int)$citrixEvent['citrix_product_id']));
+                            $entity->setEventType($citrixEvent['event_type']);
+                            $entity->setEventDate($citrixEvent['event_date']);
 
                             $event->addEvent(
                                 [
                                     'event'      => $eventType,
                                     'eventId'    => $eventType.$citrixEvent['id'],
-                                    'eventLabel' => $eventTypeName.' - '.$entity->getEventDesc(),
+                                    'eventLabel' => $eventTypeName,
                                     'eventType'  => $eventTypeLabel,
                                     'timestamp'  => $entity->getEventDate(),
                                     'extra'      => [
-                                        'eventName' => $entity->getEventNameOnly(),
-                                        'eventId'   => $entity->getEventId(),
-                                        'eventDesc' => $entity->getEventDesc(),
+                                        'eventName' => $entity->getGoToProduct()->getName(),
+                                        'eventId'   => $entity->getId(),
+                                        'eventDesc' => $entity->getGoToProduct()->getDescription(),
                                         'joinUrl'   => $entity->getJoinUrl(),
                                     ],
                                     'contentTemplate' => 'MauticCitrixBundle:SubscribedEvents\Timeline:citrix_event.html.php',
@@ -149,8 +151,8 @@ class LeadSubscriber extends CommonSubscriber
     public function onListChoicesGenerate(LeadListFiltersChoicesEvent $event)
     {
         $activeProducts = [];
-        foreach (CitrixProducts::toArray() as $p) {
-            if (CitrixHelper::isAuthorized('Goto'.$p)) {
+        foreach (GoToProductTypes::toArray() as $p) {
+            if (GoToHelper::isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -176,7 +178,7 @@ class LeadSubscriber extends CommonSubscriber
                 $eventNames
             );
 
-            if (in_array($product, [CitrixProducts::GOTOWEBINAR, CitrixProducts::GOTOTRAINING])) {
+            if (in_array($product, [GoToProductTypes::GOTOWEBINAR, GoToProductTypes::GOTOTRAINING])) {
                 $event->addChoice(
                     'lead',
                     $product.'-registration',
@@ -233,8 +235,8 @@ class LeadSubscriber extends CommonSubscriber
     public function onListFiltering(LeadListFilteringEvent $event)
     {
         $activeProducts = [];
-        foreach (CitrixProducts::toArray() as $p) {
-            if (CitrixHelper::isAuthorized('Goto'.$p)) {
+        foreach (GoToProductTypes::toArray() as $p) {
+            if (GoToHelper::isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -249,7 +251,7 @@ class LeadSubscriber extends CommonSubscriber
         $alias             = $event->getAlias();
         $func              = $event->getFunc();
         $currentFilter     = $details['field'];
-        $citrixEventsTable = $em->getClassMetadata('MauticCitrixBundle:CitrixEvent')->getTableName();
+        $citrixEventsTable = $em->getClassMetadata('MauticCitrixBundle:GoToEvent')->getTableName();
 
         foreach ($activeProducts as $product) {
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
@@ -262,7 +264,7 @@ class LeadSubscriber extends CommonSubscriber
                 }, $eventNames);
                 $subQueriesSQL = [];
 
-                $eventTypes = [CitrixEventTypes::REGISTERED, CitrixEventTypes::ATTENDED];
+                $eventTypes = [GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED];
                 foreach ($eventTypes as $k => $eventType) {
                     $query = $em->getConnection()->createQueryBuilder()
                                 ->select('null')
@@ -299,22 +301,22 @@ class LeadSubscriber extends CommonSubscriber
                 switch ($currentFilter) {
                     case $product.'-registration':
                         $event->setSubQuery(
-                            sprintf('%s (%s)', 'in' == $func ? 'EXISTS' : 'NOT EXISTS', $subQueriesSQL[CitrixEventTypes::REGISTERED])
+                            sprintf('%s (%s)', 'in' == $func ? 'EXISTS' : 'NOT EXISTS', $subQueriesSQL[GoToEventTypes::REGISTERED])
                         );
                         break;
 
                     case $product.'-attendance':
                         $event->setSubQuery(
-                            sprintf('%s (%s)', 'in' == $func ? 'EXISTS' : 'NOT EXISTS', $subQueriesSQL[CitrixEventTypes::ATTENDED])
+                            sprintf('%s (%s)', 'in' == $func ? 'EXISTS' : 'NOT EXISTS', $subQueriesSQL[GoToEventTypes::ATTENDED])
                         );
                         break;
 
                     case $product.'-no-attendance':
-                        $queries = [sprintf('%s (%s)', 'in' == $func ? 'NOT EXISTS' : 'EXISTS', $subQueriesSQL[CitrixEventTypes::ATTENDED])];
+                        $queries = [sprintf('%s (%s)', 'in' == $func ? 'NOT EXISTS' : 'EXISTS', $subQueriesSQL[GoToEventTypes::ATTENDED])];
 
-                        if (in_array($product, [CitrixProducts::GOTOWEBINAR, CitrixProducts::GOTOTRAINING])) {
+                        if (in_array($product, [GoToProductTypes::GOTOWEBINAR, GoToProductTypes::GOTOTRAINING])) {
                             // These products track registration
-                            $queries[] = sprintf('EXISTS (%s)', $subQueriesSQL[CitrixEventTypes::REGISTERED]);
+                            $queries[] = sprintf('EXISTS (%s)', $subQueriesSQL[GoToEventTypes::REGISTERED]);
                         }
 
                         $event->setSubQuery(implode(' AND ', $queries));

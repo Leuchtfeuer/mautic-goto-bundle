@@ -73,18 +73,21 @@ return [
         ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
-                'class' => 'MauticPlugin\MauticCitrixBundle\Form\Type\CitrixListType',
+                'class' => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToListType',
                 'alias' => 'citrix_list',
+                'arguments' => [
+                    'mautic.citrix.model.citrix'
+                ]
             ],
             'mautic.form.type.citrix.submitaction' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\CitrixActionType',
+                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToActionType',
                 'alias'     => 'citrix_submit_action',
                 'arguments' => [
                     'mautic.form.model.field',
                 ],
             ],
             'mautic.form.type.citrix.campaignevent' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\CitrixCampaignEventType',
+                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToCampaignEventType',
                 'alias'     => 'citrix_campaign_event',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
@@ -92,16 +95,17 @@ return [
                 ],
             ],
             'mautic.form.type.citrix.campaignaction' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\CitrixCampaignActionType',
+                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToCampaignActionType',
                 'alias'     => 'citrix_campaign_action',
                 'arguments' => [
+                    'mautic.citrix.model.citrix',
                     'translator',
                 ],
             ],
         ],
         'models' => [
             'mautic.citrix.model.citrix' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\Model\CitrixModel',
+                'class'     => \MauticPlugin\MauticCitrixBundle\Model\GoToModel::class,
                 'arguments' => [
                     'mautic.lead.model.lead',
                     'mautic.campaign.model.event',

@@ -15,12 +15,12 @@ use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
-use MauticPlugin\MauticCitrixBundle\CitrixEvents;
-use MauticPlugin\MauticCitrixBundle\Entity\CitrixEvent;
+use MauticPlugin\MauticCitrixBundle\GoToEvents;
+use MauticPlugin\MauticCitrixBundle\Entity\GoToEvent;
 use MauticPlugin\MauticCitrixBundle\Event\TokenGenerateEvent;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
-use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
 
 /**
  * Class EmailSubscriber.
@@ -28,18 +28,18 @@ use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
 class EmailSubscriber extends CommonSubscriber
 {
     /**
-     * @var CitrixModel
+     * @var GoToModel
      */
-    protected $citrixModel;
+    protected $goToModel;
 
     /**
      * FormSubscriber constructor.
      *
-     * @param CitrixModel $citrixModel
+     * @param GoToModel $goToModel
      */
-    public function __construct(CitrixModel $citrixModel)
+    public function __construct(GoToModel $goToModel)
     {
-        $this->citrixModel = $citrixModel;
+        $this->goToModel = $goToModel;
     }
 
     /**
@@ -48,7 +48,7 @@ class EmailSubscriber extends CommonSubscriber
     public static function getSubscribedEvents()
     {
         return [
-            CitrixEvents::ON_CITRIX_TOKEN_GENERATE => ['onTokenGenerate', 254],
+            GoToEvents::ON_GOTO_TOKEN_GENERATE => ['onTokenGenerate', 254],
             EmailEvents::EMAIL_ON_BUILD            => ['onEmailBuild', 0],
             EmailEvents::EMAIL_ON_SEND             => ['decodeTokensSend', 0],
             EmailEvents::EMAIL_ON_DISPLAY          => ['decodeTokensDisplay', 0],
@@ -69,20 +69,16 @@ class EmailSubscriber extends CommonSubscriber
             $params = $event->getParams();
             if (!empty($params['lead'])) {
                 $email  = $params['lead']['email'];
-                $repo   = $this->citrixModel->getRepository();
-                $result = $repo->findBy(
-                    [
-                        'product'   => 'webinar',
-                        'eventType' => 'registered',
-                        'email'     => $email,
-                    ], ['eventDate' => 'DESC'], 1);
+                $repo   = $this->goToModel->getRepository();
+                $result = $repo->findRegisteredByEmail('webinar', $email);
+
                 if (0 !== count($result)) {
-                    /** @var CitrixEvent $ce */
+                    /** @var GoToEvent $ce */
                     $ce = $result[0];
                     $event->setProductLink($ce->getJoinUrl());
                 }
             } else {
-                CitrixHelper::log('Updating webinar token failed! Email not found '.implode(', ', $event->getParams()));
+                GoToHelper::log('Updating webinar token failed! Email not found '.implode(', ', $event->getParams()));
             }
             $event->setProductText($this->translator->trans('plugin.citrix.token.join_webinar'));
         }
@@ -100,7 +96,7 @@ class EmailSubscriber extends CommonSubscriber
         $tokens         = [];
         $activeProducts = [];
         foreach (['meeting', 'training', 'assist', 'webinar'] as $p) {
-            if (CitrixHelper::isAuthorized('Goto'.$p)) {
+            if (GoToHelper::isAuthorized('Goto'.$p)) {
                 $activeProducts[]          = $p;
                 $tokens['{'.$p.'_button}'] = $this->translator->trans('plugin.citrix.token.'.$p.'_button');
                 if ('webinar' === $p) {
@@ -155,15 +151,15 @@ class EmailSubscriber extends CommonSubscriber
     public function decodeTokens(EmailSendEvent $event, $triggerEvent = false)
     {
         $products = [
-            CitrixProducts::GOTOMEETING,
-            CitrixProducts::GOTOTRAINING,
-            CitrixProducts::GOTOASSIST,
-            CitrixProducts::GOTOWEBINAR,
+            GoToProductTypes::GOTOMEETING,
+            GoToProductTypes::GOTOTRAINING,
+            GoToProductTypes::GOTOASSIST,
+            GoToProductTypes::GOTOWEBINAR,
         ];
 
         $tokens = [];
         foreach ($products as $product) {
-            if (CitrixHelper::isAuthorized('Goto'.$product)) {
+            if (GoToHelper::isAuthorized('Goto'.$product)) {
                 $params = [
                     'product'     => $product,
                     'productText' => '',
@@ -176,10 +172,10 @@ class EmailSubscriber extends CommonSubscriber
                 }
 
                 // trigger event to replace the links in the tokens
-                if ($triggerEvent && $this->dispatcher->hasListeners(CitrixEvents::ON_CITRIX_TOKEN_GENERATE)) {
+                if ($triggerEvent && $this->dispatcher->hasListeners(GoToEvents::ON_GOTO_TOKEN_GENERATE)) {
                     $params['lead'] = $event->getLead();
                     $tokenEvent     = new TokenGenerateEvent($params);
-                    $this->dispatcher->dispatch(CitrixEvents::ON_CITRIX_TOKEN_GENERATE, $tokenEvent);
+                    $this->dispatcher->dispatch(GoToEvents::ON_GOTO_TOKEN_GENERATE, $tokenEvent);
                     $params = $tokenEvent->getParams();
                     unset($tokenEvent);
                 }

@@ -15,33 +15,33 @@ use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\CampaignExecutionEvent;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
-use MauticPlugin\MauticCitrixBundle\CitrixEvents;
-use MauticPlugin\MauticCitrixBundle\Entity\CitrixEventTypes;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
-use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
+use MauticPlugin\MauticCitrixBundle\GoToEvents;
+use MauticPlugin\MauticCitrixBundle\Entity\GoToEventTypes;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
 
 /**
  * Class CampaignSubscriber.
  */
 class CampaignSubscriber extends CommonSubscriber
 {
-    use CitrixRegistrationTrait;
-    use CitrixStartTrait;
+    use GoToRegistrationTrait;
+    use GoToStartTrait;
 
     /**
-     * @var CitrixModel
+     * @var GoToModel
      */
-    protected $citrixModel;
+    private $goToModel;
 
     /**
      * CampaignSubscriber constructor.
      *
-     * @param CitrixModel $citrixModel
+     * @param GoToModel $goToModel
      */
-    public function __construct(CitrixModel $citrixModel)
+    public function __construct(GoToModel $goToModel)
     {
-        $this->citrixModel = $citrixModel;
+        $this->goToModel = $goToModel;
     }
 
     /**
@@ -51,14 +51,14 @@ class CampaignSubscriber extends CommonSubscriber
     {
         return [
             CampaignEvents::CAMPAIGN_ON_BUILD       => ['onCampaignBuild', 0],
-            CitrixEvents::ON_CITRIX_WEBINAR_EVENT   => ['onWebinarEvent', 0],
-            CitrixEvents::ON_CITRIX_MEETING_EVENT   => ['onMeetingEvent', 0],
-            CitrixEvents::ON_CITRIX_TRAINING_EVENT  => ['onTrainingEvent', 0],
-            CitrixEvents::ON_CITRIX_ASSIST_EVENT    => ['onAssistEvent', 0],
-            CitrixEvents::ON_CITRIX_WEBINAR_ACTION  => ['onWebinarAction', 0],
-            CitrixEvents::ON_CITRIX_MEETING_ACTION  => ['onMeetingAction', 0],
-            CitrixEvents::ON_CITRIX_TRAINING_ACTION => ['onTrainingAction', 0],
-            CitrixEvents::ON_CITRIX_ASSIST_ACTION   => ['onAssistAction', 0],
+            GoToEvents::ON_GOTO_WEBINAR_EVENT   => ['onWebinarEvent', 0],
+            GoToEvents::ON_GOTO_MEETING_EVENT   => ['onMeetingEvent', 0],
+            GoToEvents::ON_GOTO_TRAINING_EVENT  => ['onTrainingEvent', 0],
+            GoToEvents::ON_GOTO_ASSIST_EVENT    => ['onAssistEvent', 0],
+            GoToEvents::ON_GOTO_WEBINAR_ACTION  => ['onWebinarAction', 0],
+            GoToEvents::ON_GOTO_MEETING_ACTION  => ['onMeetingAction', 0],
+            GoToEvents::ON_GOTO_TRAINING_ACTION => ['onTrainingAction', 0],
+            GoToEvents::ON_GOTO_ASSIST_ACTION   => ['onAssistAction', 0],
         ];
     }
 
@@ -69,7 +69,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onWebinarAction(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixAction(CitrixProducts::GOTOWEBINAR, $event));
+        $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOWEBINAR, $event));
     }
 
     /**
@@ -77,7 +77,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onMeetingAction(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixAction(CitrixProducts::GOTOMEETING, $event));
+        $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOMEETING, $event));
     }
 
     /**
@@ -85,7 +85,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onTrainingAction(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixAction(CitrixProducts::GOTOTRAINING, $event));
+        $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOTRAINING, $event));
     }
 
     /**
@@ -93,7 +93,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onAssistAction(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixAction(CitrixProducts::GOTOASSIST, $event));
+        $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOASSIST, $event));
     }
 
     /**
@@ -104,7 +104,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onCitrixAction($product, CampaignExecutionEvent $event)
     {
-        if (!CitrixProducts::isValidValue($product)) {
+        if (!GoToProductTypes::isValidValue($product)) {
             return false;
         }
 
@@ -115,7 +115,7 @@ class CampaignSubscriber extends CommonSubscriber
         $list     = $config[$product.'-list'];
         $actionId = 'citrix.action.'.$product;
         try {
-            $productlist = CitrixHelper::getCitrixChoices($product);
+            $productlist = $this->goToModel->getProducts($product, new \DateTime('now'), false);
             $products    = [];
 
             foreach ($list as $productId) {
@@ -138,7 +138,7 @@ class CampaignSubscriber extends CommonSubscriber
                 }
             }
         } catch (\Exception $ex) {
-            CitrixHelper::log('onCitrixAction - '.$product.': '.$ex->getMessage());
+            GoToHelper::log('onCitrixAction - '.$product.': '.$ex->getMessage());
         }
 
         return true;
@@ -151,7 +151,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onWebinarEvent(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixEvent(CitrixProducts::GOTOWEBINAR, $event));
+        $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOWEBINAR, $event));
     }
 
     /**
@@ -159,7 +159,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onMeetingEvent(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixEvent(CitrixProducts::GOTOMEETING, $event));
+        $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOMEETING, $event));
     }
 
     /**
@@ -167,7 +167,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onTrainingEvent(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixEvent(CitrixProducts::GOTOTRAINING, $event));
+        $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOTRAINING, $event));
     }
 
     /**
@@ -175,7 +175,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onAssistEvent(CampaignExecutionEvent $event)
     {
-        $event->setResult($this->onCitrixEvent(CitrixProducts::GOTOASSIST, $event));
+        $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOASSIST, $event));
     }
 
     /**
@@ -189,7 +189,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onCitrixEvent($product, CampaignExecutionEvent $event)
     {
-        if (!CitrixProducts::isValidValue($product)) {
+        if (!GoToProductTypes::isValidValue($product)) {
             return false;
         }
 
@@ -200,18 +200,18 @@ class CampaignSubscriber extends CommonSubscriber
         $email    = $event->getLead()->getEmail();
 
         if ('registeredToAtLeast' === $criteria) {
-            $counter = $this->citrixModel->countEventsBy(
+            $counter = $this->goToModel->countEventsBy(
                 $product,
                 $email,
-                CitrixEventTypes::REGISTERED,
+                GoToEventTypes::REGISTERED,
                 $isAny ? [] : $list
             );
         } else {
             if ('attendedToAtLeast' === $criteria) {
-                $counter = $this->citrixModel->countEventsBy(
+                $counter = $this->goToModel->countEventsBy(
                     $product,
                     $email,
-                    CitrixEventTypes::ATTENDED,
+                    GoToEventTypes::ATTENDED,
                     $isAny ? [] : $list
                 );
             } else {
@@ -228,8 +228,8 @@ class CampaignSubscriber extends CommonSubscriber
     public function onCampaignBuild(CampaignBuilderEvent $event)
     {
         $activeProducts = [];
-        foreach (CitrixProducts::toArray() as $p) {
-            if (CitrixHelper::isAuthorized('Goto'.$p)) {
+        foreach (GoToProductTypes::toArray() as $p) {
+            if (GoToHelper::isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -238,17 +238,17 @@ class CampaignSubscriber extends CommonSubscriber
         }
 
         $eventNames = [
-            CitrixProducts::GOTOWEBINAR  => CitrixEvents::ON_CITRIX_WEBINAR_EVENT,
-            CitrixProducts::GOTOMEETING  => CitrixEvents::ON_CITRIX_MEETING_EVENT,
-            CitrixProducts::GOTOTRAINING => CitrixEvents::ON_CITRIX_TRAINING_EVENT,
-            CitrixProducts::GOTOASSIST   => CitrixEvents::ON_CITRIX_ASSIST_EVENT,
+            GoToProductTypes::GOTOWEBINAR  => GoToEvents::ON_GOTO_WEBINAR_EVENT,
+            GoToProductTypes::GOTOMEETING  => GoToEvents::ON_GOTO_MEETING_EVENT,
+            GoToProductTypes::GOTOTRAINING => GoToEvents::ON_GOTO_TRAINING_EVENT,
+            GoToProductTypes::GOTOASSIST   => GoToEvents::ON_GOTO_ASSIST_EVENT,
         ];
 
         $actionNames = [
-            CitrixProducts::GOTOWEBINAR  => CitrixEvents::ON_CITRIX_WEBINAR_ACTION,
-            CitrixProducts::GOTOMEETING  => CitrixEvents::ON_CITRIX_MEETING_ACTION,
-            CitrixProducts::GOTOTRAINING => CitrixEvents::ON_CITRIX_TRAINING_ACTION,
-            CitrixProducts::GOTOASSIST   => CitrixEvents::ON_CITRIX_ASSIST_ACTION,
+            GoToProductTypes::GOTOWEBINAR  => GoToEvents::ON_GOTO_WEBINAR_ACTION,
+            GoToProductTypes::GOTOMEETING  => GoToEvents::ON_GOTO_MEETING_ACTION,
+            GoToProductTypes::GOTOTRAINING => GoToEvents::ON_GOTO_TRAINING_ACTION,
+            GoToProductTypes::GOTOASSIST   => GoToEvents::ON_GOTO_ASSIST_ACTION,
         ];
 
         foreach ($activeProducts as $product) {

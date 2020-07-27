@@ -15,7 +15,7 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticCitrixBundle\Entity\CitrixEvent;
+use MauticPlugin\MauticCitrixBundle\Entity\GoToEvent;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -58,7 +58,7 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
         $this->setReference('lead-citrix', $lead);
 
         // create event
-        $event = new CitrixEvent();
+        $event = new GoToEvent();
         $event->setLead($lead);
         $event->setEventDate($today);
         $event->setProduct('webinar');
