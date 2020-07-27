@@ -9,31 +9,40 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Form\Type;
+namespace MauticPlugin\MauticGoToBundle\Form\Type;
 
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Class CitrixCampaignActionType.
+ * Class GoToCampaignActionType.
  */
-class CitrixCampaignActionType extends AbstractType
+class GoToCampaignActionType extends AbstractType
 {
+
+    /**
+     * @var GoToModel
+     */
+    protected $model;
+
     /**
      * @var TranslatorInterface
      */
     protected $translator;
 
     /**
-     * CitrixCampaignActionType constructor.
+     * GoToCampaignEventType constructor.
      *
+     * @param GoToModel         $model
      * @param TranslatorInterface $translator
      */
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(GoToModel $model, TranslatorInterface $translator)
     {
+        $this->model      = $model;
         $this->translator = $translator;
     }
 
@@ -47,8 +56,8 @@ class CitrixCampaignActionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr']))
-            || !CitrixProducts::isValidValue($options['attr']['data-product'])
-            || !CitrixHelper::isAuthorized('Goto'.$options['attr']['data-product'])
+            || !GoToProductTypes::isValidValue($options['attr']['data-product'])
+            || !GoToHelper::isAuthorized('Goto'.$options['attr']['data-product'])
         ) {
             return;
         }
@@ -79,13 +88,13 @@ class CitrixCampaignActionType extends AbstractType
             ]
         );
 
-        if (CitrixProducts::GOTOASSIST !== $product) {
+        if (GoToProductTypes::GOTOASSIST !== $product) {
             $builder->add(
                 $product.'-list',
                 'choice',
                 [
                     'label'    => $this->translator->trans('plugin.citrix.decision.'.$product.'.list'),
-                    'choices'  => CitrixHelper::getCitrixChoices($product),
+                    'choices'  => $this->model->getProducts($product, new \DateTime('now'), false,false, false),
                     'multiple' => true,
                 ]
             );

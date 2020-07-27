@@ -9,12 +9,12 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Command;
+namespace MauticPlugin\MauticGoToBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;

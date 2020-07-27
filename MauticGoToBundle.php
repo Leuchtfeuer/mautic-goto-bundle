@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle;
+namespace MauticPlugin\MauticGoToBundle;
 
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 
 /**
- * Class MauticCitrixBundle.
+ * Class MauticGoToBundle.
  */
 class MauticGoToBundle extends PluginBundleBase
 {

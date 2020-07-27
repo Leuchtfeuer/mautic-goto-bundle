@@ -9,12 +9,12 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle;
+namespace MauticPlugin\MauticGoToBundle;
 
 /**
  * Class GoToEvents.
  *
- * Events available for MauticCitrixBundle
+ * Events available for MauticGoToBundle
  */
 final class GoToEvents
 {
@@ -147,7 +147,7 @@ final class GoToEvents
     /**
      * The mautic.on_citrix_token_generate event is dispatched before a token is decoded.
      *
-     * The event listener receives a MauticPlugin\MauticCitrixBundle\Event\TokenGenerateEvent instance.
+     * The event listener receives a MauticPlugin\MauticGoToBundle\Event\TokenGenerateEvent instance.
      *
      * @var string
      */
@@ -156,7 +156,7 @@ final class GoToEvents
     /**
      * The mautic.on_citrix_event_update event is dispatched when an event has been updated externally.
      *
-     * The event listener receives a MauticPlugin\MauticCitrixBundle\Event\GoToEventUpdateEvent instance.
+     * The event listener receives a MauticPlugin\MauticGoToBundle\Event\GoToEventUpdateEvent instance.
      *
      * @var string
      */

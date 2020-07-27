@@ -10,26 +10,26 @@
  */
 
 return [
-    'name'        => 'Citrix',
-    'description' => 'Enables integration with Mautic supported Citrix collaboration products.',
+    'name'        => 'GoTo',
+    'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
     'version'     => '1.0',
     'author'      => 'Mautic',
     'routes'      => [
         'public' => [
             'mautic_citrix_proxy' => [
-                'path'       => '/citrix/proxy',
-                'controller' => 'MauticCitrixBundle:Public:proxy',
+                'path'       => '/goto/proxy',
+                'controller' => 'MauticGoToBundle:Public:proxy',
             ],
             'mautic_citrix_sessionchanged' => [
-                'path'       => '/citrix/sessionChanged',
-                'controller' => 'MauticCitrixBundle:Public:sessionChanged',
+                'path'       => '/goto/sessionChanged',
+                'controller' => 'MauticGoToBundle:Public:sessionChanged',
             ],
         ],
     ],
     'services' => [
         'events' => [
             'mautic.citrix.formbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\EventListener\FormSubscriber',
+                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\FormSubscriber',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                     'mautic.form.model.form',
@@ -40,13 +40,13 @@ return [
                 ],
             ],
             'mautic.citrix.leadbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\EventListener\LeadSubscriber',
+                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\LeadSubscriber',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
             ],
             'mautic.citrix.campaignbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\EventListener\CampaignSubscriber',
+                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\CampaignSubscriber',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
@@ -55,39 +55,39 @@ return [
                 ],
             ],
             'mautic.citrix.emailbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\EventListener\EmailSubscriber',
+                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\EmailSubscriber',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
             ],
             'mautic.citrix.stats.subscriber' => [
-                'class'     => \MauticPlugin\MauticCitrixBundle\EventListener\StatsSubscriber::class,
+                'class'     => \MauticPlugin\MauticGoToBundle\EventListener\StatsSubscriber::class,
                 'arguments' => [
                     'doctrine.orm.entity_manager',
                 ],
             ],
             'mautic.citrix.integration.request' => [
-                'class'     => \MauticPlugin\MauticCitrixBundle\EventListener\IntegrationRequestSubscriber::class,
+                'class'     => \MauticPlugin\MauticGoToBundle\EventListener\IntegrationRequestSubscriber::class,
                 'arguments' => [],
             ],
         ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
-                'class' => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToListType',
+                'class' => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToListType',
                 'alias' => 'citrix_list',
                 'arguments' => [
                     'mautic.citrix.model.citrix'
                 ]
             ],
             'mautic.form.type.citrix.submitaction' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToActionType',
+                'class'     => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToActionType',
                 'alias'     => 'citrix_submit_action',
                 'arguments' => [
                     'mautic.form.model.field',
                 ],
             ],
             'mautic.form.type.citrix.campaignevent' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToCampaignEventType',
+                'class'     => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignEventType',
                 'alias'     => 'citrix_campaign_event',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
@@ -95,7 +95,7 @@ return [
                 ],
             ],
             'mautic.form.type.citrix.campaignaction' => [
-                'class'     => 'MauticPlugin\MauticCitrixBundle\Form\Type\GoToCampaignActionType',
+                'class'     => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignActionType',
                 'alias'     => 'citrix_campaign_action',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
@@ -105,7 +105,7 @@ return [
         ],
         'models' => [
             'mautic.citrix.model.citrix' => [
-                'class'     => \MauticPlugin\MauticCitrixBundle\Model\GoToModel::class,
+                'class'     => \MauticPlugin\MauticGoToBundle\Model\GoToModel::class,
                 'arguments' => [
                     'mautic.lead.model.lead',
                     'mautic.campaign.model.event',
@@ -114,22 +114,22 @@ return [
         ],
         'integrations' => [
             'mautic.integration.gotoassist' => [
-                'class'     => \MauticPlugin\MauticCitrixBundle\Integration\GotoassistIntegration::class,
+                'class'     => \MauticPlugin\MauticGoToBundle\Integration\GotoassistIntegration::class,
                 'arguments' => [
                 ],
             ],
             'mautic.integration.gotomeeting' => [
-                'class'     => \MauticPlugin\MauticCitrixBundle\Integration\GotomeetingIntegration::class,
+                'class'     => \MauticPlugin\MauticGoToBundle\Integration\GotomeetingIntegration::class,
                 'arguments' => [
                 ],
             ],
             'mautic.integration.gototraining' => [
-                'class'     => \MauticPlugin\MauticCitrixBundle\Integration\GototrainingIntegration::class,
+                'class'     => \MauticPlugin\MauticGoToBundle\Integration\GototrainingIntegration::class,
                 'arguments' => [
                 ],
             ],
             'mautic.integration.gotowebinar' => [
-                'class'     => \MauticPlugin\MauticCitrixBundle\Integration\GotowebinarIntegration::class,
+                'class'     => \MauticPlugin\MauticGoToBundle\Integration\GotowebinarIntegration::class,
                 'arguments' => [
                 ],
             ],

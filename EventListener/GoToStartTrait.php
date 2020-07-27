@@ -9,12 +9,12 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\EventListener;
+namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Mautic\EmailBundle\Model\EmailModel;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToEventTypes;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait GoToStartTrait
@@ -86,7 +86,7 @@ trait GoToStartTrait
                             ];
 
                             $button = $this->templating->render(
-                                'MauticCitrixBundle:SubscribedEvents\EmailToken:token.html.php',
+                                'MauticGoToBundle:SubscribedEvents\EmailToken:token.html.php',
                                 $params
                             );
                             $content = str_replace('{'.$product.'_button}', $button, $content);

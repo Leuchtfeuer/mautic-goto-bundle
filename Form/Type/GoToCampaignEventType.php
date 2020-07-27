@@ -9,22 +9,22 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Form\Type;
+namespace MauticPlugin\MauticGoToBundle\Form\Type;
 
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
-use MauticPlugin\MauticCitrixBundle\Model\CitrixModel;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Class CitrixCampaignEventType.
+ * Class GoToCampaignEventType.
  */
-class CitrixCampaignEventType extends AbstractType
+class GoToCampaignEventType extends AbstractType
 {
     /**
-     * @var CitrixModel
+     * @var GoToModel
      */
     protected $model;
 
@@ -34,12 +34,12 @@ class CitrixCampaignEventType extends AbstractType
     protected $translator;
 
     /**
-     * CitrixCampaignEventType constructor.
+     * GoToCampaignEventType constructor.
      *
-     * @param CitrixModel         $model
+     * @param GoToModel         $model
      * @param TranslatorInterface $translator
      */
-    public function __construct(CitrixModel $model, TranslatorInterface $translator)
+    public function __construct(GoToModel $model, TranslatorInterface $translator)
     {
         $this->model      = $model;
         $this->translator = $translator;
@@ -55,8 +55,8 @@ class CitrixCampaignEventType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr']))
-            || !CitrixProducts::isValidValue($options['attr']['data-product'])
-            || !CitrixHelper::isAuthorized('Goto'.$options['attr']['data-product'])
+            || !GoToProductTypes::isValidValue($options['attr']['data-product'])
+            || !GoToHelper::isAuthorized('Goto'.$options['attr']['data-product'])
         ) {
             return;
         }
@@ -68,7 +68,7 @@ class CitrixCampaignEventType extends AbstractType
             'attendedToAtLeast' => $this->translator->trans('plugin.citrix.criteria.'.$product.'.attended'),
         ];
 
-        if (CitrixProducts::GOTOWEBINAR === $product || CitrixProducts::GOTOTRAINING === $product) {
+        if (GoToProductTypes::GOTOWEBINAR === $product || GoToProductTypes::GOTOTRAINING === $product) {
             $choices['registeredToAtLeast'] =
                 $this->translator->trans('plugin.citrix.criteria.'.$product.'.registered');
         }

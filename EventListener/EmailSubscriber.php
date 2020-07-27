@@ -9,18 +9,18 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\EventListener;
+namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
-use MauticPlugin\MauticCitrixBundle\GoToEvents;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToEvent;
-use MauticPlugin\MauticCitrixBundle\Event\TokenGenerateEvent;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
+use MauticPlugin\MauticGoToBundle\GoToEvents;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
+use MauticPlugin\MauticGoToBundle\Event\TokenGenerateEvent;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 
 /**
  * Class EmailSubscriber.
@@ -181,7 +181,7 @@ class EmailSubscriber extends CommonSubscriber
                 }
 
                 $button = $this->templating->render(
-                    'MauticCitrixBundle:SubscribedEvents\EmailToken:token.html.php',
+                    'MauticGoToBundle:SubscribedEvents\EmailToken:token.html.php',
                     $params
                 );
 

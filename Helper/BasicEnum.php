@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Helper;
+namespace MauticPlugin\MauticGoToBundle\Helper;
 
 use Mautic\CoreBundle\Translation\Translator;
 use ReflectionClass;

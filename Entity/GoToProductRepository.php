@@ -1,11 +1,11 @@
 <?php
 
 
-namespace MauticPlugin\MauticCitrixBundle\Entity;
+namespace MauticPlugin\MauticGoToBundle\Entity;
 
 
 use Mautic\CoreBundle\Entity\CommonRepository;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticCrmBundle\Integration\Salesforce\QueryBuilder;
 
 class GoToProductRepository extends CommonRepository

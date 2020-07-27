@@ -1,10 +1,10 @@
 <?php
 
-namespace MauticPlugin\MauticCitrixBundle\Api;
+namespace MauticPlugin\MauticGoToBundle\Api;
 
 use Joomla\Http\Response;
 use Mautic\PluginBundle\Exception\ApiErrorException;
-use MauticPlugin\MauticCitrixBundle\Integration\GoToAbstractIntegration;
+use MauticPlugin\MauticGoToBundle\Integration\GoToAbstractIntegration;
 
 class GoToApi
 {

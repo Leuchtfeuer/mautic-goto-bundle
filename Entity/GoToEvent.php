@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Entity;
+namespace MauticPlugin\MauticGoToBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\MauticCrmBundle\Integration\Salesforce\Object\Contact;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToEventRepository;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEventRepository;
 
 /**
  * @ORM\Table(name="plugin_citrix_events")

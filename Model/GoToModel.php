@@ -9,22 +9,21 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Model;
+namespace MauticPlugin\MauticGoToBundle\Model;
 
 use Mautic\CampaignBundle\Executioner\Scheduler\Mode\DateTime;
 use Mautic\CampaignBundle\Model\EventModel;
 use Mautic\CoreBundle\Model\FormModel;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
-use MauticPlugin\MauticCitrixBundle\GoToEvents;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToEvent;
-use MauticPlugin\MauticCitrixBundle\Entity\CitrixEventSubscriber;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToEventTypes;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToProduct;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToProductRepository;
-use MauticPlugin\MauticCitrixBundle\Event\GoToEventUpdateEvent;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\GoToEvents;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
+use MauticPlugin\MauticGoToBundle\Entity\GoToProduct;
+use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
+use MauticPlugin\MauticGoToBundle\Event\GoToEventUpdateEvent;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -57,7 +56,7 @@ class GoToModel extends FormModel
     /**
      * {@inheritdoc}
      *
-     * @return \MauticPlugin\MauticCitrixBundle\Entity\GoToEventRepository
+     * @return \MauticPlugin\MauticGoToBundle\Entity\GoToEventRepository
      */
     public function getRepository()
     {
@@ -166,7 +165,7 @@ class GoToModel extends FormModel
             return []; // is not a valid citrix product
         }
         $dql = sprintf(
-            "SELECT DISTINCT(c.eventName) FROM MauticCitrixBundle:GoToEvent c WHERE c.product='%s'",
+            "SELECT DISTINCT(c.eventName) FROM MauticGoToBundle:GoToEvent c WHERE c.product='%s'",
             $product
         );
         $query = $this->em->createQuery($dql);
@@ -191,7 +190,7 @@ class GoToModel extends FormModel
             return []; // is not a valid citrix product
         }
         $dql = sprintf(
-            "SELECT DISTINCT c.name, c.description FROM MauticCitrixBundle:GoToProduct c WHERE c.product='%s'",
+            "SELECT DISTINCT c.name, c.description FROM MauticGoToBundle:GoToProduct c WHERE c.product='%s'",
             $product
         );
         $query = $this->em->createQuery($dql);
@@ -232,7 +231,7 @@ class GoToModel extends FormModel
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return 0; // is not a valid citrix product
         }
-        $dql = 'SELECT COUNT(c.id) as cant FROM MauticCitrixBundle:GoToEvent c ' .
+        $dql = 'SELECT COUNT(c.id) as cant FROM MauticGoToBundle:GoToEvent c ' .
             ' WHERE c.product=:product and c.email=:email AND c.eventType=:eventType ';
 
         if (0 !== count($eventNames)) {

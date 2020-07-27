@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Form\Type;
+namespace MauticPlugin\MauticGoToBundle\Form\Type;
 
 use Mautic\FormBundle\Model\FieldModel;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\CitrixProducts;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * Class FormFieldSelectType.
  */
-class CitrixActionType extends AbstractType
+class GoToActionType extends AbstractType
 {
     /**
      * @var FieldModel
@@ -29,7 +29,7 @@ class CitrixActionType extends AbstractType
     protected $model;
 
     /**
-     * CitrixActionType constructor.
+     * GoToActionType constructor.
      *
      * @param FieldModel $fieldModel
      */
@@ -50,8 +50,8 @@ class CitrixActionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr'])) ||
-            !CitrixProducts::isValidValue($options['attr']['data-product']) ||
-            !CitrixHelper::isAuthorized('Goto'.$options['attr']['data-product'])
+            !GoToProductTypes::isValidValue($options['attr']['data-product']) ||
+            !GoToHelper::isAuthorized('Goto'.$options['attr']['data-product'])
         ) {
             return;
         }
@@ -71,7 +71,7 @@ class CitrixActionType extends AbstractType
                         function ($p) {
                             return 'plugin.citrix.select.'.$p;
                         },
-                        CitrixProducts::toArray()
+                        GoToProductTypes::toArray()
                     )
                 ),
                 true
@@ -88,7 +88,7 @@ class CitrixActionType extends AbstractType
             $products = [
                 'form' => 'User selection from form',
             ];
-            $products = array_replace($products, CitrixHelper::getCitrixChoices($product));
+            $products = array_replace($products, GoToHelper::getCitrixChoices($product));
 
             $builder->add(
                 'product',

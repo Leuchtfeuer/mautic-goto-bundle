@@ -1,6 +1,6 @@
 <?php
 
-namespace MauticPlugin\MauticCitrixBundle\Api;
+namespace MauticPlugin\MauticGoToBundle\Api;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
 

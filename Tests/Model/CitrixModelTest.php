@@ -9,10 +9,10 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Tests\Model;
+namespace MauticPlugin\MauticGoToBundle\Tests\Model;
 
 use Mautic\CoreBundle\Test\MauticWebTestCase;
-use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 
 class CitrixModelTest extends MauticWebTestCase
 {
@@ -25,7 +25,7 @@ class CitrixModelTest extends MauticWebTestCase
         $fixturesDir = __DIR__.'/../DataFixtures/ORM';
 
         if (file_exists($fixturesDir)) {
-            $classPrefix = 'MauticPlugin\\MauticCitrixBundle\\Tests\\DataFixtures\\ORM\\';
+            $classPrefix = 'MauticPlugin\\MauticGoToBundle\\Tests\\DataFixtures\\ORM\\';
             $this->populateFixturesFromDirectory($fixturesDir, $fixtures, $classPrefix, $returnClassNames);
         }
 

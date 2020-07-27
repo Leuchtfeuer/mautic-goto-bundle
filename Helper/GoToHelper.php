@@ -9,16 +9,16 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Helper;
+namespace MauticPlugin\MauticGoToBundle\Helper;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
-use MauticPlugin\MauticCitrixBundle\Api\GotoassistApi;
-use MauticPlugin\MauticCitrixBundle\Api\GotomeetingApi;
-use MauticPlugin\MauticCitrixBundle\Api\GototrainingApi;
-use MauticPlugin\MauticCitrixBundle\Api\GotowebinarApi;
-use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
+use MauticPlugin\MauticGoToBundle\Api\GotoassistApi;
+use MauticPlugin\MauticGoToBundle\Api\GotomeetingApi;
+use MauticPlugin\MauticGoToBundle\Api\GototrainingApi;
+use MauticPlugin\MauticGoToBundle\Api\GotowebinarApi;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -56,7 +56,7 @@ class GoToHelper
     {
         static $g2mapi;
         if (null === $g2mapi) {
-            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotomeetingApi';
+            $class = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotomeetingApi';
             $g2mapi = new $class(self::getIntegration('Gotomeeting'));
         }
 
@@ -72,7 +72,7 @@ class GoToHelper
     {
         static $g2wapi;
         if (null === $g2wapi) {
-            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotowebinarApi';
+            $class = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotowebinarApi';
             $g2wapi = new $class(self::getIntegration('Gotowebinar'));
         }
 
@@ -88,7 +88,7 @@ class GoToHelper
     {
         static $g2tapi;
         if (null === $g2tapi) {
-            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GototrainingApi';
+            $class = '\\MauticPlugin\\MauticGoToBundle\\Api\\GototrainingApi';
             $g2tapi = new $class(self::getIntegration('Gototraining'));
         }
 
@@ -104,7 +104,7 @@ class GoToHelper
     {
         static $g2aapi;
         if (null === $g2aapi) {
-            $class = '\\MauticPlugin\\MauticCitrixBundle\\Api\\GotoassistApi';
+            $class = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotoassistApi';
             $g2aapi = new $class(self::getIntegration('Gotoassist'));
         }
 

@@ -9,12 +9,12 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Controller;
+namespace MauticPlugin\MauticGoToBundle\Controller;
 
 use Mautic\CoreBundle\Controller\CommonController;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
-use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

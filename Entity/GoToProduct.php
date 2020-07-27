@@ -1,12 +1,12 @@
 <?php
 
 
-namespace MauticPlugin\MauticCitrixBundle\Entity;
+namespace MauticPlugin\MauticGoToBundle\Entity;
 
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToProductRepository;
+use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
 
 class GoToProduct implements \JsonSerializable
 {
@@ -85,6 +85,7 @@ class GoToProduct implements \JsonSerializable
         $builder->addNamedField('author', 'text', 'author', true);
         $builder->addNamedField('language', 'text', 'language', true);
         $builder->addNamedField('duration', 'text', 'duration', true);
+
 
 
     }

@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\EventListener;
+namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Doctrine\Common\Collections\Collection;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
@@ -26,10 +26,10 @@ use Mautic\FormBundle\Model\SubmissionModel;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Event\PluginIntegrationRequestEvent;
 use Mautic\PluginBundle\PluginEvents;
-use MauticPlugin\MauticCitrixBundle\GoToEvents;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
+use MauticPlugin\MauticGoToBundle\GoToEvents;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -550,7 +550,7 @@ class FormSubscriber extends CommonSubscriber
             $field = [
                 'label'    => 'plugin.citrix.'.$product.'.listfield',
                 'formType' => 'citrix_list',
-                'template' => 'MauticCitrixBundle:Field:citrixlist.html.php',
+                'template' => 'MauticGoToBundle:Field:citrixlist.html.php',
                 'listType' => $product,
                 'product_choices' => $this->citrixModel->getProducts($product, null, null, null, true),
             ];

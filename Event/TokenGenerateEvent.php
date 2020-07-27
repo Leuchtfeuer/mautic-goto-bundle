@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\Event;
+namespace MauticPlugin\MauticGoToBundle\Event;
 
 use Mautic\CoreBundle\Event\CommonEvent;
 

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace MauticPlugin\MauticCitrixBundle\Helper;
+namespace MauticPlugin\MauticGoToBundle\Helper;
 
 
 class GoToDetailKeywords extends BasicEnum

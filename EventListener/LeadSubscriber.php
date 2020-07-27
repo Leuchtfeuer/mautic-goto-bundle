@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticCitrixBundle\EventListener;
+namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\Event\LeadListFilteringEvent;
@@ -17,13 +17,13 @@ use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersOperatorsEvent;
 use Mautic\LeadBundle\Event\LeadTimelineEvent;
 use Mautic\LeadBundle\LeadEvents;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToEvent;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToEventTypes;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToProduct;
-use MauticPlugin\MauticCitrixBundle\Entity\GoToProductRepository;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
-use MauticPlugin\MauticCitrixBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticCitrixBundle\Model\GoToModel;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
+use MauticPlugin\MauticGoToBundle\Entity\GoToProduct;
+use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
+use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 
 /**
  * Class LeadSubscriber.
@@ -130,7 +130,7 @@ class LeadSubscriber extends CommonSubscriber
                                         'eventDesc' => $entity->getGoToProduct()->getDescription(),
                                         'joinUrl'   => $entity->getJoinUrl(),
                                     ],
-                                    'contentTemplate' => 'MauticCitrixBundle:SubscribedEvents\Timeline:citrix_event.html.php',
+                                    'contentTemplate' => 'MauticGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
                                     'contactId'       => $citrixEvent['lead_id'],
                                 ]
                             );
@@ -251,7 +251,7 @@ class LeadSubscriber extends CommonSubscriber
         $alias             = $event->getAlias();
         $func              = $event->getFunc();
         $currentFilter     = $details['field'];
-        $citrixEventsTable = $em->getClassMetadata('MauticCitrixBundle:GoToEvent')->getTableName();
+        $citrixEventsTable = $em->getClassMetadata('MauticGoToBundle:GoToEvent')->getTableName();
 
         foreach ($activeProducts as $product) {
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
