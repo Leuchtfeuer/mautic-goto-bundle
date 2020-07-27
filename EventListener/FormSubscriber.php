@@ -402,6 +402,11 @@ class FormSubscriber extends CommonSubscriber
 
     public function onFormSubmit(SubmissionEvent $event)
     {
+        /**
+         * Hacked way to get the register Process working. Somehow the SubmitAction-Event for the specific Webinar-Form
+         * doesn't get triggered, so currently it's only working this way. which means also there's no functionality
+         * for Meeting/Assist/Training
+         */
         $this->onWebinarRegister($event);
     }
 
