@@ -9,14 +9,14 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-use MauticPlugin\MauticCitrixBundle\Helper\GoToDetailKeywords;
+use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 
 $listType = '';
 if (isset($field['customParameters']['listType'])) {
     $listType = $field['customParameters']['listType'];
 }
-/** @var \MauticPlugin\MauticCitrixBundle\Model\GoToModel $citrixModel */
-$citrixModel = $view->container->get(\MauticPlugin\MauticCitrixBundle\Model\GoToModel::class);
+/** @var \MauticPlugin\MauticGoToBundle\Model\GoToModel $citrixModel */
+$citrixModel = $view->container->get(\MauticPlugin\MauticGoToBundle\Model\GoToModel::class);
 $list = $citrixModel->getProducts("webinar", true, null, false, true);
 
 $new_list = [];
