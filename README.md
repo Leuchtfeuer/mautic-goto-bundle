@@ -1,6 +1,6 @@
 # GoTo (ex Citrix) integration for Mautic with GoToWebinar & Co.
 
-We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoToTraining plugin - formerly known as "Citrix plugin") a complete overhaul. It now comes with a bunch of new and previously missing features; highlights include
+We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoToTraining - formerly known as "Citrix plugin") a complete overhaul. It now comes with a bunch of new and previously missing features; highlights include
 - Editor can offer selected webinars in form, rather than "all current"
 - Support for recurring webinars (called "sessions" in GoToWebinar)
 - Honours events from multiple organizer accounts in GoToWebinar
