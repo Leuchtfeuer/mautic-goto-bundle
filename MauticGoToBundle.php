@@ -17,7 +17,7 @@ use MauticPlugin\MauticCitrixBundle\Helper\GoToHelper;
 /**
  * Class MauticCitrixBundle.
  */
-class MauticCitrixBundle extends PluginBundleBase
+class MauticGoToBundle extends PluginBundleBase
 {
     public function boot()
     {
