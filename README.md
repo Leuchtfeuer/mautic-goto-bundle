@@ -45,8 +45,8 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Open the desired plugin (e.g. GoToWebinar) and write down the "Callback URL" from the grey box
     
 ## Authorization in GoTo Dev Account
-* Go to https://developer.logmeininc.com/clients with your main account in GoToWebinar (not just an organizer account)
-* From there, create a OAuth token at  to use for your Mautic, using the following steps:
+* Go to https://developer.logmeininc.com/clients - using your main account in GoToWebinar (not just an organizer account!)
+* From there, create a OAuth token to use for your Mautic, using the following steps:
 * The client name/description can be chosen freely
 * In "Forwarding URL", enter the "Callback URL" that you wrote down above (from the Mautic Plugin settings)
 * In the permissions tab, give rights for the desired apps e.g. GoToMeeting/Webinar
