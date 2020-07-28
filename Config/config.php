@@ -12,16 +12,16 @@
 return [
     'name'        => 'GoTo',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '1.0',
+    'version'     => '1.1',
     'author'      => 'Mautic',
     'routes'      => [
         'public' => [
             'mautic_citrix_proxy' => [
-                'path'       => '/goto/proxy',
+                'path'       => '/citrix/proxy',
                 'controller' => 'MauticGoToBundle:Public:proxy',
             ],
             'mautic_citrix_sessionchanged' => [
-                'path'       => '/goto/sessionChanged',
+                'path'       => '/citrix/sessionChanged',
                 'controller' => 'MauticGoToBundle:Public:sessionChanged',
             ],
         ],

@@ -35,7 +35,7 @@ class CitrixModelTest extends MauticWebTestCase
     public function testCountEventsBy()
     {
         /** @var GoToModel $model */
-        $model = $this->container->get('mautic.citrix.model.citrix');
+        $model = $this->container->get(GoToModel::class);
         $count = $model->countEventsBy('webinar', "joe.o'connor@domain.com", 'registered', ['sample-webinar_#0000']);
         $this->assertEquals($count, 1);
     }

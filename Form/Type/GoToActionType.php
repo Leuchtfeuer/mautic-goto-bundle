@@ -88,7 +88,7 @@ class GoToActionType extends AbstractType
             $products = [
                 'form' => 'User selection from form',
             ];
-            $products = array_replace($products, GoToHelper::getCitrixChoices($product));
+            $products = array_replace($products, GoToHelper::getGoToChoices($product));
 
             $builder->add(
                 'product',

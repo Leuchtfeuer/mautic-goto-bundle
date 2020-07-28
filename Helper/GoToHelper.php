@@ -194,7 +194,7 @@ class GoToHelper
      *
      * @return array
      */
-    public static function getCitrixChoices($listType, $onlyFutures = true, $withDetails = false)
+    public static function getGoToChoices($listType, $onlyFutures = true, $withDetails = false)
     {
         try {
             // Check if integration is enabled

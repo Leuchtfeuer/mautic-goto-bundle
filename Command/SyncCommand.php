@@ -20,9 +20,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * CLI Command : Synchronizes registrant information from Citrix products.
+ * CLI Command : Synchronizes registrant information from GoTo products.
  *
- * php app/console mautic:citrix:sync [--product=webinar|meeting|assist|training [--id=%productId%]]
+ * php app/console mautic:goto:sync [--product=webinar|meeting|assist|training [--id=%productId%]]
  */
 class SyncCommand extends ModeratedCommand
 {
@@ -94,7 +94,7 @@ class SyncCommand extends ModeratedCommand
             $productIds    = [];
             if (null === $options['id']) {
                 // all products
-                $citrixChoices = GoToHelper::getCitrixChoices($product, true, true);
+                $citrixChoices = GoToHelper::getGoToChoices($product, true, true);
                 $productIds    = array_keys($citrixChoices);
             } else {
                 $productIds[]                  = $options['id'];
