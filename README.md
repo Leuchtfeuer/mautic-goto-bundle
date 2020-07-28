@@ -21,7 +21,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Verify existing status, "nothing to update" should show up.
 
       cd [path-to-your-mautic]
-      php app/console doctrine:schema:update
+      sudo -u www-data php app/console doctrine:schema:update
       
 * Remove the existing plugin files and clear cache (the hard way!)
 
@@ -38,7 +38,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       mv mautic-goto-bundle-master [path-to-mautic]/plugins/MauticGoToBundle
       cd [path-to-your-mautic]
       rm -rf app/cache/prod/*
-      php app/console doctrine:schema:update --force
+      sudo -u www-data php  app/console doctrine:schema:update --force
       
             
 * In the Browser, go to "Settings" -> "Plugins" in the Mautic-Backend, klick on "Install/Update Plugins". The various "GoTo" cards appear in the Plugin list.
