@@ -21,7 +21,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Verify existing status, "nothing to update" should show up.
 
       cd [path-to-your-mautic]
-      sudo -u www-data php app/console doctrine:schema:update
+      sudo -u www-data php app/console doctrine:schema:update --dump-sql
       
 * Remove the existing plugin files and clear cache (the hard way!)
 
