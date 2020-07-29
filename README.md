@@ -26,7 +26,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Remove the existing plugin files and clear cache
 
       sudo -u www-data php app/console cache:clear
-      mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.old
+      mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
 ## Installation
 * Download the plugin, say to you home directory, e.g. using wget, and prepare it
