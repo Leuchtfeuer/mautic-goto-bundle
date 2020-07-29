@@ -197,14 +197,14 @@ class GoToModel extends FormModel
         $items = $query->getResult();
         $result = [];
         foreach ($items as $item) {
-            $eventDesc = $item['eventDesc'];
+            $eventDesc = $item['description'];
             // strip joinUrl if exists
             $pos = strpos($eventDesc, '_!');
             if (false !== $pos) {
                 $eventDesc = substr($eventDesc, 0, $pos);
             }
             // filter events with same id
-            $eventId = $item['eventName'];
+            $eventId = $item['name'];
             $pos = strpos($eventId, '_#');
             $eventId = substr($eventId, $pos);
             foreach ($result as $k => $v) {
@@ -212,7 +212,7 @@ class GoToModel extends FormModel
                     unset($result[$k]);
                 }
             }
-            $result[$item['eventName']] = $eventDesc;
+            $result[$item['name']] = $eventDesc;
         }
 
         return $result;
