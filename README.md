@@ -11,8 +11,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 - Caching of GoTo data - thus no wait time, no more "API calls exceeded" issues
 
 ## Requirements
-* Mautic Version 2.16.x (Mautic 3 support expected in 08/2020)
-
+* Mautic Version 2 (Mautic 3 support expected in 08/2020)
 * Command line access
 
 ## Preparations
