@@ -168,8 +168,6 @@ HTML;
             if ($testList !== null){
                 $optionsHtml = $optionBuilder($testList, $emptyOption);
 
-                $containerAttr = preg_replace('/" /m', $key.'" ',$containerAttr);
-                //$inputAttr = preg_replace('/]" /m', $key.'][]s" ',$inputAttr);
                 $html = <<<HTML
             <div $containerAttr>
                 <div $containerAttr>{$description}</div>
