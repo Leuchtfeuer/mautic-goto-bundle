@@ -24,7 +24,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       sudo -u www-data php app/console cache:clear
   This should give you "Nothing to update".
   
-* Remove the existing plugin files and 
+* Remove the existing plugin files and save them to home directory
 
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
