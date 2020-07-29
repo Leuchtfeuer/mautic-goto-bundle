@@ -30,14 +30,29 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.old
     
 ## Installation
-* Download the plugin, unpack the file, rename the directory and move it to the plugin directory of the Mautic installation... and clear cache (the hard way :)
-
+* Download the plugin, say to you home directory, e.g. using wget, and prepare it
+  
+      cd ~
       wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/master.zip
       unzip mautic-goto-bundle-master.zip
       chown -R www-data:www-data mautic-goto-bundle-master   [assuming that your web server uses the "www-data" account]
-      mv mautic-goto-bundle-master [path-to-mautic]/plugins/MauticGoToBundle
+      mv mautic-goto-bundle-master MauticGoToBundle
+
+* copy plugin to the Mautic installation
+
       cd [path-to-your-mautic]
-      rm -rf app/cache/prod/*
+      cp -rp ~/MauticGoToBundle plugins/MauticGoToBundle
+      
+* Create symlink (needed due to hard reference in core)
+
+      mkdir -p plugins/MauticCitrixBundle/Helper/
+      cd plugins/MauticCitrixBundle/Helper/
+      ln -s ../../MauticGoToBundle/Helper/CitrixHelper.php .
+      cd -
+      
+* Cleanup (the hard way :)
+
+      rm -rf app/cache/*
       sudo -u www-data php app/console cache:clear
       sudo -u www-data php  app/console doctrine:schema:update --force
       
@@ -58,11 +73,17 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Now click "Authorize App", log in to GoToWebinar (if requested), and confirm
 
 ## Set up Syncing
-* Finally, add Cron job for the syncing:
+* Try a first manual Sync: 
+
+      cd [path-to-your-mautic]
+      sudo -u www-data php  app/console mautic:goto:sync
+
+* Add Cron job for the syncing:
 
       [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
 
-We suggest to do the sync every 15 minutes. If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
+We suggest to do the sync every 15 minutes.
+If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
 
 ## Using the plugin
 
