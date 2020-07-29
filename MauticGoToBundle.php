@@ -72,20 +72,6 @@ class MauticGoToBundle extends PluginBundleBase
 
     }
 
-    /**
-     * Called by PluginController::reloadAction when the plugin version does not match what's installed
-     *
-     * @param Plugin        $plugin
-     * @param MauticFactory $factory
-     * @param null          $metadata
-     * @param Schema        $installedSchema
-     *
-     * @throws Exception
-     */
-    public static function onPluginUpdate(Plugin $plugin, MauticFactory $factory, $metadata = null, Schema $installedSchema = null)
-    {
-
-    }
 
     public function boot()
     {
