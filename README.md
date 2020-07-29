@@ -34,13 +34,13 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       cd ~
       wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/master.zip
       unzip mautic-goto-bundle-master.zip
-      chown -R www-data:www-data mautic-goto-bundle-master   [assuming that your web server uses the "www-data" account]
       mv mautic-goto-bundle-master MauticGoToBundle
 
 * copy plugin to the Mautic installation
 
       cd [path-to-your-mautic]
       cp -rp ~/MauticGoToBundle plugins/MauticGoToBundle
+      chown -R www-data:www-data plugins/MauticGoToBundle   [assuming that your web server uses the "www-data" account]
       
 * Create symlink (needed due to hard reference in core)
 
