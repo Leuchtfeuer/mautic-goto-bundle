@@ -17,15 +17,15 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 ## Preparations
 * If you have preexisting data: There is no migration as of today! You need to backup any data that you may still need, and to manually clean the database table plugin_citrix_events.
 
-* Verify existing status, "nothing to update" should show up.
+* Verify existing status, "nothing to update" should show up. Clear cache.
 
       cd [path-to-your-mautic]
       sudo -u www-data php app/console doctrine:schema:update --force
+      sudo -u www-data php app/console cache:clear
   This should give you "Nothing to update".
   
-* Remove the existing plugin files and clear cache
+* Remove the existing plugin files and 
 
-      sudo -u www-data php app/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
 ## Installation
@@ -40,7 +40,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 
       cd [path-to-your-mautic]
       cp -rp ~/MauticGoToBundle plugins/MauticGoToBundle
-      chown -R www-data:www-data plugins/MauticGoToBundle   [assuming that your web server uses the "www-data" account]
+      chown -R www-data:www-data plugins/MauticGoToBundle   #assuming that your web server uses the "www-data" account
       
 * Create symlink (needed due to hard reference in core)
 
