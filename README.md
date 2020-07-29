@@ -21,16 +21,16 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Verify existing status, "nothing to update" should show up.
 
       cd [path-to-your-mautic]
-      sudo -u www-data php app/console doctrine:schema:update --dump-sql
-      
-* Remove the existing plugin files and clear cache (the hard way!)
+      sudo -u www-data php app/console doctrine:schema:update --force
+  This should give you "Nothing to update".
+  
+* Remove the existing plugin files and clear cache
 
-      cd [path-to-your-mautic]
+      sudo -u www-data php app/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.old
-      rm -rf app/cache/prod/*
     
 ## Installation
-* Download the plugin, unpack the file, rename the directory and move it to the plugin directory of the Mautic installation... and clear cache.
+* Download the plugin, unpack the file, rename the directory and move it to the plugin directory of the Mautic installation... and clear cache (the hard way :)
 
       wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/master.zip
       unzip mautic-goto-bundle-master.zip
@@ -38,6 +38,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       mv mautic-goto-bundle-master [path-to-mautic]/plugins/MauticGoToBundle
       cd [path-to-your-mautic]
       rm -rf app/cache/prod/*
+      sudo -u www-data php app/console cache:clear
       sudo -u www-data php  app/console doctrine:schema:update --force
       
             
@@ -49,17 +50,17 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * From there, create a OAuth token to use for your Mautic, using the following steps:
 * The client name/description can be chosen freely
 * In "Forwarding URL", enter the "Callback URL" that you wrote down above (from the Mautic Plugin settings)
-* In the "Permissions" tab, give rights for the desired apps e.g. GoToMeeting/Webinar
+* In the "Permissions" setp, give rights for the desired apps e.g. GoToMeeting/Webinar
 * At the end of the process, you will receive the Client ID and Client Secret. Make sure to store the Secret to a secure place immediately, it will not be displayed to you again.
 
 ## Apply Authorization
 * Paste Client ID and Client Secret into the plugin settings in Mautic
-* Now click "Authorize App"
+* Now click "Authorize App", log in to GoToWebinar (if requested), and confirm
 
 ## Set up Syncing
 * Finally, add Cron job for the syncing:
 
-      [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
+      [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
 
 We suggest to do the sync every 15 minutes. If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
 
