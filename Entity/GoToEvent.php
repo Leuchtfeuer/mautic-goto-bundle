@@ -39,7 +39,7 @@ class GoToEvent
      * @var GoToProduct
      */
 
-    protected $goToProduct;
+    protected $citrixProduct;
 
     /**
      * @ORM\Column(name="event_type", type="string", length=50)
@@ -78,7 +78,7 @@ class GoToEvent
         $builder->addNamedField('eventDate', 'datetime', 'event_date');
         $builder->addNamedField('joinUrl', 'string', 'join_url', true);
         $builder->addContact();
-        $builder->createManyToOne('goToProduct', GoToProduct::class)
+        $builder->createManyToOne('citrixProduct', GoToProduct::class)
             ->addJoinColumn('citrix_product_id', 'id', true, false, 'SET NULL')
             ->build();
     }
@@ -120,15 +120,15 @@ class GoToEvent
      */
     public function getGoToProduct()
     {
-        return $this->goToProduct;
+        return $this->citrixProduct;
     }
 
     /**
-     * @param GoToProduct $goToProduct
+     * @param GoToProduct $citrixProduct
      */
-    public function setGoToProduct($goToProduct)
+    public function setGoToProduct($citrixProduct)
     {
-        $this->goToProduct = $goToProduct;
+        $this->citrixProduct = $citrixProduct;
     }
 
     /**

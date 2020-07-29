@@ -11,6 +11,38 @@
 
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 
+if (!function_exists('buildTitle')) {
+    function buildTitle($list, $products, $field)
+    {
+        foreach ($list as $key => $product) {
+            $title = '';
+            foreach ($field['properties']['in_dropdown_details'] as $setting) {
+                switch ($setting) {
+                    case GoToDetailKeywords::GOTOTITLE:
+                        $title .= $products[$key]['name'];
+                        break;
+                    case GoToDetailKeywords::GOTODATE:
+                        $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
+                        if ($date !== false) {
+                            $title .= $date->format('d.m.Y H:i');
+                        }
+                        break;
+                    case GoToDetailKeywords::GOTOAUTHOR:
+                        $title .= $products[$key]['author'];
+                        break;
+                    case GoToDetailKeywords::GOTOLANGUAGE:
+                        $title .= $products[$key]['language'];
+                        break;
+                }
+                $title .= ' ';
+
+            }
+            $list[$key] = $title;
+        }
+        return $list;
+    }
+}
+
 $listType = '';
 if (isset($field['customParameters']['listType'])) {
     $listType = $field['customParameters']['listType'];
@@ -107,7 +139,6 @@ HTML;
 };
 
 
-
 $description = '';
 $products = $field['customParameters']['product_choices'];
 
@@ -159,13 +190,13 @@ HTML;
 HTML;
 
         if ($field['properties']['separate']) {
-            $testList=[];
-            if(isset($list[$products[$key]['recurrence_key']])){
+            $testList = [];
+            if (isset($list[$products[$key]['recurrence_key']])) {
                 $testList = buildTitle($list[$products[$key]['recurrence_key']], $products, $field);
             } else {
                 $testList = buildTitle($list[$products[$key]['product_key']], $products, $field);
             }
-            if ($testList !== null){
+            if ($testList !== null) {
                 $optionsHtml = $optionBuilder($testList, $emptyOption);
 
                 $html = <<<HTML
@@ -189,8 +220,6 @@ HTML;
 }
 
 
-
-
 if ($field['properties']['separate'] === 0) {
 
     $optionsHtml = $optionBuilder(buildTitle($not_separate_list, $products, $field), $emptyOption);
@@ -209,33 +238,5 @@ HTML;
 
 
 
-function buildTitle($list, $products, $field){
-    foreach ($list as $key => $product) {
-        $title = '';
-        foreach ($field['properties']['in_dropdown_details'] as $setting) {
-            switch ($setting) {
-                case GoToDetailKeywords::GOTOTITLE:
-                    $title .= $products[$key]['name'];
-                    break;
-                case GoToDetailKeywords::GOTODATE:
-                    $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
-                    if ($date !== false) {
-                        $title .= $date->format('d.m.Y H:i');
-                    }
-                    break;
-                case GoToDetailKeywords::GOTOAUTHOR:
-                    $title .= $products[$key]['author'];
-                    break;
-                case GoToDetailKeywords::GOTOLANGUAGE:
-                    $title .= $products[$key]['language'];
-                    break;
-            }
-            $title .= ' ';
-
-        }
-        $list[$key] = $title;
-    }
-    return $list;
-}
 
 
