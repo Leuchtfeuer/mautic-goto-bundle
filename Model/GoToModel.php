@@ -136,7 +136,7 @@ class GoToModel extends FormModel
         }
         $goToEvents = $this->getRepository()->findBy(
             [
-                'goToProduct' => $productRepository->findOneByProductKey($productId),
+                'citrixProduct' => $productRepository->findOneByProductKey($productId),
                 'eventType' => $eventType,
             ]
         );
