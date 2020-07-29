@@ -11,12 +11,15 @@
 
 namespace MauticPlugin\MauticGoToBundle;
 
+use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\Tools\SchemaTool;
 use Exception;
 use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
 use Mautic\PluginBundle\Entity\Plugin;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use Psr\Log\LogLevel;
 
 /**
  * Class MauticGoToBundle.
@@ -36,16 +39,12 @@ class MauticGoToBundle extends PluginBundleBase
 
     public static function onPluginInstall(Plugin $plugin, MauticFactory $factory, $metadata = null, $installedSchema = null)
     {
-        if ($metadata !== null) {
-            self::installPluginSchema($metadata, $factory);
-        }
-
         $db             = $factory->getDatabase();
         $queries        = array();
 
         $queries[] = 'DELETE FROM ' . MAUTIC_TABLE_PREFIX . 'plugins WHERE bundle = "MauticCitrixBundle"';
         $queries[] = 'DELETE FROM ' . MAUTIC_TABLE_PREFIX . 'plugin_integration_settings WHERE name LIKE "goto%"';
-        $queries[] = 'TRUNCATE TABLE' . MAUTIC_TABLE_PREFIX . 'plugin_citrix_events';
+        $queries[] = 'TRUNCATE TABLE ' . MAUTIC_TABLE_PREFIX . 'plugin_citrix_events';
 
         if (!empty($queries)) {
 
@@ -62,9 +61,15 @@ class MauticGoToBundle extends PluginBundleBase
                 throw $e;
             }
         }
-        if($installedSchema !== null){
-            parent::updatePluginSchema($metadata, $installedSchema, $factory);
+
+        if ($metadata !== null) {
+            try {
+                self::installPluginSchema($metadata, $factory);
+            } catch(TableExistsException $e){
+                GoToHelper::log($e->getMessage(), LogLevel::NOTICE);
+            }
         }
+
     }
 
     /**
