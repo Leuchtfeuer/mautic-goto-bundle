@@ -15,7 +15,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Command line access
 
 ## Preparations
-* If you have preexisting data: There is no migration as of today! You need to backup any data that you may still need, and to manually clean the database table plugin_citrix_events.
+* If you have preexisting data: BACKUP now! There is curently no migration.
 
 * Verify existing status, "nothing to update" should show up.
 
