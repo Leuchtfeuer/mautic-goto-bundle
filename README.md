@@ -17,7 +17,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 ## Preparations
 * If you have preexisting data: BACKUP now! There is curently no migration.
 
-* Verify existing status, "nothing to update" should show up. Clear cache.
+* Verify existing status and clear cache.
 
       cd [path-to-your-mautic]
       sudo -u www-data php app/console doctrine:schema:update --force
