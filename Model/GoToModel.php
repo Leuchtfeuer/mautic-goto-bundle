@@ -190,29 +190,16 @@ class GoToModel extends FormModel
             return []; // is not a valid citrix product
         }
         $dql = sprintf(
-            "SELECT DISTINCT c.name, c.description FROM MauticGoToBundle:GoToProduct c WHERE c.product='%s'",
+            "SELECT DISTINCT c.product_key, c.name, c.date FROM MauticGoToBundle:GoToProduct c WHERE c.product='%s'",
             $product
         );
         $query = $this->em->createQuery($dql);
         $items = $query->getResult();
         $result = [];
         foreach ($items as $item) {
-            $eventDesc = $item['description'];
-            // strip joinUrl if exists
-            $pos = strpos($eventDesc, '_!');
-            if (false !== $pos) {
-                $eventDesc = substr($eventDesc, 0, $pos);
-            }
-            // filter events with same id
-            $eventId = $item['name'];
-            $pos = strpos($eventId, '_#');
-            $eventId = substr($eventId, $pos);
-            foreach ($result as $k => $v) {
-                if (false !== strpos($k, $eventId)) {
-                    unset($result[$k]);
-                }
-            }
-            $result[$item['name']] = $eventDesc;
+            $eventDate = $item['date'];
+
+            $result[$item['product_key']] = $eventDate->format('d.m.Y H:i') . ' ' . $item['name'];
         }
 
         return $result;
