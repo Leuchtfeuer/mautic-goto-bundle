@@ -25,8 +25,8 @@ class GoToEventRepository extends CommonRepository
     /**
      * Fetch the base event data from the database.
      *
-     * @param string    $product
-     * @param string    $eventType
+     * @param string $product
+     * @param string $eventType
      * @param \DateTime $fromDate
      *
      * @return mixed
@@ -58,7 +58,7 @@ class GoToEventRepository extends CommonRepository
 
     /**
      * @param       $product
-     * @param null  $leadId
+     * @param null $leadId
      * @param array $options
      *
      * @return array
@@ -71,8 +71,8 @@ class GoToEventRepository extends CommonRepository
         }
 
         $query = $this->getEntityManager()->getConnection()->createQueryBuilder()
-            ->from(MAUTIC_TABLE_PREFIX.'plugin_citrix_events', 'c')
-            ->leftJoin('c','plugin_citrix_products', 'cp', 'c.citrix_product_id = cp.id')
+            ->from(MAUTIC_TABLE_PREFIX . 'plugin_citrix_events', 'c')
+            ->leftJoin('c', 'plugin_citrix_products', 'cp', 'c.citrix_product_id = cp.id')
             ->select('c.*');
 
         $query->where(
@@ -88,13 +88,13 @@ class GoToEventRepository extends CommonRepository
         }
 
         if ($leadId) {
-            $query->andWhere('c.contact_id = '.(int) $leadId);
+            $query->andWhere('c.contact_id = ' . (int)$leadId);
         }
 
         if (isset($options['search']) && $options['search']) {
             $query->andWhere($query->expr()->orX(
-                $query->expr()->like('c.event_name', $query->expr()->literal('%'.$options['search'].'%')),
-                $query->expr()->like('c.product', $query->expr()->literal('%'.$options['search'].'%'))
+                $query->expr()->like('c.event_name', $query->expr()->literal('%' . $options['search'] . '%')),
+                $query->expr()->like('c.product', $query->expr()->literal('%' . $options['search'] . '%'))
             ));
         }
         $testquery = $query->getSQL();
@@ -113,7 +113,7 @@ class GoToEventRepository extends CommonRepository
         return $this->findBy(
             [
                 'product' => $product,
-                'email'   => $email,
+                'email' => $email,
             ]
         );
     }
@@ -127,8 +127,8 @@ class GoToEventRepository extends CommonRepository
     public function findRegisteredByEmail($product, $email)
     {
         $query = $this->createQueryBuilder('c')
-            ->innerJoin(GoToProduct::class,'cp', Join::INNER_JOIN, 'c.citrixProduct = cp.id')
-            ->innerJoin(Lead::class, 'l', Join::INNER_JOIN,'c.contact = l.id')
+            ->innerJoin(GoToProduct::class, 'cp', Join::INNER_JOIN, 'c.citrixProduct = cp.id')
+            ->innerJoin(Lead::class, 'l', Join::INNER_JOIN, 'c.contact = l.id')
             ->select('c');
         $query->where(
             $query->expr()->eq('l.email', ':email')
@@ -137,6 +137,19 @@ class GoToEventRepository extends CommonRepository
         return $query->getQuery()->getResult();
     }
 
+    public function findAllByMailAndEvent($email, $eventKey)
+    {
+        $contactRepository = $this->_em->getRepository(Lead::class);
+        $contacts = $contactRepository->findBy(['email' => $email]);
+        $productRepository = $this->_em->getRepository(GoToProduct::class);
+        $product = $productRepository->findOneByProductKey($eventKey);
+        return $this->findBy(
+            [
+                'contact' => $contacts,
+                'citrixProduct' => $product
+            ]
+        );
+    }
 
 
     /**
@@ -153,7 +166,7 @@ class GoToEventRepository extends CommonRepository
         $q = $this->_em
             ->createQueryBuilder()
             ->select($alias)
-            ->from('GoToEvent', $alias, $alias.'.id');
+            ->from('GoToEvent', $alias, $alias . '.id');
 
         $args['qb'] = $q;
 
@@ -168,7 +181,8 @@ class GoToEventRepository extends CommonRepository
      */
     protected function addCatchAllWhereClause($q, $filter)
     {
-        return $this->addStandardCatchAllWhereClause($q, $filter, ['c.product', 'c.email', 'c.eventType', 'c.eventName']);
+        return $this->addStandardCatchAllWhereClause($q, $filter,
+            ['c.product', 'c.email', 'c.eventType', 'c.eventName']);
     }
 
     /**
@@ -196,7 +210,7 @@ class GoToEventRepository extends CommonRepository
     protected function getDefaultOrder()
     {
         return [
-            [$this->getTableAlias().'.eventDate', 'ASC'],
+            [$this->getTableAlias() . '.eventDate', 'ASC'],
         ];
     }
 

@@ -373,28 +373,21 @@ class GoToModel extends FormModel
 
         // Delete events
         if (0 !== count($emailsToRemove)) {
-            $citrixEvents = $this->getRepository()->findBy(
-                [
-                    'eventName' => $eventName,
-                    'eventType' => $eventType,
-                    'email' => $emailsToRemove,
-                    'product' => $product,
-                ]
-            );
-            $this->getRepository()->deleteEntities($citrixEvents);
-
+            $citrixProductRepository = $this->em->getRepository(GoToProduct::class);
+            $citrixEvents = $this->getRepository()->findAllByMailAndEvent($emailsToRemove, $productKey);
             /** @var GoToEvent $citrixEvent */
             foreach ($citrixEvents as $citrixEvent) {
                 if (null !== $output) {
                     $output->writeln(
-                        ' - ' . $citrixEvent->getEmail() . ' ' . $eventType . ' from ' .
-                        substr($citrixEvent->getEventName(), 0, 40) . ((strlen(
-                                $citrixEvent->getEventName()
+                        ' - ' . $citrixEvent->getContact()->getEmail() . ' ' . $eventType . ' from ' .
+                        substr($citrixEvent->getGoToProduct()->getName(), 0, 40) . ((strlen(
+                                $citrixEvent->getGoToProduct()->getName()
                             ) > 40) ? '...' : '.')
                     );
                 }
                 ++$count;
             }
+            $this->getRepository()->deleteEntities($citrixEvents);
         }
 
         if (0 !== count($newEntities)) {
