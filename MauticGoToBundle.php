@@ -44,7 +44,6 @@ class MauticGoToBundle extends PluginBundleBase
 
         $queries[] = 'DELETE FROM ' . MAUTIC_TABLE_PREFIX . 'plugins WHERE bundle = "MauticCitrixBundle"';
         $queries[] = 'DELETE FROM ' . MAUTIC_TABLE_PREFIX . 'plugin_integration_settings WHERE name LIKE "goto%"';
-        $queries[] = 'TRUNCATE TABLE ' . MAUTIC_TABLE_PREFIX . 'plugin_citrix_events';
 
         if (!empty($queries)) {
 
@@ -58,7 +57,7 @@ class MauticGoToBundle extends PluginBundleBase
             } catch (Exception $e) {
                 $db->rollback();
 
-                throw $e;
+                GoToHelper::log($e->getMessage(), LogLevel::NOTICE);
             }
         }
 

@@ -87,15 +87,19 @@ class GoToCampaignActionType extends AbstractType
                 'choices' => $newChoices,
             ]
         );
-
+        $productArray= $this->model->getProducts($product, new \DateTime('now'), false,false, false);
+        $combinedArray = array_combine($productArray,$productArray);
         if (GoToProductTypes::GOTOASSIST !== $product) {
             $builder->add(
                 $product.'-list',
                 'choice',
                 [
                     'label'    => $this->translator->trans('plugin.citrix.decision.'.$product.'.list'),
-                    'choices'  => $this->model->getProducts($product, new \DateTime('now'), false,false, false),
+                    'choices'  => $combinedArray,
                     'multiple' => true,
+                    /*'choice_label' => function ($choice, $key, $value) {
+                        return $this->model->getProductById($choice)->getName();
+                    },*/
                 ]
             );
         }

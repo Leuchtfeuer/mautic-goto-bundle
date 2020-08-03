@@ -373,28 +373,21 @@ class GoToModel extends FormModel
 
         // Delete events
         if (0 !== count($emailsToRemove)) {
-            $citrixEvents = $this->getRepository()->findBy(
-                [
-                    'eventName' => $eventName,
-                    'eventType' => $eventType,
-                    'email' => $emailsToRemove,
-                    'product' => $product,
-                ]
-            );
-            $this->getRepository()->deleteEntities($citrixEvents);
-
+            $citrixProductRepository = $this->em->getRepository(GoToProduct::class);
+            $citrixEvents = $this->getRepository()->findAllByMailAndEvent($emailsToRemove, $productKey);
             /** @var GoToEvent $citrixEvent */
             foreach ($citrixEvents as $citrixEvent) {
                 if (null !== $output) {
                     $output->writeln(
-                        ' - ' . $citrixEvent->getEmail() . ' ' . $eventType . ' from ' .
-                        substr($citrixEvent->getEventName(), 0, 40) . ((strlen(
-                                $citrixEvent->getEventName()
+                        ' - ' . $citrixEvent->getContact()->getEmail() . ' ' . $eventType . ' from ' .
+                        substr($citrixEvent->getGoToProduct()->getName(), 0, 40) . ((strlen(
+                                $citrixEvent->getGoToProduct()->getName()
                             ) > 40) ? '...' : '.')
                     );
                 }
                 ++$count;
             }
+            $this->getRepository()->deleteEntities($citrixEvents);
         }
 
         if (0 !== count($newEntities)) {
@@ -515,8 +508,30 @@ class GoToModel extends FormModel
         return $products;
     }
 
-    public function getDetailed()
+    public function getProductById($id)
     {
+        $cpr = $this->em->getRepository(GoToProduct::class);
+        return $cpr->findOneByProductKey($id);
+    }
 
+    public function deleteRemovedProducts(array $productIds)
+    {
+        $cpr = $this->em->getRepository(GoToProduct::class);
+        $foundProducts = $cpr->findBy(["product_key" => $productIds]);
+        $all = $cpr->findAll();
+        foreach($all as $key => $product){
+            $found = false;
+            foreach ($foundProducts as $foundProduct){
+                $found = false;
+                if($product->getProductKey() === $foundProduct->getProductKey()) {
+                    $found = true;
+                    break;
+                }
+            }
+            if($found) {
+                unset($all[$key]);
+            }
+        }
+        $cpr->deleteEntities($all);
     }
 }

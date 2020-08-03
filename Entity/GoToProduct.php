@@ -72,7 +72,7 @@ class GoToProduct implements \JsonSerializable
     public static function loadMetadata(ClassMetadata $metadata)
     {
         $builder = new ClassMetadataBuilder($metadata);
-        $builder->setTable('plugin_citrix_products')
+        $builder->setTable('plugin_goto_products')
             ->setCustomRepositoryClass(GoToProductRepository::class);
         $builder->addId();
         $builder->addNamedField('product_key', 'string', 'product_key');

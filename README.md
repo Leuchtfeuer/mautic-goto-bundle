@@ -17,15 +17,15 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 ## Preparations
 * If you have preexisting data: BACKUP now! There is curently no migration.
 
-* Verify existing status and clear cache.
+* Verify existing status, "nothing to update" should show up.
 
       cd [path-to-your-mautic]
       sudo -u www-data php app/console doctrine:schema:update --force
-      sudo -u www-data php app/console cache:clear
   This should give you "Nothing to update".
   
-* Remove the existing plugin files and save them to home directory
+* Remove the existing plugin files and clear cache
 
+      sudo -u www-data php app/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
 ## Installation
@@ -40,7 +40,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 
       cd [path-to-your-mautic]
       cp -rp ~/MauticGoToBundle plugins/MauticGoToBundle
-      chown -R www-data:www-data plugins/MauticGoToBundle   #assuming that your web server uses the "www-data" account
+      chown -R www-data:www-data plugins/MauticGoToBundle   [assuming that your web server uses the "www-data" account]
       
 * Create symlink (needed due to hard reference in core)
 
@@ -95,4 +95,5 @@ All the other options are unchanged, thus see existing docs such as https://docs
 * Form actions
 * Campaign conditions and actions
 * Contact properties
-* "Join Webinar" tokens in emails
+* "Join Webinar" token in emails
+
