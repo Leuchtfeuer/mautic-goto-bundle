@@ -15,7 +15,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Command line access
 
 ## Preparations
-* If you have preexisting data: BACKUP now! There is curently no migration.
+ATTENTION: If you have preexisting data, that will remain in the database but not be accessible through Mautic. Please check carefully before proceeding.
 
 * Verify existing status and clear cache.
 
