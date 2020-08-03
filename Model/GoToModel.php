@@ -513,4 +513,25 @@ class GoToModel extends FormModel
         $cpr = $this->em->getRepository(GoToProduct::class);
         return $cpr->findOneByProductKey($id);
     }
+
+    public function deleteRemovedProducts(array $productIds)
+    {
+        $cpr = $this->em->getRepository(GoToProduct::class);
+        $foundProducts = $cpr->findBy(["product_key" => $productIds]);
+        $all = $cpr->findAll();
+        foreach($all as $key => $product){
+            $found = false;
+            foreach ($foundProducts as $foundProduct){
+                $found = false;
+                if($product->getProductKey() === $foundProduct->getProductKey()) {
+                    $found = true;
+                    break;
+                }
+            }
+            if($found) {
+                unset($all[$key]);
+            }
+        }
+        $cpr->deleteEntities($all);
+    }
 }

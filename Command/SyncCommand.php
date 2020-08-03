@@ -102,8 +102,9 @@ class SyncCommand extends ModeratedCommand
             }
             foreach ($productIds as $productId) {
                 $output->writeln('Persisting ['.$productId.'] to DB');
-                $model->syncProduct($product, $citrixChoices[$productId], $output);
+                //$model->syncProduct($product, $citrixChoices[$productId], $output);
             }
+            $model->deleteRemovedProducts($productIds);
 
             foreach ($productIds as $productId) {
                 try {
