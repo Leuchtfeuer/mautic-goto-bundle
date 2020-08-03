@@ -15,6 +15,8 @@ use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\CampaignExecutionEvent;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
+use MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignActionType;
+use MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignEventType;
 use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
@@ -256,14 +258,14 @@ class CampaignSubscriber extends CommonSubscriber
                 'citrix.event.'.$product,
                 [
                     'label'           => 'plugin.citrix.campaign.event.'.$product.'.label',
-                    'formType'        => 'citrix_campaign_event',
+                    'formType'        => GoToCampaignEventType::class,
                     'formTypeOptions' => [
                         'attr' => [
                             'data-product' => $product,
                         ],
                     ],
                     'eventName'      => $eventNames[$product],
-                    'channel'        => 'citrix',
+                    'channel'        => 'goto',
                     'channelIdField' => $product.'-list',
                 ]
             );
@@ -272,14 +274,14 @@ class CampaignSubscriber extends CommonSubscriber
                 'citrix.action.'.$product,
                 [
                     'label'           => 'plugin.citrix.campaign.action.'.$product.'.label',
-                    'formType'        => 'citrix_campaign_action',
+                    'formType'        => GoToCampaignActionType::class,
                     'formTypeOptions' => [
                         'attr' => [
                             'data-product' => $product,
                         ],
                     ],
                     'eventName'      => $actionNames[$product],
-                    'channel'        => 'citrix',
+                    'channel'        => 'goto',
                     'channelIdField' => $product.'-list',
                 ]
             );

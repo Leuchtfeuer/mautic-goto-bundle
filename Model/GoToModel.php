@@ -508,8 +508,9 @@ class GoToModel extends FormModel
         return $products;
     }
 
-    public function getDetailed()
+    public function getProductById($id)
     {
-
+        $cpr = $this->em->getRepository(GoToProduct::class);
+        return $cpr->findOneByProductKey($id);
     }
 }

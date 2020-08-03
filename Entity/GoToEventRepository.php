@@ -71,8 +71,8 @@ class GoToEventRepository extends CommonRepository
         }
 
         $query = $this->getEntityManager()->getConnection()->createQueryBuilder()
-            ->from(MAUTIC_TABLE_PREFIX . 'plugin_citrix_events', 'c')
-            ->leftJoin('c', 'plugin_citrix_products', 'cp', 'c.citrix_product_id = cp.id')
+            ->from(MAUTIC_TABLE_PREFIX . 'plugin_goto_events', 'c')
+            ->leftJoin('c', 'plugin_goto_products', 'cp', 'c.citrix_product_id = cp.id')
             ->select('c.*');
 
         $query->where(
