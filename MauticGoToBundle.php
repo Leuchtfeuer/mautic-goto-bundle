@@ -57,7 +57,7 @@ class MauticGoToBundle extends PluginBundleBase
             } catch (Exception $e) {
                 $db->rollback();
 
-                throw $e;
+                GoToHelper::log($e->getMessage(), LogLevel::NOTICE);
             }
         }
 
