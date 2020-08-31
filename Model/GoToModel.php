@@ -199,7 +199,7 @@ class GoToModel extends FormModel
         foreach ($items as $item) {
             $eventDate = $item['date'];
 
-            $result[$item['product_key']] = $eventDate->format('d.m.Y H:i') . ' ' . $item['name'];
+            $result["ID:".$item['product_key']] = $eventDate->format('d.m.Y H:i') . ' ' . $item['name'];
         }
 
         return $result;
