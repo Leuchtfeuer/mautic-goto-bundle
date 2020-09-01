@@ -94,7 +94,7 @@ class SyncCommand extends ModeratedCommand
             $productIds    = [];
             if (null === $options['id']) {
                 // all products
-                $citrixChoices = GoToHelper::getGoToChoices($product, true, true);
+                $citrixChoices = GoToHelper::getGoToChoices($product, false, true);
                 $productIds    = array_keys($citrixChoices);
             } else {
                 $productIds[]                  = $options['id'];
@@ -102,7 +102,7 @@ class SyncCommand extends ModeratedCommand
             }
             foreach ($productIds as $productId) {
                 $output->writeln('Persisting ['.$productId.'] to DB');
-                //$model->syncProduct($product, $citrixChoices[$productId], $output);
+                $model->syncProduct($product, $citrixChoices[$productId], $output);
             }
             $model->deleteRemovedProducts($productIds);
 
