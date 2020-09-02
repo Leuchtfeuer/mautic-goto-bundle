@@ -242,6 +242,9 @@ class GoToHelper
                 case GoToProductTypes::GOTOTRAINING:
                     $results = self::getG2tApi()->request('trainings');
 
+                    if($withDetails){
+                        return self::getKeyPairsWithDetails($results, 'trainingKey');
+                    }
                     return iterator_to_array(self::getKeyPairs($results, 'trainingKey', 'name'));
 
                 case GoToProductTypes::GOTOASSIST:

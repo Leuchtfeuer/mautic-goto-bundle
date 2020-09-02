@@ -108,7 +108,12 @@ class SyncCommand extends ModeratedCommand
 
             foreach ($productIds as $productId) {
                 try {
-                    $eventDesc = $citrixChoices[$productId]['subject'];
+                    if(array_key_exists('subject', $citrixChoices[$productId])){
+                        $eventDesc = $citrixChoices[$productId]['subject'];
+                    } else {
+                        $eventDesc = $citrixChoices[$productId]['name'];
+                    }
+
                     $eventName = GoToHelper::getCleanString(
                             $eventDesc
                         ).'_#'.$productId;

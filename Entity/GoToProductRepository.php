@@ -92,7 +92,7 @@ class GoToProductRepository extends CommonRepository
             ->setParameter('to', $to)
         ;
         $result = $qb->getQuery()->getResult();
-
+        $sql_query = $qb->getQuery()->getSQL();
         return $result;
     }
 

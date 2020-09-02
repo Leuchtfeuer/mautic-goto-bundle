@@ -459,20 +459,34 @@ class GoToModel extends FormModel
         if ($persistedProduct === null) {
             $persistedProduct = new GoToProduct();
         }
-        $persistedProduct->setName($product['subject']);
+        if(array_key_exists('subject', $product)){
+            $persistedProduct->setName($product['subject']);
+        } else {
+            $persistedProduct->setName($product['name']);
+        }
         $persistedProduct->setProduct($productType);
         $persistedProduct->setProductKey($product[$productId]);
-        $persistedProduct->setOrganizerKey($product['organizerKey']);
-        $persistedProduct->setLanguage($product['locale']);
-
+        if(array_key_exists('organizerKey', $product)){
+            $persistedProduct->setOrganizerKey($product['organizerKey']);
+        } else {
+            $persistedProduct->setOrganizerKey($product['organizers'][0]['organizerKey']);
+        }
+        if (array_key_exists('locale', $product)){
+            $persistedProduct->setLanguage($product['locale']);
+        }
         if (array_key_exists('recurrenceKey', $product)) {
             $persistedProduct->setRecurrenceKey($product['recurrenceKey']);
         }
 
         if (array_key_exists('times', $product)) {
             try {
-                $persistedProduct->setDate(new \DateTime($product['times'][0]['startTime']));
-                $persistedProduct->setDuration(strtotime($product['times'][0]['endTime']) - strtotime($product['times'][0]['startTime']));
+                if (array_key_exists('startTime', $product)){
+                    $dateString = 'Time';
+                } else {
+                    $dateString = 'Date';
+                }
+                $persistedProduct->setDate(new \DateTime($product['times'][0]['start'.$dateString]));
+                $persistedProduct->setDuration(strtotime($product['times'][0]['end'.$dateString]) - strtotime($product['times'][0]['start'.$dateString]));
             } catch (\Exception $e) {
                 $output->writeln('Invalid Date Format');
             }
