@@ -50,15 +50,13 @@ class SyncCommand extends ModeratedCommand
                 null)
             ->addOption(
                 'excludeEvents',
-                'ne',
-                InputOption::VALUE_OPTIONAL,
-                'Importing just Scheduled GoTo Events, without synchronizing Attendees/Registrants',
-                false)
+                null,
+                InputOption::VALUE_NONE,
+                'Importing just Scheduled GoTo Events, without synchronizing Attendees/Registrants')
             ->addOption('excludeContacts',
-                'nc',
-                InputOption::VALUE_OPTIONAL,
-                'Synchronizing Attendees/Registrants, without scheduled GoTo Events',
-                false);
+                null,
+                InputOption::VALUE_NONE,
+                'Synchronizing Attendees/Registrants, without scheduled GoTo Events');
 
         parent::configure();
     }
