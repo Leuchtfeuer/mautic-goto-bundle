@@ -81,6 +81,12 @@ ATTENTION: If you have preexisting data, that will remain in the database but no
 
       [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
 
+* You can also exclude importing Events/Contacts:
+
+      sudo -u www-data php  app/console mautic:goto:sync --excludeEvents
+      sudo -u www-data php  app/console mautic:goto:sync --excludeContacts  
+      
+
 We suggest to do the sync every 15 minutes.
 If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
 
