@@ -15,17 +15,17 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Command line access
 
 ## Preparations
-* If you have preexisting data: BACKUP now! There is curently no migration.
+ATTENTION: If you have preexisting data, that will remain in the database but not be accessible through Mautic. Please check carefully before proceeding.
 
-* Verify existing status, "nothing to update" should show up.
+* Verify existing status and clear cache.
 
       cd [path-to-your-mautic]
       sudo -u www-data php app/console doctrine:schema:update --force
+      sudo -u www-data php app/console cache:clear
   This should give you "Nothing to update".
   
-* Remove the existing plugin files and clear cache
+* Remove the existing plugin files and save them to home directory
 
-      sudo -u www-data php app/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
 ## Installation
@@ -40,7 +40,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 
       cd [path-to-your-mautic]
       cp -rp ~/MauticGoToBundle plugins/MauticGoToBundle
-      chown -R www-data:www-data plugins/MauticGoToBundle   [assuming that your web server uses the "www-data" account]
+      chown -R www-data:www-data plugins/MauticGoToBundle   #assuming that your web server uses the "www-data" account
       
 * Create symlink (needed due to hard reference in core)
 
@@ -81,6 +81,12 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 
       [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
 
+* You can also exclude importing Events/Contacts:
+
+      sudo -u www-data php  app/console mautic:goto:sync --excludeEvents
+      sudo -u www-data php  app/console mautic:goto:sync --excludeContacts  
+      
+
 We suggest to do the sync every 15 minutes.
 If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
 
@@ -95,5 +101,4 @@ All the other options are unchanged, thus see existing docs such as https://docs
 * Form actions
 * Campaign conditions and actions
 * Contact properties
-* "Join Webinar" token in emails
-
+* "Join Webinar" tokens in emails

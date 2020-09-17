@@ -586,6 +586,11 @@ class FormSubscriber extends CommonSubscriber
                 'template' => 'MauticGoToBundle:Field:citrixlist.html.php',
                 'listType' => $product,
                 'product_choices' => $this->citrixModel->getProducts($product, null, null, null, true),
+                'formTypeOptions' => [
+                    'attr' => [
+                        'data-product' => $product,
+                    ],
+                ],
             ];
             $event->addFormField('plugin.citrix.select.' . $product, $field);
 

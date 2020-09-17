@@ -254,6 +254,7 @@ class CampaignSubscriber extends CommonSubscriber
         ];
 
         foreach ($activeProducts as $product) {
+
             $event->addCondition(
                 'citrix.event.'.$product,
                 [
