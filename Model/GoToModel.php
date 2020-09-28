@@ -480,7 +480,7 @@ class GoToModel extends FormModel
 
         if (array_key_exists('times', $product)) {
             try {
-                if (array_key_exists('startTime', $product)){
+                if (array_key_exists('startTime', $product['times'][0])){
                     $dateString = 'Time';
                 } else {
                     $dateString = 'Date';
