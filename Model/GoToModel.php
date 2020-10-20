@@ -85,10 +85,12 @@ class GoToModel extends FormModel
 
             return;
         }
-        //todo rework
         $productRepository = $this->em->getRepository(GoToProduct::class);
-        $productRepository->findOneBy($product);
-        $goToProduct = new GoToProduct();
+        $productKey = explode("#", $eventName);
+        $goToProduct = $productRepository->findOneByProductKey($productKey[1]);
+        if($goToProduct === null) {
+            $goToProduct = new GoToProduct();
+        }
         $goToEvent = new GoToEvent();
         $goToProduct->setName($eventName);
         $goToProduct->setDescription($eventDesc);
