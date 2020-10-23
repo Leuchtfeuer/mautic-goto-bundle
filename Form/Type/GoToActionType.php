@@ -184,6 +184,23 @@ class GoToActionType extends AbstractType
             ]
         );
 
+        $builder->add(
+            'company',
+            'choice',
+            [
+                'choices'    => $choices,
+                'expanded'   => false,
+                'label_attr' => ['class' => 'control-label'],
+                'multiple'   => false,
+                'label'      => 'plugin.citrix.company',
+                'attr'       => [
+                    'class'   => 'form-control',
+                    'tooltip' => 'plugin.citrix.company.tooltip',
+                ],
+                'required'    => false,
+            ]
+        );
+
         if (array_key_exists('data-product-action', $options['attr']) &&
             ('start' === $options['attr']['data-product-action'] ||
              'screensharing' === $options['attr']['data-product-action'])

@@ -360,11 +360,12 @@ class GoToHelper
      * @param $firstname
      * @param $lastname
      *
+     * @param $company
      * @return bool
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
-    public static function registerToProduct($product, $productId, $email, $firstname, $lastname)
+    public static function registerToProduct($product, $productId, $email, $firstname, $lastname, $company)
     {
         try {
             $response = [];
@@ -374,6 +375,7 @@ class GoToHelper
                         'email' => $email,
                         'firstName' => $firstname,
                         'lastName' => $lastname,
+                        'organization' => $company
                     ];
 
                     $response = self::getG2wApi()->request(
