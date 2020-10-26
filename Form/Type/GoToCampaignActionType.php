@@ -79,8 +79,6 @@ class GoToCampaignActionType extends AbstractType
             }
         }
 
-        //$choices = $this->model->getDistinctEventNamesDesc($options['attr']['data-product']);
-
         $builder->add(
             'event-criteria-'.$product,
             'choice',
@@ -89,14 +87,15 @@ class GoToCampaignActionType extends AbstractType
                 'choices' => $newChoices,
             ]
         );
-        $productArray= $this->model->getDistinctEventNamesDesc($product);
+        $productArray= $this->model->getProducts($product, new \DateTime('now'), false,false, false);
+        $combinedArray = array_combine($productArray,$productArray);
         if (GoToProductTypes::GOTOASSIST !== $product) {
             $builder->add(
                 $product.'-list',
                 'choice',
                 [
                     'label'    => $this->translator->trans('plugin.citrix.decision.'.$product.'.list'),
-                    'choices'  => $productArray,
+                    'choices'  => $combinedArray,
                     'multiple' => true,
                     /*'choice_label' => function ($choice, $key, $value) {
                         return $this->model->getProductById($choice)->getName();

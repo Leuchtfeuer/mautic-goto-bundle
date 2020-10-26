@@ -201,16 +201,10 @@ class GoToModel extends FormModel
         foreach ($items as $item) {
             $eventDate = $item['date'];
 
-            $result["ID:" . $item['product_key']] = $eventDate->format('d.m.Y H:i') . ' ' . $item['name'];
+            $result[$item['product_key']] = $eventDate->format('d.m.Y H:i') . ' ' . $item['name'];
         }
 
         return $result;
-    }
-
-    public function getDistinctEvenNamesDescForCampaign($product)
-    {
-        $productArray = $this->model->getProducts($product, new \DateTime('now'), false, false, false);
-        return array_combine($productArray, $productArray);
     }
 
     /**
@@ -448,56 +442,28 @@ class GoToModel extends FormModel
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->em->getRepository(GoToProduct::class);
 
-        if (array_key_exists($productType . "Key", $product)) {
-            $productId = $productType . "Key";
-        } else {
-            $productId = $productType . "Id";
-        }
         /** @var GoToProduct $persistedProduct */
         $persistedProduct = $productRepository->findOneBy([
-            'product_key' => $product[$productId],
+            'product_key' => $product[$productType . 'Key'],
             'product' => $productType
         ]);
         if ($persistedProduct === null) {
             $persistedProduct = new GoToProduct();
         }
-        if(array_key_exists('subject', $product)){
-            $persistedProduct->setName($product['subject']);
-        } else {
-            $persistedProduct->setName($product['name']);
-        }
+        $persistedProduct->setName($product['subject']);
         $persistedProduct->setProduct($productType);
-        $persistedProduct->setProductKey($product[$productId]);
-        if(array_key_exists('organizerKey', $product)){
-            $persistedProduct->setOrganizerKey($product['organizerKey']);
-        } else {
-            $persistedProduct->setOrganizerKey($product['organizers'][0]['organizerKey']);
-        }
-        if (array_key_exists('locale', $product)){
-            $persistedProduct->setLanguage($product['locale']);
-        }
+        $persistedProduct->setProductKey($product[$productType . 'Key']);
+        $persistedProduct->setOrganizerKey($product['organizerKey']);
+        $persistedProduct->setLanguage($product['locale']);
+
         if (array_key_exists('recurrenceKey', $product)) {
             $persistedProduct->setRecurrenceKey($product['recurrenceKey']);
         }
 
         if (array_key_exists('times', $product)) {
             try {
-                if (array_key_exists('startTime', $product['times'][0])){
-                    $dateString = 'Time';
-                } else {
-                    $dateString = 'Date';
-                }
-                $persistedProduct->setDate(new \DateTime($product['times'][0]['start'.$dateString]));
-                $persistedProduct->setDuration(strtotime($product['times'][0]['end'.$dateString]) - strtotime($product['times'][0]['start'.$dateString]));
-            } catch (\Exception $e) {
-                $output->writeln('Invalid Date Format');
-            }
-        }
-
-        if (array_key_exists('startTime', $product)){
-            try {
-                $persistedProduct->setDate(new \DateTime($product['startTime']));
-                $persistedProduct->setDuration(strtotime($product['endTime']) - strtotime($product['startTime']));
+                $persistedProduct->setDate(new \DateTime($product['times'][0]['startTime']));
+                $persistedProduct->setDuration(strtotime($product['times'][0]['endTime']) - strtotime($product['times'][0]['startTime']));
             } catch (\Exception $e) {
                 $output->writeln('Invalid Date Format');
             }
@@ -506,18 +472,20 @@ class GoToModel extends FormModel
         if (array_key_exists('description', $product)) {
             $persistedProduct->setDescription($product['description']);
         }
-        if ($productType === GoToProductTypes::GOTOWEBINAR) {
-            $persistedProduct->setAuthor(null);
-            $panelist = GoToHelper::getPanelists($productType, $product['organizerKey'], $product[$productId]);
-            if (!empty($panelist)) {
-                foreach ($panelist as $author) {
-                    if (empty($persistedProduct->getAuthor())) {
-                        $persistedProduct->setAuthor($author['name']);
-                    } else {
-                        $persistedProduct->setAuthor($persistedProduct->getAuthor() . ', ' . $author['name']);
-                    }
 
+        $coOrganizer = GoToHelper::getWebinarDetails($persistedProduct->getProductKey());
+        //panelist
+
+        $persistedProduct->setAuthor(null);
+        $panelist = GoToHelper::getPanelists($productType, $product['organizerKey'], $product[$productType . 'Key']);
+        if (!empty($panelist)){
+            foreach ($panelist as $author){
+                if(empty($persistedProduct->getAuthor())){
+                    $persistedProduct->setAuthor($author['name']);
+                } else {
+                    $persistedProduct->setAuthor($persistedProduct->getAuthor() . ', ' .$author['name']);
                 }
+
             }
         }
 
@@ -528,13 +496,13 @@ class GoToModel extends FormModel
     {
         $cpr = $this->em->getRepository(GoToProduct::class);
         $products = $cpr->getCitrixChoices(true, $reduceSessions);
-        uasort($products, static function ($a1, $a2) {
+        uasort($products, static function($a1, $a2) {
             $v1 = strtotime($a1['date']['date']);
             $v2 = strtotime($a2['date']['date']);
             return $v1 - $v2;
         });
         if (!$withDetails) {
-            foreach ($products as $key => $product) {
+            foreach ($products as $key => $product){
                 $products[$key] = $product['name'];
             }
 
@@ -546,26 +514,5 @@ class GoToModel extends FormModel
     {
         $cpr = $this->em->getRepository(GoToProduct::class);
         return $cpr->findOneByProductKey($id);
-    }
-
-    public function deleteRemovedProducts(array $productIds)
-    {
-        $cpr = $this->em->getRepository(GoToProduct::class);
-        $foundProducts = $cpr->findBy(["product_key" => $productIds]);
-        $all = $cpr->findAll();
-        foreach ($all as $key => $product) {
-            $found = false;
-            foreach ($foundProducts as $foundProduct) {
-                $found = false;
-                if ($product->getProductKey() === $foundProduct->getProductKey()) {
-                    $found = true;
-                    break;
-                }
-            }
-            if ($found) {
-                unset($all[$key]);
-            }
-        }
-        $cpr->deleteEntities($all);
     }
 }

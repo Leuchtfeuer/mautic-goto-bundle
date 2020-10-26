@@ -14,35 +14,39 @@ use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 if (!function_exists('buildTitle')) {
     function buildTitle($list, $products, $field)
     {
+        $new_list = [];
         foreach ($list as $key => $product) {
             $title = '';
             $product_date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
 
-            if ($product_date->getTimestamp() > time()){
-                foreach ($field['properties']['in_dropdown_details'] as $setting) {
-                    switch ($setting) {
-                        case GoToDetailKeywords::GOTOTITLE:
-                            $title .= $products[$key]['name'];
-                            break;
-                        case GoToDetailKeywords::GOTODATE:
-                            if ($product_date !== false) {
-                                $title .= $product_date->format('d.m.Y H:i');
-                            }
-                            break;
-                        case GoToDetailKeywords::GOTOAUTHOR:
-                            $title .= $products[$key]['author'];
-                            break;
-                        case GoToDetailKeywords::GOTOLANGUAGE:
-                            $title .= $products[$key]['language'];
-                            break;
+            if($product_date){
+                if ($product_date->getTimestamp() > time()){
+                    foreach ($field['properties']['in_dropdown_details'] as $setting) {
+                        switch ($setting) {
+                            case GoToDetailKeywords::GOTOTITLE:
+                                $title .= $products[$key]['name'];
+                                break;
+                            case GoToDetailKeywords::GOTODATE:
+                                if ($product_date !== false) {
+                                    $title .= $product_date->format('d.m.Y H:i');
+                                }
+                                break;
+                            case GoToDetailKeywords::GOTOAUTHOR:
+                                $title .= $products[$key]['author'];
+                                break;
+                            case GoToDetailKeywords::GOTOLANGUAGE:
+                                $title .= $products[$key]['language'];
+                                break;
+                        }
+                        $title .= ' ';
                     }
-                    $title .= ' ';
+
+                    $new_list[$key] = $title;
 
                 }
-                $list[$key] = $title;
             }
         }
-        return $list;
+        return $new_list;
     }
 }
 
@@ -149,6 +153,9 @@ if (!empty($field['properties']['above_dropdown_details'])) {
     $details = $field['properties']['above_dropdown_details'];
 
     foreach ($without_session_list as $key => $product) {
+        if ($product === null){
+            continue;
+        }
         $description .= <<<HTML
                 <div {$field['properties']['attribute_container']}>
 HTML;

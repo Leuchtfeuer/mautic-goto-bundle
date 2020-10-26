@@ -44,7 +44,6 @@ class GoToListType extends AbstractType
         if (!empty($options['data'])) {
             $selectMessage = empty($options['data']['empty_value']) ? $selectMessage : $options['data']['empty_value'];
         }
-
         $builder->add(
             'empty_value',
             'text',
@@ -57,7 +56,7 @@ class GoToListType extends AbstractType
             ]
         );
 
-        $products = $this->citrixModel->getProducts($options['attr']['data-product'], new \DateTime('now'), null, true, true);
+        $products = $this->citrixModel->getProducts('webinar', new \DateTime('now'), null, true, true);
 
         foreach ($products as $key => $product){
             $date = DateTime::createFromFormat('Y-m-d H:i:s.u',$product['date']['date']);

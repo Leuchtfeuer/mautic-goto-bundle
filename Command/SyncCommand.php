@@ -42,21 +42,7 @@ class SyncCommand extends ModeratedCommand
                 'Product to sync (webinar, meeting, training, assist)',
                 null
             )
-            ->addOption(
-                'id',
-                'i',
-                InputOption::VALUE_OPTIONAL,
-                'The id of an individual registration to sync',
-                null)
-            ->addOption(
-                'excludeEvents',
-                null,
-                InputOption::VALUE_NONE,
-                'Importing just Scheduled GoTo Events, without synchronizing Attendees/Registrants')
-            ->addOption('excludeContacts',
-                null,
-                InputOption::VALUE_NONE,
-                'Synchronizing Attendees/Registrants, without scheduled GoTo Events');
+            ->addOption('id', 'i', InputOption::VALUE_OPTIONAL, 'The id of an individual registration to sync', null);
 
         parent::configure();
     }
@@ -67,11 +53,11 @@ class SyncCommand extends ModeratedCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var GoToModel $model */
-        $model = $this->getContainer()->get('mautic.citrix.model.citrix');
+        $model   = $this->getContainer()->get('mautic.citrix.model.citrix');
         $options = $input->getOptions();
         $product = $options['product'];
 
-        if (!$this->checkRunStatus($input, $output, $options['product'] . $options['id'])) {
+        if (!$this->checkRunStatus($input, $output, $options['product'].$options['id'])) {
             return 0;
         }
 
@@ -79,7 +65,7 @@ class SyncCommand extends ModeratedCommand
         if (null === $product) {
             // all products
             foreach (GoToProductTypes::toArray() as $p) {
-                if (GoToHelper::isAuthorized('Goto' . $p)) {
+                if (GoToHelper::isAuthorized('Goto'.$p)) {
                     $activeProducts[] = $p;
                 }
             }
@@ -91,7 +77,7 @@ class SyncCommand extends ModeratedCommand
             }
         } else {
             if (!GoToProductTypes::isValidValue($product)) {
-                $output->writeln('<error>Invalid product: ' . $product . '. Aborted</error>');
+                $output->writeln('<error>Invalid product: '.$product.'. Aborted</error>');
                 $this->completeRun();
 
                 return;
@@ -101,53 +87,43 @@ class SyncCommand extends ModeratedCommand
 
         $count = 0;
         foreach ($activeProducts as $product) {
-            $output->writeln('<info>Synchronizing registrants for <comment>GoTo' . ucfirst($product) . '</comment></info>');
+            $output->writeln('<info>Synchronizing registrants for <comment>GoTo'.ucfirst($product).'</comment></info>');
 
             /** @var array $citrixChoices */
             $citrixChoices = [];
-            $productIds = [];
+            $productIds    = [];
             if (null === $options['id']) {
                 // all products
-                $citrixChoices = GoToHelper::getGoToChoices($product, false, true);
-                $productIds = array_keys($citrixChoices);
+                $citrixChoices = GoToHelper::getGoToChoices($product, true, true);
+                $productIds    = array_keys($citrixChoices);
             } else {
-                $productIds[] = $options['id'];
+                $productIds[]                  = $options['id'];
                 $citrixChoices[$options['id']] = $options['id'];
             }
-            if (!$options['excludeEvents']) {
-                foreach ($productIds as $productId) {
-                    $output->writeln('Persisting [' . $productId . '] to DB');
-                    $model->syncProduct($product, $citrixChoices[$productId], $output);
-                }
-                $model->deleteRemovedProducts($productIds);
+            foreach ($productIds as $productId) {
+                $output->writeln('Persisting ['.$productId.'] to DB');
+                $model->syncProduct($product, $citrixChoices[$productId], $output);
             }
-            if (!$options['excludeContacts']) {
-                foreach ($productIds as $productId) {
-                    try {
-                        if (array_key_exists('subject', $citrixChoices[$productId])) {
-                            $eventDesc = $citrixChoices[$productId]['subject'];
-                        } else {
-                            $eventDesc = $citrixChoices[$productId]['name'];
-                        }
 
-                        $eventName = GoToHelper::getCleanString(
-                                $eventDesc
-                            ) . '_#' . $productId;
-                        $output->writeln('Synchronizing: [' . $productId . '] ' . $eventName);
-                        $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
-                    } catch (\Exception $ex) {
-                        $output->writeln('<error>Error syncing ' . $product . ': ' . $productId . '.</error>');
-                        $output->writeln('<error>' . $ex->getMessage() . '</error>');
-                        if ('dev' === MAUTIC_ENV) {
-                            $output->writeln('<info>' . (string)$ex . '</info>');
-                        }
+            foreach ($productIds as $productId) {
+                try {
+                    $eventDesc = $citrixChoices[$productId]['subject'];
+                    $eventName = GoToHelper::getCleanString(
+                            $eventDesc
+                        ).'_#'.$productId;
+                    $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
+                    $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
+                } catch (\Exception $ex) {
+                    $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');
+                    $output->writeln('<error>'.$ex->getMessage().'</error>');
+                    if ('dev' === MAUTIC_ENV) {
+                        $output->writeln('<info>'.(string) $ex.'</info>');
                     }
                 }
             }
-
         }
 
-        $output->writeln($count . ' contacts synchronized.');
+        $output->writeln($count.' contacts synchronized.');
         $output->writeln('<info>Done.</info>');
 
         $this->completeRun();

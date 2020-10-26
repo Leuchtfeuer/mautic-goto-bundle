@@ -12,7 +12,7 @@
 return [
     'name'        => 'GoTo',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '1.2.0',
+    'version'     => '1.1',
     'author'      => 'Mautic',
     'routes'      => [
         'public' => [

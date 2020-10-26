@@ -234,17 +234,11 @@ class GoToHelper
                     }
                     $results = self::getG2mApi()->request($url, $params);
 
-                    if($withDetails){
-                        return self::getKeyPairsWithDetails($results, 'meetingId');
-                    }
                     return iterator_to_array(self::getKeyPairs($results, 'meetingId', 'subject'));
 
                 case GoToProductTypes::GOTOTRAINING:
                     $results = self::getG2tApi()->request('trainings');
 
-                    if($withDetails){
-                        return self::getKeyPairsWithDetails($results, 'trainingKey');
-                    }
                     return iterator_to_array(self::getKeyPairs($results, 'trainingKey', 'name'));
 
                 case GoToProductTypes::GOTOASSIST:
@@ -359,8 +353,8 @@ class GoToHelper
      * @param $email
      * @param $firstname
      * @param $lastname
-     *
      * @param $company
+     *
      * @return bool
      *
      * @throws BadRequestHttpException
