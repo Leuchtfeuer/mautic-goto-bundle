@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticGoToBundle\Form\Type;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use stdClass;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -87,19 +88,17 @@ class GoToCampaignActionType extends AbstractType
                 'choices' => $newChoices,
             ]
         );
+
         $productArray= $this->model->getProducts($product, new \DateTime('now'), false,false, false);
-        $combinedArray = array_combine($productArray,$productArray);
+
         if (GoToProductTypes::GOTOASSIST !== $product) {
             $builder->add(
                 $product.'-list',
                 'choice',
                 [
                     'label'    => $this->translator->trans('plugin.citrix.decision.'.$product.'.list'),
-                    'choices'  => $combinedArray,
+                    'choices'  => $productArray,
                     'multiple' => true,
-                    /*'choice_label' => function ($choice, $key, $value) {
-                        return $this->model->getProductById($choice)->getName();
-                    },*/
                 ]
             );
         }

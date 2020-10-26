@@ -58,7 +58,7 @@ trait GoToRegistrationTrait
                         ).'_#'.$productToRegister['productId'];
 
 
-                    $this->citrixModel->addEvent(
+                    $this->goToModel->addEvent(
                         $product,
                         $email,
                         $eventName,

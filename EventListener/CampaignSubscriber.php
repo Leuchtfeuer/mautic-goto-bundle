@@ -265,7 +265,7 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                     'eventName'      => $eventNames[$product],
-                    'channel'        => 'goto',
+                    'channel'        => 'citrix',
                     'channelIdField' => $product.'-list',
                 ]
             );
@@ -281,8 +281,8 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                     'eventName'      => $actionNames[$product],
-                    'channel'        => 'goto',
-                    'channelIdField' => $product.'-list',
+                    'channel'        => 'citrix',
+                    'channelNameField' => $product.'-list',
                 ]
             );
         }
