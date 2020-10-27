@@ -403,40 +403,6 @@ class FormSubscriber extends CommonSubscriber
 
     public function onFormSubmit(SubmissionEvent $event)
     {
-        /**
-         * Hacked way to get the register Process working. Somehow the SubmitAction-Event for the specific Webinar-Form
-         * doesn't get triggered, so currently it's only working this way. which means also there's no functionality
-         * for Meeting/Assist/Training
-         */
-
-        if (GoToHelper::isAuthorized('Gotowebinar')) {
-            try {
-                $this->onWebinarRegister($event);
-            } catch (ValidationException $e) {
-                GoToHelper::log('Validation Error: ' . $e->getMessage(),LogLevel::NOTICE);
-            }
-        }
-        if (GoToHelper::isAuthorized('Gotomeeting')) {
-            try {
-                $this->onMeetingStart($event);
-            } catch (ValidationException $e) {
-                GoToHelper::log('Validation Error: ' . $e->getMessage(),LogLevel::NOTICE);
-            }
-        }
-        if (GoToHelper::isAuthorized('Gotoassist')) {
-            try {
-                $this->onAssistRemote($event);
-            } catch (ValidationException $e) {
-                GoToHelper::log('Validation Error: ' . $e->getMessage(), LogLevel::NOTICE);
-            }
-        }
-        if (GoToHelper::isAuthorized('Gototraining')) {
-            try {
-                $this->onTrainingRegister($event);
-            } catch (ValidationException $e) {
-                GoToHelper::log('Validation Error: ' . $e->getMessage(), LogLevel::NOTICE);
-            }
-        }
 
     }
 

@@ -97,3 +97,13 @@ All the other options are unchanged, thus see existing docs such as https://docs
 * Contact properties
 * "Join Webinar" token in emails
 
+## Known Issues / Missing Features
+
+* If you're mapping fields in the Form-Action, it won't take the mapped fields to register the Lead at GoTo, it'll register the fields which will get persisted in the Lead-DB
+* In the Form-Action you'll be able to select distinct webinars. This is useless because you want to register the Contact at the Webinar which the contact has chosen.
+* Error Messages are getting displayed without formatting in the Form-Action
+* You're not able to map DB-Fields to GoTo-Fields in the Campaign-Action
+
+## API-Requests
+For every ProductType k (Like Meeting, Assist, ...) there'll be 2\*n Requests for n-Events happening.
+For Every Event there'll m Requests for m-Registrants and o Requests for o-Attendees. So ~ *n\*(2\*k+m\*o)*
