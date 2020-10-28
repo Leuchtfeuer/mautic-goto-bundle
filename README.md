@@ -105,5 +105,5 @@ All the other options are unchanged, thus see existing docs such as https://docs
 * You're not able to map DB-Fields to GoTo-Fields in the Campaign-Action
 
 ## API-Requests
-For every ProductType k (Like Meeting, Assist, ...) there'll be 2\*n Requests for n-Events happening.
+For every ProductType k (Like Meeting-Integration, Assist-Integration, ...) there'll be 2\*n Requests for n-Events (e.g. a meeting, a webinar or a Sessions) happening.
 For Every Event there'll m Requests for m-Registrants and o Requests for o-Attendees. So ~ *n\*(2\*k+m\*o)*

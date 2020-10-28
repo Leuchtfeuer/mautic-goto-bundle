@@ -473,8 +473,6 @@ class GoToModel extends FormModel
             $persistedProduct->setDescription($product['description']);
         }
 
-        $coOrganizer = GoToHelper::getWebinarDetails($persistedProduct->getProductKey());
-        //panelist
 
         $persistedProduct->setAuthor(null);
         $panelist = GoToHelper::getPanelists($productType, $product['organizerKey'], $product[$productType . 'Key']);
