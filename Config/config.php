@@ -84,6 +84,7 @@ return [
                 'alias'     => 'citrix_submit_action',
                 'arguments' => [
                     'mautic.form.model.field',
+                    'mautic.citrix.model.citrix'
                 ],
             ],
             'mautic.form.type.citrix.campaignevent' => [
