@@ -55,7 +55,7 @@ class FormSubscriber extends CommonSubscriber
     /**
      * @var GoToModel
      */
-    protected $citrixModel;
+    protected $goToModel;
 
     /**
      * FormSubscriber constructor.
@@ -66,7 +66,7 @@ class FormSubscriber extends CommonSubscriber
      */
     public function __construct(GoToModel $citrixModel, FormModel $formModel, SubmissionModel $submissionModel)
     {
-        $this->citrixModel = $citrixModel;
+        $this->goToModel = $citrixModel;
         $this->formModel = $formModel;
         $this->submissionModel = $submissionModel;
     }
@@ -282,7 +282,7 @@ class FormSubscriber extends CommonSubscriber
         $doValidation = GoToHelper::isAuthorized('Goto' . $eventType);
 
         if ($doValidation) {
-            $list = $this->citrixModel->getProducts($eventType, new \DateTime('now'), false, false, false);
+            $list = $this->goToModel->getProducts($eventType, new \DateTime('now'), false, false, false);
 
             /** @var array $values */
             $values = $event->getValue();
@@ -322,7 +322,7 @@ class FormSubscriber extends CommonSubscriber
         foreach ($fields as $field) {
             if ('plugin.citrix.select.' . $product === $field->getType()) {
                 if (0 === count($productlist)) {
-                    $productlist = $this->citrixModel->getProducts($product);
+                    $productlist = $this->goToModel->getProducts($product);
                 }
                 $alias = $field->getAlias();
                 /** @var array $productIds */
@@ -352,7 +352,7 @@ class FormSubscriber extends CommonSubscriber
             foreach ($actions as $action) {
                 if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
                     if (0 === count($productlist)) {
-                        $productlist = $this->citrixModel->getProducts($product);
+                        $productlist = $this->goToModel->getProducts($product);
                     }
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
                     if (!GoToHelper::isAuthorized('Goto' . $actionProduct)) {
@@ -533,7 +533,7 @@ class FormSubscriber extends CommonSubscriber
      * @throws \Symfony\Component\Process\Exception\InvalidArgumentException
      */
     public function onFormBuilder(Events\FormBuilderEvent $event)
-    {
+    {	
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
             if (GoToHelper::isAuthorized('Goto' . $p)) {
@@ -551,7 +551,7 @@ class FormSubscriber extends CommonSubscriber
                 'formType' => 'citrix_list',
                 'template' => 'MauticGoToBundle:Field:citrixlist.html.php',
                 'listType' => $product,
-                'product_choices' => $this->citrixModel->getProducts($product, null, null, null, true),
+                'product_choices' => $this->goToModel->getProducts($product, null, null, null, true),
             ];
             $event->addFormField('plugin.citrix.select.' . $product, $field);
 

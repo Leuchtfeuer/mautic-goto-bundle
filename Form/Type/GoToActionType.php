@@ -246,3 +246,4 @@ class GoToActionType extends AbstractType
         return 'citrix_submit_action';
     }
 }
+

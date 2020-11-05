@@ -109,7 +109,7 @@ trait GoToStartTrait
                             $productToStart['productTitle']
                         ).'_#'.$productToStart['productId'];
 
-                    $this->citrixModel->addEvent(
+                    $this->goToModel->addEvent(
                         $product,
                         $email,
                         $eventName,

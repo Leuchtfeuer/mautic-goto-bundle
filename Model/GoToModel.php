@@ -473,7 +473,6 @@ class GoToModel extends FormModel
             $persistedProduct->setDescription($product['description']);
         }
 
-
         $persistedProduct->setAuthor(null);
         $panelist = GoToHelper::getPanelists($productType, $product['organizerKey'], $product[$productType . 'Key']);
         if (!empty($panelist)){
