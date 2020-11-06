@@ -12,8 +12,8 @@
 return [
     'name'        => 'GoTo',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '1.1',
-    'author'      => 'Mautic',
+    'version'     => '1.2',
+    'author'      => 'Leuchtfeuer Digital Marketing',
     'routes'      => [
         'public' => [
             'mautic_citrix_proxy' => [
