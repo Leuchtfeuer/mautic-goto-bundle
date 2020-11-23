@@ -22,11 +22,12 @@ use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class CampaignSubscriber.
  */
-class CampaignSubscriber extends CommonSubscriber
+class CampaignSubscriber implements EventSubscriberInterface
 {
     use GoToRegistrationTrait;
     use GoToStartTrait;

@@ -25,11 +25,12 @@ use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use MauticPlugin\MauticSocialBundle\Entity\Lead;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class LeadSubscriber.
  */
-class LeadSubscriber extends CommonSubscriber
+class LeadSubscriber implements EventSubscriberInterface
 {
     /**
      * @var GoToModel
