@@ -8,6 +8,9 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
 
+const STATUS_ACTIVE = 'active';
+const STATUS_HIDDEN = 'hidden';
+
 class GoToProduct implements \JsonSerializable
 {
     /**
@@ -69,6 +72,11 @@ class GoToProduct implements \JsonSerializable
      */
     protected $duration;
 
+    /**
+     * @ORM\Column(name="status", type="text")
+     */
+    protected $status;
+
     public static function loadMetadata(ClassMetadata $metadata)
     {
         $builder = new ClassMetadataBuilder($metadata);
@@ -85,6 +93,7 @@ class GoToProduct implements \JsonSerializable
         $builder->addNamedField('author', 'text', 'author', true);
         $builder->addNamedField('language', 'text', 'language', true);
         $builder->addNamedField('duration', 'text', 'duration', true);
+        $builder->addNamedField('status', 'text', 'status', true);
 
 
 
@@ -258,6 +267,22 @@ class GoToProduct implements \JsonSerializable
     public function setDuration($duration)
     {
         $this->duration = $duration;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 
 

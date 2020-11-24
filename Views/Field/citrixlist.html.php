@@ -20,7 +20,7 @@ if (!function_exists('buildTitle')) {
             $product_date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
 
             if($product_date){
-                if ($product_date->getTimestamp() > time()){
+                if ($products[$key]['status'] === \MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE && $product_date->getTimestamp() > time()){
                     foreach ($field['properties']['in_dropdown_details'] as $setting) {
                         switch ($setting) {
                             case GoToDetailKeywords::GOTOTITLE:

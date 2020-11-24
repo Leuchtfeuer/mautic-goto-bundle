@@ -20,6 +20,7 @@ use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
 
 /**
  * Class FormFieldSelectType.
@@ -57,11 +58,11 @@ class GoToListType extends AbstractType
         );
 
         $products = $this->citrixModel->getProducts('webinar', new \DateTime('now'), null, true, true);
-
+        $active_products = [];
         foreach ($products as $key => $product){
             $date = DateTime::createFromFormat('Y-m-d H:i:s.u',$product['date']['date']);
-            if($date !== false){
-                $products[$key] = $date->format('d.m.Y H:i') . ' ' . ($product['recurrence_key']!==null ? '(...) ' :  '') . $product['name'];
+            if($date !== false && $product['status'] === STATUS_ACTIVE){
+                $active_products[$key] = $date->format('d.m.Y H:i') . ' ' . ($product['recurrence_key']!==null ? '(...) ' :  '') . $product['name'];
             }
         }
 
@@ -69,7 +70,7 @@ class GoToListType extends AbstractType
             'product_select',
             'choice',
             [
-                'choices' => $products,
+                'choices' => $active_products,
                 'multiple' => true,
                 'label' => 'mautic.citrix.form.product.select',
                 'label_attr' => ['class' => 'control-label'],
