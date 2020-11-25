@@ -12,12 +12,16 @@
 namespace MauticPlugin\MauticGoToBundle\Form\Type;
 
 use DateTime;
+use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
 use Mautic\FormBundle\Event\FormEvent;
 use Mautic\FormBundle\FormEvents;
 use MauticPlugin\MauticGoToBundle\EventListener\FormSubscriber;
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use SebastianBergmann\CodeCoverage\Report\Text;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -46,7 +50,7 @@ class GoToListType extends AbstractType
         }
         $builder->add(
             'empty_value',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.emptyvalue',
                 'label_attr' => ['class' => 'control-label'],
@@ -67,9 +71,9 @@ class GoToListType extends AbstractType
 
         $builder->add(
             'product_select',
-            'choice',
+            ChoiceType::class,
             [
-                'choices' => $products,
+                'choices' => array_flip($products),
                 'multiple' => true,
                 'label' => 'mautic.citrix.form.product.select',
                 'label_attr' => ['class' => 'control-label'],
@@ -86,7 +90,7 @@ class GoToListType extends AbstractType
         }
         $builder->add(
             'above_dropdown_details',
-            'choice',
+            ChoiceType::class,
             [
                 'choices' => GoToDetailKeywords::getKeyPairs(),
                 'choice_translation_domain' => true,
@@ -109,7 +113,7 @@ class GoToListType extends AbstractType
 
         $builder->add(
             'in_dropdown_details',
-            'choice',
+            ChoiceType::class,
             [
                 'choices' => GoToDetailKeywords::getKeyPairs(),
                 'data' => $data_in,
@@ -131,7 +135,7 @@ class GoToListType extends AbstractType
 
         $builder->add(
             'multiple',
-            'yesno_button_group',
+            YesNoButtonGroupType::class,
             [
                 'label' => 'mautic.citrix.form.multiple',
                 'data' => $default,
@@ -147,7 +151,7 @@ class GoToListType extends AbstractType
 
         $builder->add(
             'separate',
-            'yesno_button_group',
+            YesNoButtonGroupType::class,
             [
                 'label' => 'mautic.citrix.form.separate',
                 'required' => true,
@@ -158,7 +162,7 @@ class GoToListType extends AbstractType
 
         $builder->add(
             'attribute_container',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.container',
                 'label_attr' => ['class' => 'control-label'],
@@ -168,7 +172,7 @@ class GoToListType extends AbstractType
         );
         $builder->add(
             'attribute_title',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.title',
                 'label_attr' => ['class' => 'control-label'],
@@ -179,7 +183,7 @@ class GoToListType extends AbstractType
 
         $builder->add(
             'attribute_language',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.language',
                 'label_attr' => ['class' => 'control-label'],
@@ -189,7 +193,7 @@ class GoToListType extends AbstractType
         );
         $builder->add(
             'attribute_author',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.author',
                 'label_attr' => ['class' => 'control-label'],
@@ -199,7 +203,7 @@ class GoToListType extends AbstractType
         );
         $builder->add(
             'attribute_duration',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.duration',
                 'label_attr' => ['class' => 'control-label'],
@@ -209,7 +213,7 @@ class GoToListType extends AbstractType
         );
         $builder->add(
             'attribute_date',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.date',
                 'label_attr' => ['class' => 'control-label'],
@@ -219,7 +223,7 @@ class GoToListType extends AbstractType
         );
         $builder->add(
             'attribute_description',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.description',
                 'label_attr' => ['class' => 'control-label'],

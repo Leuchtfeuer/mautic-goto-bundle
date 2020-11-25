@@ -15,6 +15,7 @@ use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -75,7 +76,7 @@ class GoToCampaignEventType extends AbstractType
 
         $builder->add(
             'event-criteria-'.$product,
-            'choice',
+            ChoiceType::class,
             [
                 'label'   => $this->translator->trans('plugin.citrix.decision.criteria'),
                 'choices' => $choices,
@@ -89,7 +90,7 @@ class GoToCampaignEventType extends AbstractType
 
         $builder->add(
             $product.'-list',
-            'choice',
+            ChoiceType::class,
             [
                 'label'    => $this->translator->trans('plugin.citrix.decision.'.$product.'.list'),
                 'choices'  => $choices,

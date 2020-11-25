@@ -26,6 +26,8 @@ use Mautic\FormBundle\Model\SubmissionModel;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Event\PluginIntegrationRequestEvent;
 use Mautic\PluginBundle\PluginEvents;
+use MauticPlugin\MauticGoToBundle\Form\Type\GoToActionType;
+use MauticPlugin\MauticGoToBundle\Form\Type\GoToListType;
 use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
@@ -549,7 +551,7 @@ class FormSubscriber implements EventSubscriberInterface
             // Select field
             $field = [
                 'label' => 'plugin.citrix.' . $product . '.listfield',
-                'formType' => 'citrix_list',
+                'formType' => GoToListType::class,
                 'template' => 'MauticGoToBundle:Field:citrixlist.html.php',
                 'listType' => $product,
                 'product_choices' => $this->goToModel->getProducts($product, null, null, null, true),
@@ -567,7 +569,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'group' => 'plugin.citrix.form.header',
                     'description' => 'plugin.citrix.form.header.webinar',
                     'label' => 'plugin.citrix.action.register.webinar',
-                    'formType' => 'citrix_submit_action',
+                    'formType' => GoToActionType::class,
                     'formTypeOptions' => [
                         'attr' => [
                             'data-product' => $product,
@@ -584,7 +586,7 @@ class FormSubscriber implements EventSubscriberInterface
                         'group' => 'plugin.citrix.form.header',
                         'description' => 'plugin.citrix.form.header.meeting',
                         'label' => 'plugin.citrix.action.start.meeting',
-                        'formType' => 'citrix_submit_action',
+                        'formType' => GoToActionType::class,
                         'template' => 'MauticFormBundle:Action:generic.html.php',
                         'eventName' => GoToEvents::ON_MEETING_START_ACTION,
                         'formTypeOptions' => [
@@ -601,7 +603,7 @@ class FormSubscriber implements EventSubscriberInterface
                             'group' => 'plugin.citrix.form.header',
                             'description' => 'plugin.citrix.form.header.training',
                             'label' => 'plugin.citrix.action.register.training',
-                            'formType' => 'citrix_submit_action',
+                            'formType' => GoToActionType::class,
                             'template' => 'MauticFormBundle:Action:generic.html.php',
                             'eventName' => GoToEvents::ON_TRAINING_REGISTER_ACTION,
                             'formTypeOptions' => [
@@ -617,7 +619,7 @@ class FormSubscriber implements EventSubscriberInterface
                             'group' => 'plugin.citrix.form.header',
                             'description' => 'plugin.citrix.form.header.start.training',
                             'label' => 'plugin.citrix.action.start.training',
-                            'formType' => 'citrix_submit_action',
+                            'formType' => GoToActionType::class,
                             'template' => 'MauticFormBundle:Action:generic.html.php',
                             'eventName' => GoToEvents::ON_TRAINING_START_ACTION,
                             'formTypeOptions' => [
@@ -634,7 +636,7 @@ class FormSubscriber implements EventSubscriberInterface
                                 'group' => 'plugin.citrix.form.header',
                                 'description' => 'plugin.citrix.form.header.assist',
                                 'label' => 'plugin.citrix.action.screensharing.assist',
-                                'formType' => 'citrix_submit_action',
+                                'formType' => GoToActionType::class,
                                 'template' => 'MauticFormBundle:Action:generic.html.php',
                                 'eventName' => GoToEvents::ON_ASSIST_REMOTE_ACTION,
                                 'formTypeOptions' => [
