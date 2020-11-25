@@ -29,24 +29,27 @@ return [
     'services' => [
         'events' => [
             'mautic.citrix.formbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\FormSubscriber',
+                'class'     => \MauticPlugin\MauticGoToBundle\EventListener\FormSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                     'mautic.form.model.form',
                     'mautic.form.model.submission',
+                    'translator',
+                    'doctrine.orm.entity_manager',
+                    'mautic.helper.templating',
                 ],
                 'methodCalls' => [
                     'setEmailModel' => ['mautic.email.model.email'],
                 ],
             ],
             'mautic.citrix.leadbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\LeadSubscriber',
+                'class'     => \MauticPlugin\MauticGoToBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
             ],
             'mautic.citrix.campaignbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\CampaignSubscriber',
+                'class'     => \MauticPlugin\MauticGoToBundle\EventListener\CampaignSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
@@ -55,7 +58,7 @@ return [
                 ],
             ],
             'mautic.citrix.emailbundle.subscriber' => [
-                'class'     => 'MauticPlugin\MauticGoToBundle\EventListener\EmailSubscriber',
+                'class'     => \MauticPlugin\MauticGoToBundle\EventListener\EmailSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
@@ -73,14 +76,14 @@ return [
         ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
-                'class' => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToListType',
+                'class' => \MauticPlugin\MauticGoToBundle\Form\Type\GoToListType::class,
                 'alias' => 'citrix_list',
                 'arguments' => [
                     'mautic.citrix.model.citrix'
                 ]
             ],
             'mautic.form.type.citrix.submitaction' => [
-                'class'     => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToActionType',
+                'class'     => \MauticPlugin\MauticGoToBundle\Form\Type\GoToActionType::class,
                 'alias'     => 'citrix_submit_action',
                 'arguments' => [
                     'mautic.form.model.field',
@@ -88,7 +91,7 @@ return [
                 ],
             ],
             'mautic.form.type.citrix.campaignevent' => [
-                'class'     => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignEventType',
+                'class'     => \MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignEventType::class,
                 'alias'     => 'citrix_campaign_event',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
@@ -96,7 +99,7 @@ return [
                 ],
             ],
             'mautic.form.type.citrix.campaignaction' => [
-                'class'     => 'MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignActionType',
+                'class'     => \MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignActionType::class,
                 'alias'     => 'citrix_campaign_action',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
