@@ -98,7 +98,7 @@ class GoToCampaignActionType extends AbstractType
                 ChoiceType::class,
                 [
                     'label'    => $this->translator->trans('plugin.citrix.decision.'.$product.'.list'),
-                    'choices'  => $productArray,
+                    'choices'  => array_flip($productArray),
                     'multiple' => true,
                 ]
             );
