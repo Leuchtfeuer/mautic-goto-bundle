@@ -54,9 +54,7 @@ $listType = '';
 if (isset($field['customParameters']['listType'])) {
     $listType = $field['customParameters']['listType'];
 }
-/** @var \MauticPlugin\MauticGoToBundle\Model\GoToModel $citrixModel */
-$citrixModel = $view->container->get(\MauticPlugin\MauticGoToBundle\Model\GoToModel::class);
-$list = $citrixModel->getProducts("webinar", true, null, false, true);
+$list = $mauticTemplateVars["field"]["customParameters"]["product_choices"];
 
 $new_list = [];
 $without_session_list = [];
