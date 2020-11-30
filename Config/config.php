@@ -46,6 +46,8 @@ return [
                 'class'     => \MauticPlugin\MauticGoToBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
+                    'doctrine.orm.entity_manager',
+                    'translator',
                 ],
             ],
             'mautic.citrix.campaignbundle.subscriber' => [
