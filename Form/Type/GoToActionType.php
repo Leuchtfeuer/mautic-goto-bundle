@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticGoToBundle\Form\Type;
 use Mautic\FormBundle\Model\FieldModel;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -29,13 +30,20 @@ class GoToActionType extends AbstractType
     protected $model;
 
     /**
+     * @var GoToModel
+     */
+    protected $goToModel;
+
+    /**
      * GoToActionType constructor.
      *
      * @param FieldModel $fieldModel
+     * @param GoToModel $goToModel
      */
-    public function __construct(FieldModel $fieldModel)
+    public function __construct(FieldModel $fieldModel, GoToModel $goToModel)
     {
         $this->model = $fieldModel;
+        $this->goToModel = $goToModel;
     }
 
     /**
@@ -88,7 +96,7 @@ class GoToActionType extends AbstractType
             $products = [
                 'form' => 'User selection from form',
             ];
-            $products = array_replace($products, GoToHelper::getGoToChoices($product));
+            $products = array_replace($products, $this->goToModel->getProducts($product, new \DateTime('now'), false,false, false));
 
             $builder->add(
                 'product',
@@ -184,6 +192,24 @@ class GoToActionType extends AbstractType
             ]
         );
 
+
+        $builder->add(
+            'company',
+            'choice',
+            [
+                'choices'    => $choices,
+                'expanded'   => false,
+                'label_attr' => ['class' => 'control-label'],
+                'multiple'   => false,
+                'label'      => 'plugin.citrix.company',
+                'attr'       => [
+                    'class'   => 'form-control',
+                    'tooltip' => 'plugin.citrix.company.tooltip',
+                ],
+                'required'    => false,
+            ]
+        );
+
         if (array_key_exists('data-product-action', $options['attr']) &&
             ('start' === $options['attr']['data-product-action'] ||
              'screensharing' === $options['attr']['data-product-action'])
@@ -220,3 +246,4 @@ class GoToActionType extends AbstractType
         return 'citrix_submit_action';
     }
 }
+

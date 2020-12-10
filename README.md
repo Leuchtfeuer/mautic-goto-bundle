@@ -15,17 +15,17 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Command line access
 
 ## Preparations
-ATTENTION: If you have preexisting data, that will remain in the database but not be accessible through Mautic. Please check carefully before proceeding.
+* If you have preexisting data: BACKUP now! There is curently no migration.
 
-* Verify existing status and clear cache.
+* Verify existing status, "nothing to update" should show up.
 
       cd [path-to-your-mautic]
       sudo -u www-data php app/console doctrine:schema:update --force
-      sudo -u www-data php app/console cache:clear
   This should give you "Nothing to update".
   
-* Remove the existing plugin files and save them to home directory
+* Remove the existing plugin files and clear cache
 
+      sudo -u www-data php app/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
 ## Installation
@@ -40,7 +40,7 @@ ATTENTION: If you have preexisting data, that will remain in the database but no
 
       cd [path-to-your-mautic]
       cp -rp ~/MauticGoToBundle plugins/MauticGoToBundle
-      chown -R www-data:www-data plugins/MauticGoToBundle   #assuming that your web server uses the "www-data" account
+      chown -R www-data:www-data plugins/MauticGoToBundle   [assuming that your web server uses the "www-data" account]
       
 * Create symlink (needed due to hard reference in core)
 
@@ -81,12 +81,6 @@ ATTENTION: If you have preexisting data, that will remain in the database but no
 
       [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
 
-* You can also exclude importing Events/Contacts:
-
-      sudo -u www-data php  app/console mautic:goto:sync --excludeEvents
-      sudo -u www-data php  app/console mautic:goto:sync --excludeContacts  
-      
-
 We suggest to do the sync every 15 minutes.
 If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
 
@@ -101,4 +95,15 @@ All the other options are unchanged, thus see existing docs such as https://docs
 * Form actions
 * Campaign conditions and actions
 * Contact properties
-* "Join Webinar" tokens in emails
+* "Join Webinar" token in emails
+
+## Known Issues / Missing Features
+
+* If you're mapping fields in the Form-Action, it won't take the mapped fields to register the Lead at GoTo, it'll register the fields which will get persisted in the Lead-DB
+* In the Form-Action you'll be able to select distinct webinars. This is useless because you want to register the Contact at the Webinar which the contact has chosen.
+* Error Messages are getting displayed without formatting in the Form-Action
+* You're not able to map DB-Fields to GoTo-Fields in the Campaign-Action
+
+## API-Requests
+For every ProductType k (Like Meeting-Integration, Assist-Integration, ...) there'll be 2\*n Requests for n-Events (e.g. a meeting, a webinar or a Sessions) happening.
+For Every Event there'll m Requests for m-Registrants and o Requests for o-Attendees. So ~ *n\*(2\*k+m\*o)*

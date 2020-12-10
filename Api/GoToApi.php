@@ -85,7 +85,6 @@ class GoToApi
                 $message = 'Bad request';
                 break;
             case 401:
-                var_dump($request);
                 $message = 'Unauthorized';
                 break;
             case 403:

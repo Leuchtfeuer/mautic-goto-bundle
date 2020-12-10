@@ -14,32 +14,39 @@ use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 if (!function_exists('buildTitle')) {
     function buildTitle($list, $products, $field)
     {
+        $new_list = [];
         foreach ($list as $key => $product) {
             $title = '';
-            foreach ($field['properties']['in_dropdown_details'] as $setting) {
-                switch ($setting) {
-                    case GoToDetailKeywords::GOTOTITLE:
-                        $title .= $products[$key]['name'];
-                        break;
-                    case GoToDetailKeywords::GOTODATE:
-                        $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
-                        if ($date !== false) {
-                            $title .= $date->format('d.m.Y H:i');
-                        }
-                        break;
-                    case GoToDetailKeywords::GOTOAUTHOR:
-                        $title .= $products[$key]['author'];
-                        break;
-                    case GoToDetailKeywords::GOTOLANGUAGE:
-                        $title .= $products[$key]['language'];
-                        break;
-                }
-                $title .= ' ';
+            $product_date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
 
+            if ($product_date) {
+                if ($products[$key]['status'] === \MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE && $product_date->getTimestamp() > time()) {
+                    foreach ($field['properties']['in_dropdown_details'] as $setting) {
+                        switch ($setting) {
+                            case GoToDetailKeywords::GOTOTITLE:
+                                $title .= $products[$key]['name'];
+                                break;
+                            case GoToDetailKeywords::GOTODATE:
+                                if ($product_date !== false) {
+                                    $title .= $product_date->format('d.m.Y H:i');
+                                }
+                                break;
+                            case GoToDetailKeywords::GOTOAUTHOR:
+                                $title .= $products[$key]['author'];
+                                break;
+                            case GoToDetailKeywords::GOTOLANGUAGE:
+                                $title .= $products[$key]['language'];
+                                break;
+                        }
+                        $title .= ' ';
+                    }
+
+                    $new_list[$key] = $title;
+
+                }
             }
-            $list[$key] = $title;
         }
-        return $list;
+        return $new_list;
     }
 }
 
@@ -54,20 +61,25 @@ $list = $citrixModel->getProducts("webinar", true, null, false, true);
 $new_list = [];
 $without_session_list = [];
 $not_separate_list = [];
-foreach ($field['properties']['product_select'] as $element) {
-    $without_session_list[$element] = $list[$element]['name'];
-    if ($list[$element]['recurrence_key'] !== null) {
-        foreach ($list as $entry) {
-            if ($entry['recurrence_key'] === $list[$element]['recurrence_key'] && ($entry['product_key'] !== $element)) {
-                $new_list[$entry['recurrence_key']][$entry['product_key']] = $entry['name'];
-                $not_separate_list[$entry['product_key']] = $entry['name'];
-            }
+$recurrences = [];
+foreach ($list as $key => $entry) {
+    if (in_array($key, $field['properties']['product_select'], true)) {
+        if ($entry['recurrence_key'] !== null) {
+                $recurrences[] = $entry['recurrence_key'];
         }
-    } else {
-        $new_list[$element][$element] = $list[$element]['name'];
-        $not_separate_list[$element] = $list[$element]['name'];
     }
 }
+foreach ($list as $key => $entry) {
+    if (in_array($key, $field['properties']['product_select'], true) && !isset($entry['recurrence_key'])) {
+        $new_list[$key][$key] = $list[$key]['name'];
+        $not_separate_list[$key] = $list[$key]['name'];
+    }
+    if (in_array($entry['recurrence_key'], $recurrences, true)) {
+        $new_list[$entry['recurrence_key']][$key] = $list[$key]['name'];
+        $not_separate_list[$key] = $list[$key]['name'];
+    }
+}
+
 
 $field = $field;
 $inForm = (isset($inForm)) ? $inForm : false;
@@ -146,6 +158,9 @@ if (!empty($field['properties']['above_dropdown_details'])) {
     $details = $field['properties']['above_dropdown_details'];
 
     foreach ($without_session_list as $key => $product) {
+        if ($product === null) {
+            continue;
+        }
         $description .= <<<HTML
                 <div {$field['properties']['attribute_container']}>
 HTML;

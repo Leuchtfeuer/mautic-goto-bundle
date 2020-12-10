@@ -12,8 +12,8 @@
 return [
     'name'        => 'GoTo',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '1.2.0',
-    'author'      => 'Mautic',
+    'version'     => '1.2',
+    'author'      => 'Leuchtfeuer Digital Marketing',
     'routes'      => [
         'public' => [
             'mautic_citrix_proxy' => [
@@ -84,6 +84,7 @@ return [
                 'alias'     => 'citrix_submit_action',
                 'arguments' => [
                     'mautic.form.model.field',
+                    'mautic.citrix.model.citrix'
                 ],
             ],
             'mautic.form.type.citrix.campaignevent' => [

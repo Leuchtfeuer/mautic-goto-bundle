@@ -254,7 +254,6 @@ class CampaignSubscriber extends CommonSubscriber
         ];
 
         foreach ($activeProducts as $product) {
-
             $event->addCondition(
                 'citrix.event.'.$product,
                 [
@@ -266,8 +265,8 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                     'eventName'      => $eventNames[$product],
-                    'channel'        => 'goto',
-                    'channelIdField' => $product.'-list',
+                    'channel'        => 'citrix',
+                    'channelNameField' => $product.'-list',
                 ]
             );
 
@@ -282,8 +281,8 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                     'eventName'      => $actionNames[$product],
-                    'channel'        => 'goto',
-                    'channelIdField' => $product.'-list',
+                    'channel'        => 'citrix',
+                    'channelNameField' => $product.'-list',
                 ]
             );
         }

@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticGoToBundle\Form\Type;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use stdClass;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -79,8 +80,6 @@ class GoToCampaignActionType extends AbstractType
             }
         }
 
-        //$choices = $this->model->getDistinctEventNamesDesc($options['attr']['data-product']);
-
         $builder->add(
             'event-criteria-'.$product,
             'choice',
@@ -89,7 +88,9 @@ class GoToCampaignActionType extends AbstractType
                 'choices' => $newChoices,
             ]
         );
-        $productArray= $this->model->getDistinctEventNamesDesc($product);
+
+        $productArray= $this->model->getProducts($product, new \DateTime('now'), false,false, false);
+
         if (GoToProductTypes::GOTOASSIST !== $product) {
             $builder->add(
                 $product.'-list',
@@ -98,9 +99,6 @@ class GoToCampaignActionType extends AbstractType
                     'label'    => $this->translator->trans('plugin.citrix.decision.'.$product.'.list'),
                     'choices'  => $productArray,
                     'multiple' => true,
-                    /*'choice_label' => function ($choice, $key, $value) {
-                        return $this->model->getProductById($choice)->getName();
-                    },*/
                 ]
             );
         }

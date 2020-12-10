@@ -234,17 +234,11 @@ class GoToHelper
                     }
                     $results = self::getG2mApi()->request($url, $params);
 
-                    if($withDetails){
-                        return self::getKeyPairsWithDetails($results, 'meetingId');
-                    }
                     return iterator_to_array(self::getKeyPairs($results, 'meetingId', 'subject'));
 
                 case GoToProductTypes::GOTOTRAINING:
                     $results = self::getG2tApi()->request('trainings');
 
-                    if($withDetails){
-                        return self::getKeyPairsWithDetails($results, 'trainingKey');
-                    }
                     return iterator_to_array(self::getKeyPairs($results, 'trainingKey', 'name'));
 
                 case GoToProductTypes::GOTOASSIST:
@@ -359,12 +353,13 @@ class GoToHelper
      * @param $email
      * @param $firstname
      * @param $lastname
+     * @param $company
      *
      * @return bool
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
-    public static function registerToProduct($product, $productId, $email, $firstname, $lastname)
+    public static function registerToProduct($product, $productId, $email, $firstname, $lastname, $company)
     {
         try {
             $response = [];
@@ -374,6 +369,7 @@ class GoToHelper
                         'email' => $email,
                         'firstName' => $firstname,
                         'lastName' => $lastname,
+                        'organization' => $company
                     ];
 
                     $response = self::getG2wApi()->request(
