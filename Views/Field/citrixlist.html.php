@@ -63,18 +63,23 @@ $without_session_list = [];
 $not_separate_list = [];
 $recurrences = [];
 foreach ($list as $key => $entry) {
-    if (in_array($entry['recurrence_key'], $recurrences, true)) {
-        $new_list[$entry['recurrence_key']][$key] = $list[$key]['name'];
-        $not_separate_list[$key] = $list[$key]['name'];
-    }
     if (in_array($key, $field['properties']['product_select'], true)) {
         if ($entry['recurrence_key'] !== null) {
                 $recurrences[] = $entry['recurrence_key'];
         }
+    }
+}
+foreach ($list as $key => $entry) {
+    if (in_array($key, $field['properties']['product_select'], true) && !isset($entry['recurrence_key'])) {
         $new_list[$key][$key] = $list[$key]['name'];
         $not_separate_list[$key] = $list[$key]['name'];
     }
+    if (in_array($entry['recurrence_key'], $recurrences, true)) {
+        $new_list[$entry['recurrence_key']][$key] = $list[$key]['name'];
+        $not_separate_list[$key] = $list[$key]['name'];
+    }
 }
+
 
 $field = $field;
 $inForm = (isset($inForm)) ? $inForm : false;
