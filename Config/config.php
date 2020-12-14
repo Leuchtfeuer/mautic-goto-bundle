@@ -54,6 +54,8 @@ return [
                 'class'     => \MauticPlugin\MauticGoToBundle\EventListener\CampaignSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
+                    'doctrine.orm.entity_manager',
+                    'translator',
                 ],
                 'methodCalls' => [
                     'setEmailModel' => ['mautic.email.model.email'],
