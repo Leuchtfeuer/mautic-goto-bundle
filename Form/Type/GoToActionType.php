@@ -130,7 +130,7 @@ class GoToActionType extends AbstractType
                 'firstname',
                 ChoiceType::class,
                 [
-                    'choices'    => $choices,
+                    'choices'    => array_flip($choices),
                     'expanded'   => false,
                     'label_attr' => ['class' => 'control-label'],
                     'multiple'   => false,
@@ -152,7 +152,7 @@ class GoToActionType extends AbstractType
                 'lastname',
                 ChoiceType::class,
                 [
-                    'choices'    => $choices,
+                    'choices'    => array_flip($choices),
                     'expanded'   => false,
                     'label_attr' => ['class' => 'control-label'],
                     'multiple'   => false,
@@ -175,7 +175,7 @@ class GoToActionType extends AbstractType
             'email',
             ChoiceType::class,
             [
-                'choices'    => $choices,
+                'choices'    => array_flip($choices),
                 'expanded'   => false,
                 'label_attr' => ['class' => 'control-label'],
                 'multiple'   => false,
@@ -198,7 +198,7 @@ class GoToActionType extends AbstractType
             'company',
             ChoiceType::class,
             [
-                'choices'    => $choices,
+                'choices'    => array_flip($choices),
                 'expanded'   => false,
                 'label_attr' => ['class' => 'control-label'],
                 'multiple'   => false,

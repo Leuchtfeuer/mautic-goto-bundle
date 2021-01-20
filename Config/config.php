@@ -65,6 +65,8 @@ return [
                 'class'     => \MauticPlugin\MauticGoToBundle\EventListener\EmailSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
+                    'translator',
+                    'mautic.helper.templating',
                 ],
             ],
             'mautic.citrix.stats.subscriber' => [
