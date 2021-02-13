@@ -220,11 +220,26 @@ class GoToModel extends FormModel
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return 0; // is not a valid citrix product
         }
-        $dql = 'SELECT COUNT(c.id) as cant FROM MauticGoToBundle:GoToEvent c ' .
-            ' WHERE c.product=:product and c.email=:email AND c.eventType=:eventType ';
+        /*
+         * SELECT * FROM mautic_developing.plugin_goto_events as pge
+         * INNER JOIN mautic_developing.plugin_goto_products as pgp ON pge.citrix_product_id=pgp.id;
+         */
+        $dql = 'SELECT COUNT(c.id) AS cant FROM MauticGoToBundle:GoToEvent c ' .
+            ' INNER JOIN MauticGoToBundle:GoToProduct as p' .
+            ' INNER JOIN MauticLeadBundle:Lead as l' .
+            ' WHERE p.product=:product AND l.email=:email AND c.eventType=:eventType ';
 
         if (0 !== count($eventNames)) {
-            $dql .= 'AND c.eventName IN (:eventNames)';
+            $dql .= 'AND (';
+            foreach ($eventNames as $key=>$event){
+                $dql .= 'c.joinUrl Like :event'. $key ;
+                if(count($eventNames) > ($key+1)){
+                    $dql .= ' OR ';
+                } else {
+                    $dql .= ')';
+                }
+            }
+
         }
 
         $query = $this->em->createQuery($dql);
@@ -234,8 +249,12 @@ class GoToModel extends FormModel
             ':eventType' => $eventType,
         ]);
         if (0 !== count($eventNames)) {
-            $query->setParameter(':eventNames', $eventNames);
+            foreach ($eventNames as $key=>$event){
+                $query->setParameter(':event'. $key, '%'.$event.'%');
+            }
+
         }
+        $test = $query->getSQL();
 
         return (int)$query->getResult()[0]['cant'];
     }
