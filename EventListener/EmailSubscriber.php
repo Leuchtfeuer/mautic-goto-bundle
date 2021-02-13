@@ -23,6 +23,7 @@ use MauticPlugin\MauticGoToBundle\Event\TokenGenerateEvent;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -48,21 +49,29 @@ class EmailSubscriber implements EventSubscriberInterface
     private $templating;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
      * FormSubscriber constructor.
      *
      * @param GoToModel $goToModel
      * @param TranslatorInterface $translator
      * @param TemplatingHelper $templating
+     * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
         GoToModel $goToModel,
         TranslatorInterface $translator,
-        TemplatingHelper $templating
+        TemplatingHelper $templating,
+        EventDispatcherInterface $dispatcher
     )
     {
         $this->goToModel = $goToModel;
         $this->translator = $translator;
         $this->templating = $templating;
+        $this->dispatcher  = $dispatcher;
     }
 
     /**
@@ -203,7 +212,8 @@ class EmailSubscriber implements EventSubscriberInterface
                     unset($tokenEvent);
                 }
 
-                $button = $this->templating->render(
+
+                $button = $this->templating->getTemplating()->render(
                     'MauticGoToBundle:SubscribedEvents\EmailToken:token.html.php',
                     $params
                 );

@@ -67,6 +67,7 @@ return [
                     'mautic.citrix.model.citrix',
                     'translator',
                     'mautic.helper.templating',
+                    'event_dispatcher'
                 ],
             ],
             'mautic.citrix.stats.subscriber' => [
