@@ -127,8 +127,8 @@ class GoToEventRepository extends CommonRepository
     public function findRegisteredByEmail($product, $email)
     {
         $query = $this->createQueryBuilder('c')
-            ->innerJoin(GoToProduct::class, 'cp', Join::INNER_JOIN, 'c.citrixProduct = cp.id')
-            ->innerJoin(Lead::class, 'l', Join::INNER_JOIN, 'c.contact = l.id')
+            ->innerJoin(GoToProduct::class, 'cp', Join::WITH, 'c.citrixProduct = cp.id')
+            ->innerJoin(Lead::class, 'l', Join::WITH, 'c.contact = l.id')
             ->select('c');
         $query->where(
             $query->expr()->eq('l.email', ':email')
