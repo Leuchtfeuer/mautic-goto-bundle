@@ -25,6 +25,7 @@ use MauticPlugin\MauticGoToBundle\Event\GoToEventUpdateEvent;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use Symfony\Component\Console\Output\OutputInterface;
+use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
 
 /**
  * Class GoToModel.
@@ -504,7 +505,7 @@ class GoToModel extends FormModel
 
             }
         }
-
+        $persistedProduct->setStatus(STATUS_ACTIVE);
         $productRepository->saveEntity($persistedProduct);
     }
 

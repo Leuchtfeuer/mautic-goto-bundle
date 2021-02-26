@@ -18,6 +18,7 @@ use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use const MauticPlugin\MauticGoToBundle\Entity\STATUS_HIDDEN;
 
 /**
  * CLI Command : Synchronizes registrant information from GoTo products.
@@ -99,6 +100,12 @@ class SyncCommand extends ModeratedCommand
             } else {
                 $productIds[]                  = $options['id'];
                 $citrixChoices[$options['id']] = $options['id'];
+            }
+            $diff = array_diff_key($model->getProducts($product), $citrixChoices);
+            foreach ($diff as $key => $name){
+                $productEntity = $model->getProductById($key);
+                $productEntity->setStatus(STATUS_HIDDEN);
+                $model->saveEntity($productEntity);
             }
             foreach ($productIds as $productId) {
                 $output->writeln('Persisting ['.$productId.'] to DB');

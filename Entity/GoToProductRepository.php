@@ -49,7 +49,7 @@ class GoToProductRepository extends CommonRepository
             foreach ($results as $result){
                 $recurrenceKeyTemp = $result->getRecurrenceKey();
                 foreach ($results as $key => $session){
-                    $diff = $session->getDate()->getTimestamp() - $result->getDate()->getTimestamp();
+                    $diff = $result->getDate()->getTimestamp() - $session->getDate()->getTimestamp();
                     if($recurrenceKeyTemp !== null && $session->getRecurrenceKey() === $recurrenceKeyTemp && ($diff > 0)){
                         unset($results[$key]);
                     }
