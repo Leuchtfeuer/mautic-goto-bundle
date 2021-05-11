@@ -190,7 +190,7 @@ class GoToListType extends AbstractType
         );
         $builder->add(
             'attribute_author',
-            'text',
+            TextType::class,
             [
                 'label' => 'mautic.form.field.form.attribute.author',
                 'label_attr' => ['class' => 'control-label'],
