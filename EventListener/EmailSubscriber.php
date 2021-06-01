@@ -11,7 +11,9 @@
 
 namespace MauticPlugin\MauticGoToBundle\EventListener;
 
+use Doctrine\ORM\EntityManager;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
+use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
@@ -21,11 +23,14 @@ use MauticPlugin\MauticGoToBundle\Event\TokenGenerateEvent;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class EmailSubscriber.
  */
-class EmailSubscriber extends CommonSubscriber
+class EmailSubscriber implements EventSubscriberInterface
 {
     /**
      * @var GoToModel
@@ -33,13 +38,40 @@ class EmailSubscriber extends CommonSubscriber
     protected $goToModel;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     *
+     * @var TemplatingHelper
+     */
+    private $templating;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
      * FormSubscriber constructor.
      *
      * @param GoToModel $goToModel
+     * @param TranslatorInterface $translator
+     * @param TemplatingHelper $templating
+     * @param EventDispatcherInterface $dispatcher
      */
-    public function __construct(GoToModel $goToModel)
+    public function __construct(
+        GoToModel $goToModel,
+        TranslatorInterface $translator,
+        TemplatingHelper $templating,
+        EventDispatcherInterface $dispatcher
+    )
     {
         $this->goToModel = $goToModel;
+        $this->translator = $translator;
+        $this->templating = $templating;
+        $this->dispatcher  = $dispatcher;
     }
 
     /**
@@ -180,7 +212,8 @@ class EmailSubscriber extends CommonSubscriber
                     unset($tokenEvent);
                 }
 
-                $button = $this->templating->render(
+
+                $button = $this->templating->getTemplating()->render(
                     'MauticGoToBundle:SubscribedEvents\EmailToken:token.html.php',
                     $params
                 );

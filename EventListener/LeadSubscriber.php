@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticGoToBundle\EventListener;
 
+use Doctrine\ORM\EntityManager;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\Event\LeadListFilteringEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
@@ -25,11 +26,13 @@ use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use MauticPlugin\MauticSocialBundle\Entity\Lead;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class LeadSubscriber.
  */
-class LeadSubscriber extends CommonSubscriber
+class LeadSubscriber implements EventSubscriberInterface
 {
     /**
      * @var GoToModel
@@ -37,14 +40,34 @@ class LeadSubscriber extends CommonSubscriber
     protected $model;
 
     /**
+     * @var EntityManager
+     */
+    private $entityManager;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
      * LeadSubscriber constructor.
      *
      * @param GoToModel $model
+     * @param TranslatorInterface $translator
+     * @param EntityManager $entityManager
      */
-    public function __construct(GoToModel $model)
+    public function __construct(
+        GoToModel $model,
+        EntityManager $entityManager,
+        TranslatorInterface $translator
+    )
     {
         $this->model = $model;
+        $this->entityManager = $entityManager;
+        $this->translator = $translator;
     }
+
+
 
     /**
      * @return array
@@ -77,7 +100,7 @@ class LeadSubscriber extends CommonSubscriber
     public function onTimelineGenerate(LeadTimelineEvent $event)
     {
         /** @var GoToProductRepository $productRepository */
-        $productRepository = $this->em->getRepository(GoToProduct::class);
+        $productRepository = $this->entityManager->getRepository(GoToProduct::class);
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
             if (GoToHelper::isAuthorized('Goto' . $p)) {

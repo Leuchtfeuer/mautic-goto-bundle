@@ -16,6 +16,7 @@ use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -100,9 +101,9 @@ class GoToActionType extends AbstractType
 
             $builder->add(
                 'product',
-                'choice',
+                ChoiceType::class,
                 [
-                    'choices'    => $products,
+                    'choices'    => array_flip($products),
                     'expanded'   => false,
                     'label_attr' => ['class' => 'control-label'],
                     'multiple'   => false,
@@ -127,9 +128,9 @@ class GoToActionType extends AbstractType
         ) {
             $builder->add(
                 'firstname',
-                'choice',
+                ChoiceType::class,
                 [
-                    'choices'    => $choices,
+                    'choices'    => array_flip($choices),
                     'expanded'   => false,
                     'label_attr' => ['class' => 'control-label'],
                     'multiple'   => false,
@@ -149,9 +150,9 @@ class GoToActionType extends AbstractType
 
             $builder->add(
                 'lastname',
-                'choice',
+                ChoiceType::class,
                 [
-                    'choices'    => $choices,
+                    'choices'    => array_flip($choices),
                     'expanded'   => false,
                     'label_attr' => ['class' => 'control-label'],
                     'multiple'   => false,
@@ -172,9 +173,9 @@ class GoToActionType extends AbstractType
 
         $builder->add(
             'email',
-            'choice',
+            ChoiceType::class,
             [
-                'choices'    => $choices,
+                'choices'    => array_flip($choices),
                 'expanded'   => false,
                 'label_attr' => ['class' => 'control-label'],
                 'multiple'   => false,
@@ -195,9 +196,9 @@ class GoToActionType extends AbstractType
 
         $builder->add(
             'company',
-            'choice',
+            ChoiceType::class,
             [
-                'choices'    => $choices,
+                'choices'    => array_flip($choices),
                 'expanded'   => false,
                 'label_attr' => ['class' => 'control-label'],
                 'multiple'   => false,

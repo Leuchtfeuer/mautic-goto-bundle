@@ -54,7 +54,7 @@ class SyncCommand extends ModeratedCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var GoToModel $model */
-        $model   = $this->getContainer()->get('mautic.citrix.model.citrix');
+        $model   = $this->getContainer()->get(GoToModel::class);
         $options = $input->getOptions();
         $product = $options['product'];
 
