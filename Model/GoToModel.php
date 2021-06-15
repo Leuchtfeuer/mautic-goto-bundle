@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticGoToBundle\Model;
 
+use libphonenumber\PhoneNumberMatch;
 use Mautic\CampaignBundle\Executioner\Scheduler\Mode\DateTime;
 use Mautic\CampaignBundle\Model\EventModel;
 use Mautic\CoreBundle\Model\FormModel;
@@ -525,6 +526,13 @@ class GoToModel extends FormModel
 
         }
         return $products;
+    }
+
+    public function getIdByNameAndDate($name, $date){
+        $productRepository = $this->em->getRepository(GoToProduct::class);
+        $result = $productRepository->findOneBy(["name" => $name, "date" => $date]);
+
+        return $result->getId();
     }
 
     public function getProductById($id)

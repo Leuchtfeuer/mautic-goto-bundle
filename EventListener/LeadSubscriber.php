@@ -186,7 +186,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
         foreach ($activeProducts as $product) {
             $eventNames = $this->model->getDistinctEventNamesDesc($product);
-
+            $eventNames = array_combine($eventNames, $eventNames);
             $eventNamesWithoutAny = array_merge(
                 [
                     '-' => '-',
@@ -284,10 +284,9 @@ class LeadSubscriber implements EventSubscriberInterface
 
             if (in_array($currentFilter, $eventFilters, true)) {
                 $eventNames = $details['filter'];
+                preg_match('/^([^ ]+ +[^ ]+) +(.*)$/', $eventNames, $matches);
+                $eventNames = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
                 $isAnyEvent = in_array('any', $eventNames, true);
-                $eventNames = array_map(function ($v) use ($q) {
-                    return $q->expr()->literal($v);
-                }, $eventNames);
                 $subQueriesSQL = [];
 
                 $eventTypes = [GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED];
@@ -303,16 +302,14 @@ class LeadSubscriber implements EventSubscriberInterface
                     if (!$isAnyEvent) {
                         $query->where(
                             $q->expr()->andX(
-                                $q->expr()->eq('cpt'.$k . '.product', $q->expr()->literal($product)),
                                 $q->expr()->eq($alias . $k . '.event_type', $q->expr()->literal($eventType)),
-                                $q->expr()->in($alias . $k . '.event_name', $eventNames),
+                                $q->expr()->eq($alias . $k . '.citrix_product_id', $eventNames),
                                 $q->expr()->eq($alias . $k . '.contact_id', 'l.id')
                             )
                         );
                     } else {
                         $query->where(
                             $q->expr()->andX(
-                                $q->expr()->eq('cpt'.$k . '.product', $q->expr()->literal($product)),
                                 $q->expr()->eq($alias . $k . '.event_type', $q->expr()->literal($eventType)),
                                 $q->expr()->eq($alias . $k . '.contact_id', 'l.id')
                             )
@@ -331,21 +328,21 @@ class LeadSubscriber implements EventSubscriberInterface
                 switch ($currentFilter) {
                     case $product . '-registration':
                         $event->setSubQuery(
-                            sprintf('%s (%s)', 'in' == $func ? 'EXISTS' : 'NOT EXISTS',
+                            sprintf('%s (%s)', 'including' === $func ? 'EXISTS' : 'NOT EXISTS',
                                 $subQueriesSQL[GoToEventTypes::REGISTERED])
                         );
                         break;
 
                     case $product . '-attendance':
                         $event->setSubQuery(
-                            sprintf('%s (%s)', 'in' == $func ? 'EXISTS' : 'NOT EXISTS',
+                            sprintf('%s (%s)', 'including' === $func ? 'EXISTS' : 'NOT EXISTS',
                                 $subQueriesSQL[GoToEventTypes::ATTENDED])
                         );
                         break;
 
                     case $product . '-no-attendance':
                         $queries = [
-                            sprintf('%s (%s)', 'in' == $func ? 'NOT EXISTS' : 'EXISTS',
+                            sprintf('%s (%s)', 'including' === $func ? 'NOT EXISTS' : 'EXISTS',
                                 $subQueriesSQL[GoToEventTypes::ATTENDED])
                         ];
 
