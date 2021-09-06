@@ -2,7 +2,7 @@
 
 namespace MauticPlugin\MauticGoToBundle\Api;
 
-use Joomla\Http\Response;
+use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use MauticPlugin\MauticGoToBundle\Integration\GoToAbstractIntegration;
 
@@ -59,7 +59,7 @@ class GoToApi
             $settings['method'],
             $requestSettings
         );
-        $status  = $request->code;
+        $status  = $request->getStatusCode();
         $message = '';
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
@@ -97,7 +97,7 @@ class GoToApi
                 $message = 'The user is already registered';
                 break;
             default:
-                $message = $request->body;
+                $message = $request->getBody();
                 break;
         }
 
@@ -105,7 +105,7 @@ class GoToApi
             throw new ApiErrorException($message);
         }
 
-        return $this->integration->parseCallbackResponse($request->body);
+        return $this->integration->parseCallbackResponse($request->getBody());
     }
 
     /**
@@ -115,11 +115,7 @@ class GoToApi
      */
     private function isInvalidTokenFromReponse(Response $request)
     {
-        $responseData = $this->integration->parseCallbackResponse($request->body);
-        if (isset($responseData['int_err_code']) && $responseData['int_err_code'] == 'InvalidToken') {
-            return true;
-        }
-
-        return false;
+        $responseData = $this->integration->parseCallbackResponse($request->getBody());
+        return isset($responseData['int_err_code']) && $responseData['int_err_code'] === 'InvalidToken';
     }
 }
