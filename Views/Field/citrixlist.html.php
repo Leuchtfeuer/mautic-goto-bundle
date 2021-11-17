@@ -63,7 +63,7 @@ $recurrences = [];
 foreach ($list as $key => $entry) {
     if (in_array($key, $field['properties']['product_select'], true)) {
         if ($entry['recurrence_key'] !== null) {
-                $recurrences[] = $entry['recurrence_key'];
+            $recurrences[] = $entry['recurrence_key'];
         }
     }
 }
@@ -79,13 +79,13 @@ foreach ($list as $key => $entry) {
 }
 
 
-$field = $field;
+/*$field = $field;
 $inForm = (isset($inForm)) ? $inForm : false;
 $list = $new_list;
 $id = $id;
 $formId = (isset($formId)) ? $formId : 0;
 $formName = (isset($formName)) ? $formName : '';
-
+*/
 
 /*
  * @copyright   2014 Mautic Contributors. All rights reserved
@@ -147,15 +147,14 @@ HTML;
 
     return $html;
 };
-
-
-$description = '';
 $products = $field['customParameters']['product_choices'];
-if (empty($without_session_list)){
+/*$description = '';
+
+if (empty($without_session_list)) {
     $without_session_list = $not_separate_list;
 }
 if (!empty($field['properties']['above_dropdown_details'])) {
-    $details = $field['properties']['above_dropdown_details'];
+    $details = $field['properties']['above_dropdown_details']; //TODO: hier korrigieren... Abovee Dropdowns macht komische Sachen
 
     foreach ($without_session_list as $key => $product) {
         if ($product === null) {
@@ -230,14 +229,74 @@ HTML;
 
         }
     }
+}*/
 
 
+function descriptionBuilder($list, $field){
+    $products = $field['customParameters']['product_choices'];
+    $description = '';
+
+    if (!empty($field['properties']['above_dropdown_details'])) {
+        $details = $field['properties']['above_dropdown_details']; //TODO: hier korrigieren... Abovee Dropdowns macht komische Sachen
+
+        foreach ($list as $key => $product) {
+            if ($product === null) {
+                continue;
+            }
+            $description .= <<<HTML
+                <div {$field['properties']['attribute_container']}>
+HTML;
+            if (in_array(GoToDetailKeywords::GOTOTITLE, $details, false)) {
+                $description .= <<<HTML
+                <span {$field['properties']['attribute_title']}>{$products[$key]['name']}</span>
+HTML;
+            }
+            if (in_array(GoToDetailKeywords::GOTOLANGUAGE, $details, false)) {
+                $lang = locale_get_display_language($products[$key]['language'], 'en');
+                $description .= <<<HTML
+                <span {$field['properties']['attribute_language']}>{$lang}</span>
+HTML;
+            }
+            if (in_array(GoToDetailKeywords::GOTOAUTHOR, $details, false)) {
+                $description .= <<<HTML
+                <span {$field['properties']['attribute_author']}>{$products[$key]['author']}</span>
+HTML;
+            }
+            if (in_array(GoToDetailKeywords::GOTODURATION, $details, false)) {
+                $duration = $products[$key]['duration'] / 60;
+                $description .= <<<HTML
+                <span {$field['properties']['attribute_duration']}>{$duration}</span>
+HTML;
+            }
+            if (in_array(GoToDetailKeywords::GOTODATE, $details, false)) {
+                $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
+                if ($date !== false) {
+                    $description .= <<<HTML
+                <span {$field['properties']['attribute_date']}>{$date->format('d.m.Y H:i')}</span>
+HTML;
+                }
+
+            }
+            if (in_array(GoToDetailKeywords::GOTODESCRIPTION, $details, false)) {
+                $description .= <<<HTML
+                <span {$field['properties']['attribute_description']}>{$products[$key]['description']}</span>
+HTML;
+            }
+            $description .= <<<HTML
+                </div>
+HTML;
+
+
+        }
+    }
+    return $description;
 }
 
 
 if ($field['properties']['separate'] === 0) {
 
     $optionsHtml = $optionBuilder(buildTitle($not_separate_list, $products, $field), $emptyOption);
+    $description = descriptionBuilder($not_separate_list, $field);
     $html = <<<HTML
 
             <div $containerAttr>{$label}{$help}
@@ -249,6 +308,33 @@ if ($field['properties']['separate'] === 0) {
 
 HTML;
     echo $html;
+}
+
+elseif ($field['properties']['separate'] === 1) {
+    foreach ($new_list as $separated_list) {
+
+        $optionsHtml = $optionBuilder(buildTitle($separated_list, $products, $field), $emptyOption);
+        $description = descriptionBuilder($separated_list, $field);
+        $labelName = reset($separated_list);
+        $label = (!$field['showLabel']) ? '' : <<<HTML
+
+                <label $labelAttr>{$labelName}</label>
+        HTML;
+
+        $html = <<<HTML
+
+            <div $containerAttr>{$label}{$help}
+                <div $containerAttr>{$description}</div>
+                <select $inputAttr>$optionsHtml
+                </select>
+                <span class="mauticform-errormsg" style="display: none;">$validationMessage</span>
+            </div>
+
+HTML;
+        echo $html;
+    }
+
+
 }
 
 
