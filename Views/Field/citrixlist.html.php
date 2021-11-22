@@ -231,65 +231,66 @@ HTML;
     }
 }*/
 
+if (!function_exists('descriptionBuilder')){
 
-function descriptionBuilder($list, $field){
-    $products = $field['customParameters']['product_choices'];
-    $description = '';
+    function descriptionBuilder($list, $field){
+        $products = $field['customParameters']['product_choices'];
+        $description = '';
 
-    if (!empty($field['properties']['above_dropdown_details'])) {
-        $details = $field['properties']['above_dropdown_details']; //TODO: hier korrigieren... Abovee Dropdowns macht komische Sachen
-
-        foreach ($list as $key => $product) {
-            if ($product === null) {
-                continue;
-            }
-            $description .= <<<HTML
+        if (!empty($field['properties']['above_dropdown_details'])) {
+            $details = $field['properties']['above_dropdown_details'];
+            foreach ($list as $key => $product) {
+                if ($product === null) {
+                    continue;
+                }
+                $description .= <<<HTML
                 <div {$field['properties']['attribute_container']}>
 HTML;
-            if (in_array(GoToDetailKeywords::GOTOTITLE, $details, false)) {
-                $description .= <<<HTML
+                if (in_array(GoToDetailKeywords::GOTOTITLE, $details, false)) {
+                    $description .= <<<HTML
                 <span {$field['properties']['attribute_title']}>{$products[$key]['name']}</span>
 HTML;
-            }
-            if (in_array(GoToDetailKeywords::GOTOLANGUAGE, $details, false)) {
-                $lang = locale_get_display_language($products[$key]['language'], 'en');
-                $description .= <<<HTML
+                }
+                if (in_array(GoToDetailKeywords::GOTOLANGUAGE, $details, false)) {
+                    $lang = locale_get_display_language($products[$key]['language'], 'en');
+                    $description .= <<<HTML
                 <span {$field['properties']['attribute_language']}>{$lang}</span>
 HTML;
-            }
-            if (in_array(GoToDetailKeywords::GOTOAUTHOR, $details, false)) {
-                $description .= <<<HTML
+                }
+                if (in_array(GoToDetailKeywords::GOTOAUTHOR, $details, false)) {
+                    $description .= <<<HTML
                 <span {$field['properties']['attribute_author']}>{$products[$key]['author']}</span>
 HTML;
-            }
-            if (in_array(GoToDetailKeywords::GOTODURATION, $details, false)) {
-                $duration = $products[$key]['duration'] / 60;
-                $description .= <<<HTML
+                }
+                if (in_array(GoToDetailKeywords::GOTODURATION, $details, false)) {
+                    $duration = $products[$key]['duration'] / 60;
+                    $description .= <<<HTML
                 <span {$field['properties']['attribute_duration']}>{$duration}</span>
 HTML;
-            }
-            if (in_array(GoToDetailKeywords::GOTODATE, $details, false)) {
-                $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
-                if ($date !== false) {
-                    $description .= <<<HTML
+                }
+                if (in_array(GoToDetailKeywords::GOTODATE, $details, false)) {
+                    $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
+                    if ($date !== false) {
+                        $description .= <<<HTML
                 <span {$field['properties']['attribute_date']}>{$date->format('d.m.Y H:i')}</span>
 HTML;
-                }
+                    }
 
-            }
-            if (in_array(GoToDetailKeywords::GOTODESCRIPTION, $details, false)) {
-                $description .= <<<HTML
+                }
+                if (in_array(GoToDetailKeywords::GOTODESCRIPTION, $details, false)) {
+                    $description .= <<<HTML
                 <span {$field['properties']['attribute_description']}>{$products[$key]['description']}</span>
 HTML;
-            }
-            $description .= <<<HTML
+                }
+                $description .= <<<HTML
                 </div>
 HTML;
 
 
+            }
         }
+        return $description;
     }
-    return $description;
 }
 
 
