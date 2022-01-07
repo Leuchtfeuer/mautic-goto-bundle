@@ -5,6 +5,7 @@ namespace MauticPlugin\MauticGoToBundle\Api;
 use Joomla\Http\Response;
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use MauticPlugin\MauticGoToBundle\Integration\GoToAbstractIntegration;
+use Psr\Http\Message\ResponseInterface;
 
 class GoToApi
 {
@@ -59,11 +60,17 @@ class GoToApi
             $settings['method'],
             $requestSettings
         );
+        if(is_array($request) && isset($request['error'])) {
+            $e = new ApiErrorException("GoToApi Error:" . $request['error']['message']);
+            $this->integration->logIntegrationError($e);
+            throw $e;
+        }
+
         $status  = $request->code;
         $message = '';
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
-        if ($refreshToken && $this->isInvalidTokenFromReponse($request)) {
+        if ($refreshToken && $this->isInvalidTokenFromResponse($request)) {
             $error = $this->integration->authCallback(['use_refresh_token' => true]);
             if (!$error) {
                 // keys changes, load new integration object
@@ -108,12 +115,7 @@ class GoToApi
         return $this->integration->parseCallbackResponse($request->body);
     }
 
-    /**
-     * @param Response $request
-     *
-     * @return bool
-     */
-    private function isInvalidTokenFromReponse(Response $request)
+    private function isInvalidTokenFromResponse(ResponseInterface $request): bool
     {
         $responseData = $this->integration->parseCallbackResponse($request->body);
         if (isset($responseData['int_err_code']) && $responseData['int_err_code'] == 'InvalidToken') {
