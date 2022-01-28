@@ -14,7 +14,6 @@ namespace MauticPlugin\MauticGoToBundle\Form\Type;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
-use stdClass;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -25,7 +24,6 @@ use Symfony\Component\Translation\TranslatorInterface;
  */
 class GoToCampaignActionType extends AbstractType
 {
-
     /**
      * @var GoToModel
      */
@@ -38,9 +36,6 @@ class GoToCampaignActionType extends AbstractType
 
     /**
      * GoToCampaignEventType constructor.
-     *
-     * @param GoToModel         $model
-     * @param TranslatorInterface $translator
      */
     public function __construct(GoToModel $model, TranslatorInterface $translator)
     {
@@ -90,7 +85,7 @@ class GoToCampaignActionType extends AbstractType
             ]
         );
 
-        $productArray= $this->model->getProducts($product, new \DateTime('now'), false,false, false);
+        $productArray= $this->model->getProducts($product, new \DateTime('now'), false, false, false);
 
         if (GoToProductTypes::GOTOASSIST !== $product) {
             $builder->add(
