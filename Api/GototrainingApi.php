@@ -8,7 +8,6 @@ class GototrainingApi extends GoToApi
 {
     /**
      * @param string $operation
-     * @param array  $parameters
      * @param string $method
      * @param string $route
      *

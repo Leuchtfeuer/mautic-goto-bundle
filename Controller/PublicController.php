@@ -24,8 +24,6 @@ class PublicController extends CommonController
     /**
      * This proxy is used for the GoToTraining API requests in order to bypass the CORS restrictions in AJAX.
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      *
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
@@ -90,8 +88,6 @@ class PublicController extends CommonController
      * A POST will also be made when a customer joins the session and when the session ends
      * (whether or not a customer joined).
      *
-     * @param Request $request
-     *
      * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      *
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
@@ -112,7 +108,7 @@ class PublicController extends CommonController
 
         try {
             /** @var GoToModel $goToModel */
-            $goToModel = $this->get('mautic.model.factory')->getModel('citrix.citrix');
+            $goToModel   = $this->get('mautic.model.factory')->getModel('citrix.citrix');
             $productId   = $post['sessionId'];
             $eventDesc   = sprintf('%s (%s)', $productId, $post['status']);
             $eventName   = GoToHelper::getCleanString(
