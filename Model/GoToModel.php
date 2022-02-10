@@ -531,8 +531,11 @@ class GoToModel extends FormModel
     public function getIdByNameAndDate($name, $date){
         $productRepository = $this->em->getRepository(GoToProduct::class);
         $result = $productRepository->findOneBy(["name" => $name, "date" => $date]);
+        if($result){
+            return $result->getId();
+        }
+        return null;
 
-        return $result->getId();
     }
 
     public function getProductById($id)

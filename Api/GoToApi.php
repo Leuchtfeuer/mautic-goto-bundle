@@ -53,6 +53,7 @@ class GoToApi
             $route,
             $operation
         );
+
         /** @var Response $request */
         $request = $this->integration->makeRequest(
             $url,
@@ -64,7 +65,7 @@ class GoToApi
         $message = '';
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
-        if ($refreshToken && $this->isInvalidTokenFromReponse($request)) {
+        if ($refreshToken && is_array($request) &&$request["error"]["code"]===403) {
             $error = $this->integration->authCallback(['use_refresh_token' => true]);
             if (!$error) {
                 // keys changes, load new integration object

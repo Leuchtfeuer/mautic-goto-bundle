@@ -37,7 +37,7 @@ trait GoToRegistrationTrait
             array_key_exists('email', $leadFields) ? $leadFields['email'] : '',
             array_key_exists('firstname', $leadFields) ? $leadFields['firstname'] : '',
             array_key_exists('lastname', $leadFields) ? $leadFields['lastname'] : '',
-            array_key_exists('company', $leadFields) ? $leadFields['company'] : ''
+            array_key_exists('company', $leadFields) ? htmlspecialchars_decode($leadFields['company']) : ''
         ];
 
         if ('' !== $email && '' !== $firstname && '' !== $lastname) {
