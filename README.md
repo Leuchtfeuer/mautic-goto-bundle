@@ -11,7 +11,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 - Caching of GoTo data - thus no wait time, no more "API calls exceeded" issues
 
 ## Requirements
-* Mautic 4.1 
+* Mautic 4.x
 * Command line access
 
 ## Preparations
@@ -20,12 +20,12 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Verify existing status, "nothing to update" should show up.
 
       cd [path-to-your-mautic]
-      sudo -u www-data php app/console doctrine:schema:update --force
+      sudo -u www-data php bin/console doctrine:schema:update --force
   This should give you "Nothing to update".
   
 * Remove the existing plugin files and clear cache
 
-      sudo -u www-data php app/console cache:clear
+      sudo -u www-data php bin/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
 ## Installation
@@ -51,9 +51,9 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       
 * Cleanup (the hard way :)
 
-      rm -rf app/cache/*
-      sudo -u www-data php app/console cache:clear
-      sudo -u www-data php  app/console doctrine:schema:update --force
+      rm -rf var/cache/*
+      sudo -u www-data php bin/console cache:clear
+      sudo -u www-data php  bin/console doctrine:schema:update --force
       
             
 * In the Browser, go to "Settings" -> "Plugins" in the Mautic-Backend, klick on "Install/Update Plugins". The various "GoTo" cards appear in the Plugin list.
@@ -75,11 +75,11 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Try a first manual Sync: 
 
       cd [path-to-your-mautic]
-      sudo -u www-data php  app/console mautic:goto:sync
+      sudo -u www-data php  bin/console mautic:goto:sync
 
 * Add Cron job for the syncing:
 
-      [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
+      [cron schedule settings] www-data php [path-to-your-mautic]/bin/console mautic:goto:sync
 
 We suggest to do the sync every 15 minutes.
 If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
