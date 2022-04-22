@@ -484,6 +484,7 @@ class GoToModel extends FormModel
         if (array_key_exists('times', $product)) {
             try {
                 $persistedProduct->setDate(new \DateTime($product['times'][0]['startTime']));
+                $persistedProduct->getDate()->setTimezone($product['timeZone']);
                 $persistedProduct->setDuration(strtotime($product['times'][0]['endTime']) - strtotime($product['times'][0]['startTime']));
             } catch (\Exception $e) {
                 $output->writeln('Invalid Date Format');
