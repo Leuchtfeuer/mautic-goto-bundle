@@ -20,7 +20,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
 
 /**
  * Class FormFieldSelectType.
@@ -34,13 +33,11 @@ class GoToListType extends AbstractType
         $this->citrixModel = $citrixModel;
     }
 
-
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $selectMessage = 'Please Select...';
         if (!empty($options['data'])) {
             $selectMessage = empty($options['data']['empty_value']) ? $selectMessage : $options['data']['empty_value'];
@@ -49,20 +46,20 @@ class GoToListType extends AbstractType
             'empty_value',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.emptyvalue',
+                'label'      => 'mautic.form.field.form.emptyvalue',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'data' => $selectMessage,
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'data'       => $selectMessage,
+                'required'   => false,
             ]
         );
 
-        $products = $this->citrixModel->getProducts('webinar', new \DateTime('now'), null, true, true);
+        $products        = $this->citrixModel->getProducts('webinar', new \DateTime('now'), null, true, true);
         $active_products = [];
-        foreach ($products as $key => $product){
-            $date = DateTime::createFromFormat('Y-m-d H:i:s.u',$product['date']['date']);
-            if($date !== false && $product['status'] === STATUS_ACTIVE){
-                $active_products[$key] = $date->format('d.m.Y H:i') . ' ' . ($product['recurrence_key']!==null ? '(...) ' :  '') . $product['name'];
+        foreach ($products as $key => $product) {
+            $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
+            if (false !== $date && STATUS_ACTIVE === $product['status']) {
+                $active_products[$key] = $date->format('d.m.Y H:i').' '.(null !== $product['recurrence_key'] ? '(...) ' : '').$product['name'];
             }
         }
 
@@ -74,7 +71,7 @@ class GoToListType extends AbstractType
                 'multiple' => true,
                 'label' => 'mautic.citrix.form.product.select',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => [
+                'attr'       => [
                     'class' => 'form-control',
                 ],
                 'required' => true,
@@ -82,29 +79,29 @@ class GoToListType extends AbstractType
         );
 
         $data_above = [];
-        if(!empty($options['data']['above_dropdown_details'])){
+        if (!empty($options['data']['above_dropdown_details'])) {
             $data_above = $options['data']['above_dropdown_details'];
         }
         $builder->add(
             'above_dropdown_details',
             ChoiceType::class,
             [
-                'choices' => GoToDetailKeywords::getKeyPairs(),
+                'choices'                   => GoToDetailKeywords::getKeyPairs(),
                 'choice_translation_domain' => true,
-                'expanded' => false,
-                'multiple' => true,
-                'label' => 'mautic.citrix.form.dropdown.above',
-                'label_attr' => ['class' => 'control-label'],
-                'attr' => [
+                'expanded'                  => false,
+                'multiple'                  => true,
+                'label'                     => 'mautic.citrix.form.dropdown.above',
+                'label_attr'                => ['class' => 'control-label'],
+                'attr'                      => [
                     'class' => 'form-control',
                 ],
                 'required' => true,
-                'data' => $data_above,
+                'data'     => $data_above,
             ]
         );
 
         $data_in = [GoToDetailKeywords::GOTODATE];
-        if(!empty($options['data']['in_dropdown_details'])){
+        if (!empty($options['data']['in_dropdown_details'])) {
             $data_in = $options['data']['in_dropdown_details'];
         }
 
@@ -112,12 +109,12 @@ class GoToListType extends AbstractType
             'in_dropdown_details',
             ChoiceType::class,
             [
-                'choices' => GoToDetailKeywords::getKeyPairs(),
-                'data' => $data_in,
-                'multiple' => true,
-                'label' => 'mautic.citrix.form.dropdown.within',
+                'choices'    => GoToDetailKeywords::getKeyPairs(),
+                'data'       => $data_in,
+                'multiple'   => true,
+                'label'      => 'mautic.citrix.form.dropdown.within',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => [
+                'attr'       => [
                     'class' => 'form-control',
                 ],
                 'required' => true,
@@ -134,8 +131,8 @@ class GoToListType extends AbstractType
             'multiple',
             YesNoButtonGroupType::class,
             [
-                'label' => 'mautic.citrix.form.multiple',
-                'data' => $default,
+                'label'    => 'mautic.citrix.form.multiple',
+                'data'     => $default,
                 'required' => true,
             ]
         );
@@ -150,31 +147,30 @@ class GoToListType extends AbstractType
             'separate',
             YesNoButtonGroupType::class,
             [
-                'label' => 'mautic.citrix.form.separate',
+                'label'    => 'mautic.citrix.form.separate',
                 'required' => true,
-                'data' => $default_separate,
+                'data'     => $default_separate,
             ]
         );
-
 
         $builder->add(
             'attribute_container',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.attribute.container',
+                'label'      => 'mautic.form.field.form.attribute.container',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'required'   => false,
             ]
         );
         $builder->add(
             'attribute_title',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.attribute.title',
+                'label'      => 'mautic.form.field.form.attribute.title',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'required'   => false,
             ]
         );
 
@@ -182,56 +178,53 @@ class GoToListType extends AbstractType
             'attribute_language',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.attribute.language',
+                'label'      => 'mautic.form.field.form.attribute.language',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'required'   => false,
             ]
         );
         $builder->add(
             'attribute_author',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.attribute.author',
+                'label'      => 'mautic.form.field.form.attribute.author',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'required'   => false,
             ]
         );
         $builder->add(
             'attribute_duration',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.attribute.duration',
+                'label'      => 'mautic.form.field.form.attribute.duration',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'required'   => false,
             ]
         );
         $builder->add(
             'attribute_date',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.attribute.date',
+                'label'      => 'mautic.form.field.form.attribute.date',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'required'   => false,
             ]
         );
         $builder->add(
             'attribute_description',
             TextType::class,
             [
-                'label' => 'mautic.form.field.form.attribute.description',
+                'label'      => 'mautic.form.field.form.attribute.description',
                 'label_attr' => ['class' => 'control-label'],
-                'attr' => ['class' => 'form-control'],
-                'required' => false,
+                'attr'       => ['class' => 'form-control'],
+                'required'   => false,
             ]
         );
-
     }
-
-
 
     /**
      * {@inheritdoc}
@@ -243,7 +236,7 @@ class GoToListType extends AbstractType
         $resolver->setDefaults(
             [
                 'parentData' => [],
-                'choices' => null,
+                'choices'    => null,
             ]
         );
     }

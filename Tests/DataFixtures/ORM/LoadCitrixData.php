@@ -37,9 +37,6 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
         $this->container = $container;
     }
 
-    /**
-     * @param ObjectManager $manager
-     */
     public function load(ObjectManager $manager)
     {
         $em    = $this->container->get('doctrine')->getManager();

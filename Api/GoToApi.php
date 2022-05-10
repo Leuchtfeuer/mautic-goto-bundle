@@ -16,8 +16,6 @@ class GoToApi
 
     /**
      * GoToApi constructor.
-     *
-     * @param GoToAbstractIntegration $integration
      */
     public function __construct(GoToAbstractIntegration $integration)
     {
@@ -26,7 +24,6 @@ class GoToApi
 
     /**
      * @param string $operation
-     * @param array  $settings
      * @param string $route
      * @param bool   $refreshToken
      *
@@ -103,7 +100,7 @@ class GoToApi
                 break;
         }
 
-        if ($message !== '') {
+        if ('' !== $message) {
             throw new ApiErrorException($message);
         }
 
@@ -121,6 +118,6 @@ class GoToApi
             return true;
         }
 
-        return false;
+        return isset($responseData['int_err_code']) && 'InvalidToken' === $responseData['int_err_code'];
     }
 }
