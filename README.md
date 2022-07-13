@@ -103,6 +103,7 @@ All the other options are unchanged, thus see existing docs such as https://docs
 * In the Form-Action you'll be able to select distinct webinars. This is useless because you want to register the Contact at the Webinar which the contact has chosen.
 * Error Messages are getting displayed without formatting in the Form-Action
 * You're not able to map DB-Fields to GoTo-Fields in the Campaign-Action
+* After updating to a newer version of Mautic, the Sync can possibly start to fail with the following error: "Call to a member function getStatusCode() on array". In that case you need to re-authorize the plugin.
 
 ## API-Requests
 For every ProductType k (Like Meeting-Integration, Assist-Integration, ...) there'll be 2\*n Requests for n-Events (e.g. a meeting, a webinar or a Sessions) happening.
