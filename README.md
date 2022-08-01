@@ -33,7 +33,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
   
       cd ~
       wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/master.zip
-      unzip mautic-goto-bundle-master.zip
+      unzip master.zip
       mv mautic-goto-bundle-master MauticGoToBundle
 
 * copy plugin to the Mautic installation
