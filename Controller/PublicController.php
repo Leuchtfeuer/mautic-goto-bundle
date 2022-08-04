@@ -112,8 +112,8 @@ class PublicController extends CommonController
             $productId   = $post['sessionId'];
             $eventDesc   = sprintf('%s (%s)', $productId, $post['status']);
             $eventName   = GoToHelper::getCleanString(
-                    $eventDesc
-                ).'_#'.$productId;
+                $eventDesc
+            ).'_#'.$productId;
             $product = 'assist';
             $goToModel->syncEvent($product, $productId, $eventName, $eventDesc);
         } catch (\Exception $ex) {

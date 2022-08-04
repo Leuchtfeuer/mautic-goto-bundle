@@ -3,9 +3,9 @@
 namespace MauticPlugin\MauticGoToBundle\Api;
 
 use GuzzleHttp\Psr7\Response;
-use Psr\Http\Message\ResponseInterface;
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use MauticPlugin\MauticGoToBundle\Integration\GoToAbstractIntegration;
+use Psr\Http\Message\ResponseInterface;
 
 class GoToApi
 {
@@ -62,7 +62,7 @@ class GoToApi
         $message = '';
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
-        if ($refreshToken && is_array($request) &&$request["error"]["code"]===403) {
+        if ($refreshToken && is_array($request) && 403 === $request['error']['code']) {
             $error = $this->integration->authCallback(['use_refresh_token' => true]);
             if (!$error) {
                 // keys changes, load new integration object
@@ -108,13 +108,12 @@ class GoToApi
     }
 
     /**
-     *
      * @return bool
      */
     private function isInvalidTokenFromReponse(ResponseInterface $request)
     {
         $responseData = $this->integration->parseCallbackResponse($request->getBody());
-        if (isset($responseData['int_err_code']) && $responseData['int_err_code'] == 'InvalidToken') {
+        if (isset($responseData['int_err_code']) && 'InvalidToken' == $responseData['int_err_code']) {
             return true;
         }
 

@@ -54,7 +54,7 @@ $listType = '';
 if (isset($field['customParameters']['listType'])) {
     $listType = $field['customParameters']['listType'];
 }
-$list = $mauticTemplateVars["field"]["customParameters"]["product_choices"];
+$list = $mauticTemplateVars['field']['customParameters']['product_choices'];
 
 $new_list             = [];
 $without_session_list = [];
@@ -114,7 +114,7 @@ $help = (empty($field['helpMessage'])) ? '' : <<<HTML
 HTML;
 
 $emptyOption = '';
-if ((!empty($properties['empty_value']) || empty($field['defaultValue']) && empty($properties['multiple']))):
+if (!empty($properties['empty_value']) || empty($field['defaultValue']) && empty($properties['multiple'])):
     $emptyOption = <<<HTML
 
                     <option value="">{$properties['empty_value']}</option>
@@ -122,7 +122,7 @@ HTML;
 endif;
 
 $optionBuilder = function (array $list, $emptyOptionHtml = '') use (&$optionBuilder, $field, $view) {
-    $html = $emptyOptionHtml;
+    $html      = $emptyOptionHtml;
     foreach ($list as $listValue => $listLabel):
         if (is_array($listLabel)) {
             // This is an option group
@@ -137,8 +137,8 @@ HTML;
             continue;
         }
 
-    $selected = ($listValue === $field['defaultValue']) ? ' selected="selected"' : '';
-    $html .= <<<HTML
+        $selected = ($listValue === $field['defaultValue']) ? ' selected="selected"' : '';
+        $html .= <<<HTML
                     <option value="{$view->escape($listValue)}"{$selected}>{$view->escape($listLabel)}</option>
 HTML;
     endforeach;
@@ -147,8 +147,8 @@ HTML;
 };
 
 $description = '';
-$products = $field['customParameters']['product_choices'];
-if (empty($without_session_list)){
+$products    = $field['customParameters']['product_choices'];
+if (empty($without_session_list)) {
     $without_session_list = $not_separate_list;
 }
 if (!empty($field['properties']['above_dropdown_details'])) {

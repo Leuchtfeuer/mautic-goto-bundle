@@ -12,7 +12,6 @@
 namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
-use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\Event\LeadListFilteringEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersOperatorsEvent;
@@ -51,23 +50,16 @@ class LeadSubscriber implements EventSubscriberInterface
 
     /**
      * LeadSubscriber constructor.
-     *
-     * @param GoToModel $model
-     * @param TranslatorInterface $translator
-     * @param EntityManager $entityManager
      */
     public function __construct(
         GoToModel $model,
         EntityManager $entityManager,
         TranslatorInterface $translator
-    )
-    {
-        $this->model = $model;
+    ) {
+        $this->model         = $model;
         $this->entityManager = $entityManager;
-        $this->translator = $translator;
+        $this->translator    = $translator;
     }
-
-
 
     /**
      * @return array
@@ -96,7 +88,7 @@ class LeadSubscriber implements EventSubscriberInterface
     {
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->entityManager->getRepository(GoToProduct::class);
-        $activeProducts = [];
+        $activeProducts    = [];
         foreach (GoToProductTypes::toArray() as $p) {
             if (GoToHelper::isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
@@ -178,8 +170,8 @@ class LeadSubscriber implements EventSubscriberInterface
         }
 
         foreach ($activeProducts as $product) {
-            $eventNames = $this->model->getDistinctEventNamesDesc($product);
-            $eventNames = array_combine($eventNames, $eventNames);
+            $eventNames           = $this->model->getDistinctEventNamesDesc($product);
+            $eventNames           = array_combine($eventNames, $eventNames);
             $eventNamesWithoutAny = array_merge(
                 [
                     '-' => '-',
@@ -277,10 +269,10 @@ class LeadSubscriber implements EventSubscriberInterface
                 preg_match('/^([^ ]+ +[^ ]+) +(.*)$/', $eventNames, $matches);
 
                 $eventNames = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
-                if(!$eventNames){
+                if (!$eventNames) {
                     break;
                 }
-                $isAnyEvent = in_array('any', $eventNames, true);
+                $isAnyEvent    = in_array('any', $eventNames, true);
                 $subQueriesSQL = [];
 
                 $eventTypes = [GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED];
@@ -293,16 +285,16 @@ class LeadSubscriber implements EventSubscriberInterface
                     if (!$isAnyEvent) {
                         $query->where(
                             $q->expr()->andX(
-                                $q->expr()->eq($alias . $k . '.event_type', $q->expr()->literal($eventType)),
-                                $q->expr()->eq($alias . $k . '.citrix_product_id', $eventNames),
-                                $q->expr()->eq($alias . $k . '.contact_id', 'l.id')
+                                $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
+                                $q->expr()->eq($alias.$k.'.citrix_product_id', $eventNames),
+                                $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
                             )
                         );
                     } else {
                         $query->where(
                             $q->expr()->andX(
-                                $q->expr()->eq($alias . $k . '.event_type', $q->expr()->literal($eventType)),
-                                $q->expr()->eq($alias . $k . '.contact_id', 'l.id')
+                                $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
+                                $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
                             )
                         );
                     }
@@ -334,7 +326,7 @@ class LeadSubscriber implements EventSubscriberInterface
                     case $product.'-no-attendance':
                         $queries = [
                             sprintf('%s (%s)', 'including' === $func ? 'NOT EXISTS' : 'EXISTS',
-                                $subQueriesSQL[GoToEventTypes::ATTENDED])
+                                $subQueriesSQL[GoToEventTypes::ATTENDED]),
                         ];
 
                         if (in_array($product, [GoToProductTypes::GOTOWEBINAR, GoToProductTypes::GOTOTRAINING])) {
