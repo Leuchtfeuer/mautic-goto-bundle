@@ -67,9 +67,9 @@ class GoToListType extends AbstractType
             'product_select',
             ChoiceType::class,
             [
-                'choices' => array_flip($active_products),
-                'multiple' => true,
-                'label' => 'mautic.citrix.form.product.select',
+                'choices'    => array_flip($active_products),
+                'multiple'   => true,
+                'label'      => 'mautic.citrix.form.product.select',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'class' => 'form-control',

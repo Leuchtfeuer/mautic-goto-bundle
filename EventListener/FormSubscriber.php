@@ -13,7 +13,6 @@ namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
-use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\FormBundle\Entity\Action;
 use Mautic\FormBundle\Entity\Field;
@@ -34,9 +33,7 @@ use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
-use Psr\Log\LogLevel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -74,7 +71,6 @@ class FormSubscriber implements EventSubscriberInterface
     private $entityManager;
 
     /**
-     *
      * @var TemplatingHelper
      */
     private $templating;
@@ -124,10 +120,10 @@ class FormSubscriber implements EventSubscriberInterface
     private function _doRegistration(SubmissionEvent $event, $product, $startType = null)
     {
         $submission = $event->getSubmission();
-        $form = $submission->getForm();
-        $post = $event->getPost();
-        $fields = $form->getFields();
-        $actions = $form->getActions();
+        $form       = $submission->getForm();
+        $post       = $event->getPost();
+        $fields     = $form->getFields();
+        $actions    = $form->getActions();
         try {
             // gotoassist screen sharing does not need a product
             if ('assist' !== $product) {
@@ -169,7 +165,7 @@ class FormSubscriber implements EventSubscriberInterface
                     /** @var SubmissionRepository $repo */
                     $repo             = $this->submissionModel->getRepository();
                     $resultsTableName = $repo->getResultsTableName($form->getId(), $form->getAlias());
-                    $tableKeys = ['submission_id' => $submission->getId()];
+                    $tableKeys        = ['submission_id' => $submission->getId()];
                     $this->entityManager
                         ->getConnection()
                         ->update($resultsTableName, $results, $tableKeys);
@@ -552,10 +548,10 @@ class FormSubscriber implements EventSubscriberInterface
         foreach ($activeProducts as $product) {
             // Select field
             $field = [
-                'label' => 'plugin.citrix.' . $product . '.listfield',
-                'formType' => GoToListType::class,
-                'template' => 'MauticGoToBundle:Field:citrixlist.html.php',
-                'listType' => $product,
+                'label'           => 'plugin.citrix.'.$product.'.listfield',
+                'formType'        => GoToListType::class,
+                'template'        => 'MauticGoToBundle:Field:citrixlist.html.php',
+                'listType'        => $product,
                 'product_choices' => $this->goToModel->getProducts($product, null, null, null, true),
             ];
             $event->addFormField('plugin.citrix.select.'.$product, $field);
@@ -568,10 +564,10 @@ class FormSubscriber implements EventSubscriberInterface
             // actions
             if (GoToProductTypes::GOTOWEBINAR === $product) {
                 $action = [
-                    'group' => 'plugin.citrix.form.header',
-                    'description' => 'plugin.citrix.form.header.webinar',
-                    'label' => 'plugin.citrix.action.register.webinar',
-                    'formType' => GoToActionType::class,
+                    'group'           => 'plugin.citrix.form.header',
+                    'description'     => 'plugin.citrix.form.header.webinar',
+                    'label'           => 'plugin.citrix.action.register.webinar',
+                    'formType'        => GoToActionType::class,
                     'formTypeOptions' => [
                         'attr' => [
                             'data-product'        => $product,
@@ -585,12 +581,12 @@ class FormSubscriber implements EventSubscriberInterface
             } else {
                 if (GoToProductTypes::GOTOMEETING === $product) {
                     $action = [
-                        'group' => 'plugin.citrix.form.header',
-                        'description' => 'plugin.citrix.form.header.meeting',
-                        'label' => 'plugin.citrix.action.start.meeting',
-                        'formType' => GoToActionType::class,
-                        'template' => 'MauticFormBundle:Action:generic.html.php',
-                        'eventName' => GoToEvents::ON_MEETING_START_ACTION,
+                        'group'           => 'plugin.citrix.form.header',
+                        'description'     => 'plugin.citrix.form.header.meeting',
+                        'label'           => 'plugin.citrix.action.start.meeting',
+                        'formType'        => GoToActionType::class,
+                        'template'        => 'MauticFormBundle:Action:generic.html.php',
+                        'eventName'       => GoToEvents::ON_MEETING_START_ACTION,
                         'formTypeOptions' => [
                             'attr' => [
                                 'data-product'        => $product,
@@ -602,12 +598,12 @@ class FormSubscriber implements EventSubscriberInterface
                 } else {
                     if (GoToProductTypes::GOTOTRAINING === $product) {
                         $action = [
-                            'group' => 'plugin.citrix.form.header',
-                            'description' => 'plugin.citrix.form.header.training',
-                            'label' => 'plugin.citrix.action.register.training',
-                            'formType' => GoToActionType::class,
-                            'template' => 'MauticFormBundle:Action:generic.html.php',
-                            'eventName' => GoToEvents::ON_TRAINING_REGISTER_ACTION,
+                            'group'           => 'plugin.citrix.form.header',
+                            'description'     => 'plugin.citrix.form.header.training',
+                            'label'           => 'plugin.citrix.action.register.training',
+                            'formType'        => GoToActionType::class,
+                            'template'        => 'MauticFormBundle:Action:generic.html.php',
+                            'eventName'       => GoToEvents::ON_TRAINING_REGISTER_ACTION,
                             'formTypeOptions' => [
                                 'attr' => [
                                     'data-product'        => $product,
@@ -618,12 +614,12 @@ class FormSubscriber implements EventSubscriberInterface
                         $event->addSubmitAction('plugin.citrix.action.register.training', $action);
 
                         $action = [
-                            'group' => 'plugin.citrix.form.header',
-                            'description' => 'plugin.citrix.form.header.start.training',
-                            'label' => 'plugin.citrix.action.start.training',
-                            'formType' => GoToActionType::class,
-                            'template' => 'MauticFormBundle:Action:generic.html.php',
-                            'eventName' => GoToEvents::ON_TRAINING_START_ACTION,
+                            'group'           => 'plugin.citrix.form.header',
+                            'description'     => 'plugin.citrix.form.header.start.training',
+                            'label'           => 'plugin.citrix.action.start.training',
+                            'formType'        => GoToActionType::class,
+                            'template'        => 'MauticFormBundle:Action:generic.html.php',
+                            'eventName'       => GoToEvents::ON_TRAINING_START_ACTION,
                             'formTypeOptions' => [
                                 'attr' => [
                                     'data-product'        => $product,
@@ -635,12 +631,12 @@ class FormSubscriber implements EventSubscriberInterface
                     } else {
                         if (GoToProductTypes::GOTOASSIST === $product) {
                             $action = [
-                                'group' => 'plugin.citrix.form.header',
-                                'description' => 'plugin.citrix.form.header.assist',
-                                'label' => 'plugin.citrix.action.screensharing.assist',
-                                'formType' => GoToActionType::class,
-                                'template' => 'MauticFormBundle:Action:generic.html.php',
-                                'eventName' => GoToEvents::ON_ASSIST_REMOTE_ACTION,
+                                'group'           => 'plugin.citrix.form.header',
+                                'description'     => 'plugin.citrix.form.header.assist',
+                                'label'           => 'plugin.citrix.action.screensharing.assist',
+                                'formType'        => GoToActionType::class,
+                                'template'        => 'MauticFormBundle:Action:generic.html.php',
+                                'eventName'       => GoToEvents::ON_ASSIST_REMOTE_ACTION,
                                 'formTypeOptions' => [
                                     'attr' => [
                                         'data-product'        => $product,

@@ -11,8 +11,6 @@
 
 namespace MauticPlugin\MauticGoToBundle\EventListener;
 
-use Doctrine\ORM\EntityManager;
-use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
@@ -54,22 +52,16 @@ class EmailSubscriber implements EventSubscriberInterface
 
     /**
      * FormSubscriber constructor.
-     *
-     * @param GoToModel $goToModel
-     * @param TranslatorInterface $translator
-     * @param TemplatingHelper $templating
-     * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
         GoToModel $goToModel,
         TranslatorInterface $translator,
         TemplatingHelper $templating,
         EventDispatcherInterface $dispatcher
-    )
-    {
-        $this->goToModel = $goToModel;
-        $this->translator = $translator;
-        $this->templating = $templating;
+    ) {
+        $this->goToModel   = $goToModel;
+        $this->translator  = $translator;
+        $this->templating  = $templating;
         $this->dispatcher  = $dispatcher;
     }
 

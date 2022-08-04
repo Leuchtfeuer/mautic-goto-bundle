@@ -55,7 +55,7 @@ class GoToEvent
 
     public function __construct()
     {
-        $this->eventDate = new \Datetime();
+        $this->eventDate = new \DateTime();
         $this->eventType = 'undefined';
     }
 

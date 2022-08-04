@@ -11,8 +11,6 @@
 
 namespace MauticPlugin\MauticGoToBundle\Model;
 
-use libphonenumber\PhoneNumberMatch;
-use Mautic\CampaignBundle\Executioner\Scheduler\Mode\DateTime;
 use Mautic\CampaignBundle\Model\EventModel;
 use Mautic\CoreBundle\Model\FormModel;
 use Mautic\LeadBundle\Entity\Lead;
@@ -21,7 +19,9 @@ use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
 use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\MauticGoToBundle\Entity\GoToProduct;
 use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
+
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
+
 use MauticPlugin\MauticGoToBundle\Event\GoToEventUpdateEvent;
 use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
@@ -222,22 +222,21 @@ class GoToModel extends FormModel
          * SELECT * FROM mautic_developing.plugin_goto_events as pge
          * INNER JOIN mautic_developing.plugin_goto_products as pgp ON pge.citrix_product_id=pgp.id;
          */
-        $dql = 'SELECT COUNT(c.id) AS cant FROM MauticGoToBundle:GoToEvent c ' .
-            ' INNER JOIN MauticGoToBundle:GoToProduct as p' .
-            ' INNER JOIN MauticLeadBundle:Lead as l' .
+        $dql = 'SELECT COUNT(c.id) AS cant FROM MauticGoToBundle:GoToEvent c '.
+            ' INNER JOIN MauticGoToBundle:GoToProduct as p'.
+            ' INNER JOIN MauticLeadBundle:Lead as l'.
             ' WHERE p.product=:product AND l.email=:email AND c.eventType=:eventType ';
 
         if (0 !== count($eventNames)) {
             $dql .= 'AND (';
-            foreach ($eventNames as $key=>$event){
-                $dql .= 'c.joinUrl Like :event'. $key ;
-                if(count($eventNames) > ($key+1)){
+            foreach ($eventNames as $key=>$event) {
+                $dql .= 'c.joinUrl Like :event'.$key;
+                if (count($eventNames) > ($key + 1)) {
                     $dql .= ' OR ';
                 } else {
                     $dql .= ')';
                 }
             }
-
         }
 
         $query = $this->em->createQuery($dql);
@@ -247,10 +246,9 @@ class GoToModel extends FormModel
             ':eventType' => $eventType,
         ]);
         if (0 !== count($eventNames)) {
-            foreach ($eventNames as $key=>$event){
-                $query->setParameter(':event'. $key, '%'.$event.'%');
+            foreach ($eventNames as $key=>$event) {
+                $query->setParameter(':event'.$key, '%'.$event.'%');
             }
-
         }
         $test = $query->getSQL();
 
@@ -345,7 +343,7 @@ class GoToModel extends FormModel
         if (0 !== count($contactsToAdd)) {
             $searchEmails = array_keys($contactsToAdd);
             $leads        = $this->leadModel->getRepository()->getLeadsByFieldValue('email', $searchEmails, null, true);
-            //todo give as arg?
+            // todo give as arg?
             /** @var GoToProductRepository $citrixProductRepository */
             $citrixProductRepository = $this->em->getRepository(GoToProduct::class);
             foreach ($contactsToAdd as $email => $info) {
@@ -378,8 +376,8 @@ class GoToModel extends FormModel
                     $output->writeln(
                         ' + '.$email.' '.$eventType.' to '.
                         substr($citrixEvent->getGoToProduct()->getName(), 0, 40).((strlen(
-                                $citrixEvent->getGoToProduct()->getName()
-                            ) > 40) ? '...' : '.')
+                            $citrixEvent->getGoToProduct()->getName()
+                        ) > 40) ? '...' : '.')
                     );
                 }
                 ++$count;
@@ -398,8 +396,8 @@ class GoToModel extends FormModel
                     $output->writeln(
                         ' - '.$citrixEvent->getContact()->getEmail().' '.$eventType.' from '.
                         substr($citrixEvent->getGoToProduct()->getName(), 0, 40).((strlen(
-                                $citrixEvent->getGoToProduct()->getName()
-                            ) > 40) ? '...' : '.')
+                            $citrixEvent->getGoToProduct()->getName()
+                        ) > 40) ? '...' : '.')
                     );
                 }
                 ++$count;
@@ -523,14 +521,15 @@ class GoToModel extends FormModel
         return $products;
     }
 
-    public function getIdByNameAndDate($name, $date){
+    public function getIdByNameAndDate($name, $date)
+    {
         $productRepository = $this->em->getRepository(GoToProduct::class);
-        $result = $productRepository->findOneBy(["name" => $name, "date" => $date]);
-        if($result){
+        $result            = $productRepository->findOneBy(['name' => $name, 'date' => $date]);
+        if ($result) {
             return $result->getId();
         }
-        return null;
 
+        return null;
     }
 
     public function getProductById($id)

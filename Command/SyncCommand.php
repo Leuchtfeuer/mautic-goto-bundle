@@ -12,7 +12,9 @@
 namespace MauticPlugin\MauticGoToBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
+
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_HIDDEN;
+
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
@@ -116,8 +118,8 @@ class SyncCommand extends ModeratedCommand
                 try {
                     $eventDesc = $citrixChoices[$productId]['subject'];
                     $eventName = GoToHelper::getCleanString(
-                            $eventDesc
-                        ).'_#'.$productId;
+                        $eventDesc
+                    ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
                     $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
                 } catch (\Exception $ex) {
