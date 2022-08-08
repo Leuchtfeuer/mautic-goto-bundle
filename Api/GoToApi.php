@@ -63,10 +63,9 @@ class GoToApi
             $status  = $request->getStatusCode();
             $message = '';
         } elseif (is_array($request) && isset($request['error'])) {
-            $status = $request['error']['code'];
+            $status  = $request['error']['code'];
             $message = $request['error']['message'] ?? '';
         }
-
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
         if ($refreshToken && is_array($request) && 403 === $request['error']['code']) {
