@@ -12,6 +12,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 
 ## Requirements
 * Mautic 4.x
+* PHP 7.4, 8.0
 * Command line access
 
 ## Preparations
