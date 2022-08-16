@@ -84,7 +84,7 @@ abstract class BasicEnum
      */
     public static function getKeyPairs()
     {
-        $a = (self::getConstants());
+        $a = self::getConstants();
         $a = array_combine($a, $a);
         /*foreach ($a as $key => $constant){
             $name = 'plugin.citrix.product.' . $constant;
