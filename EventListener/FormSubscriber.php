@@ -124,7 +124,6 @@ class FormSubscriber implements EventSubscriberInterface
         $post       = $event->getPost();
         $fields     = $form->getFields();
         $actions    = $form->getActions();
-
         try {
             // gotoassist screen sharing does not need a product
             if ('assist' !== $product) {

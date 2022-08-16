@@ -269,7 +269,10 @@ class LeadSubscriber implements EventSubscriberInterface
             if (in_array($currentFilter, $eventFilters, true)) {
                 $eventNames = $details['filter'];
                 preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $eventNames, $matches);
-                $eventNames    = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
+                $eventNames = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
+                if (!$eventNames) {
+                    break;
+                }
                 $isAnyEvent    = in_array('any', $eventNames, true);
                 $subQueriesSQL = [];
 

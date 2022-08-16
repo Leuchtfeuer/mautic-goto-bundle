@@ -484,6 +484,7 @@ class GoToModel extends FormModel
         if (array_key_exists('times', $product)) {
             try {
                 $persistedProduct->setDate(new \DateTime($product['times'][0]['startTime']));
+                $persistedProduct->getDate()->setTimezone(new \DateTimeZone($product['timeZone']));
                 $persistedProduct->setDuration(strtotime($product['times'][0]['endTime']) - strtotime($product['times'][0]['startTime']));
             } catch (\Exception $exception) {
                 $output->writeln('Invalid Date Format');
@@ -533,8 +534,11 @@ class GoToModel extends FormModel
     {
         $productRepository = $this->em->getRepository(GoToProduct::class);
         $result            = $productRepository->findOneBy(['name' => $name, 'date' => $date]);
+        if ($result) {
+            return $result->getId();
+        }
 
-        return $result->getId();
+        return null;
     }
 
     public function getProductById($id)
