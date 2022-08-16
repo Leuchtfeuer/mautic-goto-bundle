@@ -32,10 +32,10 @@ trait GoToRegistrationTrait
     public function registerProduct($product, $currentLead, array $productsToRegister)
     {
         $leadFields                                   = $currentLead->getProfileFields();
-        $email = array_key_exists('email', $leadFields) ? $leadFields['email'] : '';
-        $firstname = array_key_exists('firstname', $leadFields) ? $leadFields['firstname'] : '';
-        $lastname = array_key_exists('lastname', $leadFields) ? $leadFields['lastname'] : '';
-        $company = array_key_exists('company', $leadFields) ? $leadFields['company'] : '';
+        $email                                        = array_key_exists('email', $leadFields) ? $leadFields['email'] : '';
+        $firstname                                    = array_key_exists('firstname', $leadFields) ? $leadFields['firstname'] : '';
+        $lastname                                     = array_key_exists('lastname', $leadFields) ? $leadFields['lastname'] : '';
+        $company                                      = array_key_exists('company', $leadFields) ? $leadFields['company'] : '';
 
         if ('' !== $email && '' !== $firstname && '' !== $lastname) {
             foreach ($productsToRegister as $productToRegister) {

@@ -151,7 +151,7 @@ class GoToModel extends FormModel
         $emails = [];
         if (0 !== (is_countable($goToEvents) ? count($goToEvents) : 0)) {
             $emails = array_map(
-                static fn(GoToEvent $citrixEvent) => $citrixEvent->getContact()->getEmail(),
+                static fn (GoToEvent $citrixEvent) => $citrixEvent->getContact()->getEmail(),
                 $goToEvents
             );
         }
@@ -178,7 +178,7 @@ class GoToModel extends FormModel
         $items = $query->getResult();
 
         return array_map(
-            static fn($item) => array_pop($item),
+            static fn ($item) => array_pop($item),
             $items
         );
     }
@@ -445,7 +445,7 @@ class GoToModel extends FormModel
         $delete = array_diff($known, array_map('strtolower', array_keys($found)));
         $add    = array_filter(
             $found,
-            static fn($key) => !in_array(strtolower($key), $known),
+            static fn ($key) => !in_array(strtolower($key), $known),
             ARRAY_FILTER_USE_KEY
         );
 

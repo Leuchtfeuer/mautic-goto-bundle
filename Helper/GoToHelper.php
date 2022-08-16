@@ -360,7 +360,7 @@ class GoToHelper
     {
         try {
             $response = [];
-            if ($product == GoToProductTypes::GOTOWEBINAR) {
+            if (GoToProductTypes::GOTOWEBINAR == $product) {
                 $params = [
                     'email'        => $email,
                     'firstName'    => $firstname,
@@ -372,7 +372,7 @@ class GoToHelper
                     $params,
                     'POST'
                 );
-            } elseif ($product == GoToProductTypes::GOTOTRAINING) {
+            } elseif (GoToProductTypes::GOTOTRAINING == $product) {
                 $params = [
                     'email'     => $email,
                     'givenName' => $firstname,
@@ -505,9 +505,9 @@ class GoToHelper
     public static function getRegistrants($product, $productId, $organizerKey)
     {
         $result = [];
-        if ($product == GoToProductTypes::GOTOWEBINAR) {
+        if (GoToProductTypes::GOTOWEBINAR == $product) {
             $result = self::getG2wApi()->request($product.'s/'.$productId.'/registrants', [], 'GET', $organizerKey);
-        } elseif ($product == GoToProductTypes::GOTOTRAINING) {
+        } elseif (GoToProductTypes::GOTOTRAINING == $product) {
             $result = self::getG2tApi()->request($product.'s/'.$productId.'/registrants', [], 'GET');
         }
 

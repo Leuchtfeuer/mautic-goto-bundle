@@ -11,12 +11,12 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([__DIR__]);
 
     $rectorConfig->skip([
-        __DIR__ . '/Assets',
-        __DIR__ . '/Config',
-        __DIR__ . '/Translations',
-        __DIR__ . '/vendor',
-        __DIR__ . '/rector.php',
-        __DIR__ . '/.php-cs-fixer.php',
+        __DIR__.'/Assets',
+        __DIR__.'/Config',
+        __DIR__.'/Translations',
+        __DIR__.'/vendor',
+        __DIR__.'/rector.php',
+        __DIR__.'/.php-cs-fixer.php',
     ]);
 
     // register a single rule
@@ -26,6 +26,6 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
         LevelSetList::UP_TO_PHP_74,
         SetList::CODE_QUALITY,
-        SetList::CODING_STYLE
+        SetList::CODING_STYLE,
     ]);
 };

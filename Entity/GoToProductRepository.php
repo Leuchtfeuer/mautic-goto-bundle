@@ -32,7 +32,7 @@ class GoToProductRepository extends CommonRepository
 
     public function getCitrixChoices($onlyFutures = true, $reduceSessions = true)
     {
-        $results = $onlyFutures ? $this->getFutureProducts() : $this->getProductsBetweenSpecificDates();
+        $results        = $onlyFutures ? $this->getFutureProducts() : $this->getProductsBetweenSpecificDates();
         $key            = 'product_key';
         $return_results = [];
         /**

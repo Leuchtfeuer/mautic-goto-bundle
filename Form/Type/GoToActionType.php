@@ -75,7 +75,7 @@ class GoToActionType extends AbstractType
                 array_merge(
                     ['button', 'freetext', 'captcha'],
                     array_map(
-                        static fn($p) => 'plugin.citrix.select.'.$p,
+                        static fn ($p) => 'plugin.citrix.select.'.$p,
                         GoToProductTypes::toArray()
                     )
                 ),

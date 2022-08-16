@@ -19,8 +19,8 @@ use Mautic\LeadBundle\Entity\TimelineTrait;
 
 class GoToEventRepository extends CommonRepository
 {
-    public $_em;
     use TimelineTrait;
+    public $_em;
 
     /**
      * Fetch the base event data from the database.
@@ -42,7 +42,7 @@ class GoToEventRepository extends CommonRepository
             $q->expr()->eq('c.event_type', ':eventType')
         );
 
-        if ($fromDate !== null) {
+        if (null !== $fromDate) {
             $expr->add(
                 $q->expr()->gte('c.event_date', ':fromDate')
             );

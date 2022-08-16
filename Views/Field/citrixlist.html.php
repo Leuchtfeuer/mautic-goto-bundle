@@ -140,6 +140,7 @@ HTML;
         $selected = ($listValue === $field['defaultValue']) ? ' selected="selected"' : '';
         $html .= sprintf('                    <option value="%s"%s>%s</option>', $view->escape($listValue), $selected, $view->escape($listLabel));
     endforeach;
+
     return $html;
 };
 

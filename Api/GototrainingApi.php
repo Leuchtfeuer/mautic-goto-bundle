@@ -7,6 +7,7 @@ use Mautic\PluginBundle\Exception\ApiErrorException;
 class GototrainingApi extends GoToApi
 {
     public $integration;
+
     /**
      * @param string $operation
      * @param string $method

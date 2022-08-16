@@ -71,7 +71,7 @@ class GoToCampaignActionType extends AbstractType
         ];
 
         $newChoices = [];
-        $newChoices = array_filter($choices, static fn($c) => 0 === strpos($k, (string) $product));
+        $newChoices = array_filter($choices, static fn ($c) => 0 === strpos($k, (string) $product));
 
         $builder->add(
             'event-criteria-'.$product,

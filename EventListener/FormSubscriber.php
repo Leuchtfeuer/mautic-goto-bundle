@@ -213,7 +213,7 @@ class FormSubscriber implements EventSubscriberInterface
             } else {
                 throw new BadRequestHttpException('There are no products to '.((null === $startType) ? 'register' : 'start'));
             }
-             // end-block
+            // end-block
         } catch (\Exception $exception) {
             GoToHelper::log('onProductRegistration - '.$product.': '.$exception->getMessage());
             $validationException = new ValidationException($exception->getMessage());
@@ -486,7 +486,7 @@ class FormSubscriber implements EventSubscriberInterface
                                 }
                             }
                         }
-                         // foreach $fields
+                        // foreach $fields
 
                         if (!$hasCitrixListField) {
                             $errors[$actionProduct.'listfield'] = sprintf(
@@ -528,9 +528,9 @@ class FormSubscriber implements EventSubscriberInterface
                         }
                     }
                 }
-                 // end-if there is a Citrix action
+                // end-if there is a Citrix action
             }
-             // foreach $actions
+            // foreach $actions
         }
 
         return $errors;

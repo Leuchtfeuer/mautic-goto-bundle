@@ -148,7 +148,7 @@ class LeadSubscriber implements EventSubscriberInterface
                 }
             }
         }
-         // foreach $product
+        // foreach $product
     }
 
     /**
@@ -236,7 +236,7 @@ class LeadSubscriber implements EventSubscriberInterface
                 ]
             );
         }
-         // foreach $product
+        // foreach $product
     }
 
     public function onListFiltering(LeadListFilteringEvent $event)
@@ -305,7 +305,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
                     $subQueriesSQL[$eventType] = $query->getSQL();
                 }
-                 // foreach $eventType
+                // foreach $eventType
 
                 switch ($currentFilter) {
                     case $product.'-registration':
@@ -339,6 +339,6 @@ class LeadSubscriber implements EventSubscriberInterface
                 }
             }
         }
-         // foreach $product
+        // foreach $product
     }
 }

@@ -22,6 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class PublicController extends CommonController
 {
     public $coreParametersHelper;
+
     /**
      * This proxy is used for the GoToTraining API requests in order to bypass the CORS restrictions in AJAX.
      *
@@ -59,7 +60,7 @@ class PublicController extends CommonController
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_USERAGENT, $request->server->get('HTTP_USER_AGENT', ''));
-            [$header, $contents] = preg_split('#([\r\n][\r\n])\1#', curl_exec($ch), 2);
+            [$header, $contents]     = preg_split('#([\r\n][\r\n])\1#', curl_exec($ch), 2);
             $status                  = curl_getinfo($ch);
             curl_close($ch);
         }
