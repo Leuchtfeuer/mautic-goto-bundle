@@ -41,7 +41,7 @@ class GoToEvent
     /**
      * @ORM\Column(name="event_type", type="string", length=50)
      */
-    protected $eventType;
+    protected $eventType = 'undefined';
 
     /**
      * @ORM\Column(name="event_date", type="datetime")
@@ -56,7 +56,6 @@ class GoToEvent
     public function __construct()
     {
         $this->eventDate = new \DateTime();
-        $this->eventType = 'undefined';
     }
 
     public static function loadMetadata(ORM\ClassMetadata $metadata)

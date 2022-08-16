@@ -6,6 +6,7 @@ use Mautic\PluginBundle\Exception\ApiErrorException;
 
 class GotomeetingApi extends GoToApi
 {
+    public $integration;
     /**
      * @param string $operation
      * @param string $method
@@ -22,7 +23,7 @@ class GotomeetingApi extends GoToApi
             'parameters' => $parameters,
         ];
 
-        if (preg_match('/start$/', $operation)) {
+        if (preg_match('#start$#', $operation)) {
             $settings['requestSettings'] = [
                 'auth_type' => 'none',
                 'headers'   => [

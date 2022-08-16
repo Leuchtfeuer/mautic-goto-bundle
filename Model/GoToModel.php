@@ -33,6 +33,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class GoToModel extends FormModel
 {
+    public $em;
+    public $dispatcher;
     /**
      * @var LeadModel
      */
@@ -84,15 +86,18 @@ class GoToModel extends FormModel
 
             return;
         }
+
         $productRepository = $this->em->getRepository(GoToProduct::class);
         $productKey        = explode('#', $eventName);
         $goToProduct       = $productRepository->findOneByProductKey($productKey[1]);
         if (null === $goToProduct) {
             $goToProduct = new GoToProduct();
         }
+
         $goToEvent = new GoToEvent();
         $goToProduct->setName($eventName);
         $goToProduct->setDescription($eventDesc);
+
         $goToEvent->setGoToProduct($goToProduct);
         $goToEvent->setContact($lead);
         $goToEvent->setEventType($eventType);
@@ -135,6 +140,7 @@ class GoToModel extends FormModel
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return []; // is not a valid goto product
         }
+
         $goToEvents = $this->getRepository()->findBy(
             [
                 'citrixProduct' => $productRepository->findOneByProductKey($productId),
@@ -143,11 +149,9 @@ class GoToModel extends FormModel
         );
 
         $emails = [];
-        if (0 !== count($goToEvents)) {
+        if (0 !== (is_countable($goToEvents) ? count($goToEvents) : 0)) {
             $emails = array_map(
-                static function (GoToEvent $citrixEvent) {
-                    return $citrixEvent->getContact()->getEmail();
-                },
+                static fn(GoToEvent $citrixEvent) => $citrixEvent->getContact()->getEmail(),
                 $goToEvents
             );
         }
@@ -165,6 +169,7 @@ class GoToModel extends FormModel
         if (!GoToProductTypes::isValidValue($product)) {
             return []; // is not a valid citrix product
         }
+
         $dql = sprintf(
             "SELECT DISTINCT(c.eventName) FROM MauticGoToBundle:GoToEvent c WHERE c.product='%s'",
             $product
@@ -173,9 +178,7 @@ class GoToModel extends FormModel
         $items = $query->getResult();
 
         return array_map(
-            function ($item) {
-                return array_pop($item);
-            },
+            static fn($item) => array_pop($item),
             $items
         );
     }
@@ -190,6 +193,7 @@ class GoToModel extends FormModel
         if (!GoToProductTypes::isValidValue($product)) {
             return []; // is not a valid citrix product
         }
+
         $dql = sprintf(
             "SELECT DISTINCT c.product_key, c.name, c.date FROM MauticGoToBundle:GoToProduct c WHERE c.product='%s'",
             $product
@@ -218,6 +222,7 @@ class GoToModel extends FormModel
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return 0; // is not a valid citrix product
         }
+
         /*
          * SELECT * FROM mautic_developing.plugin_goto_events as pge
          * INNER JOIN mautic_developing.plugin_goto_products as pgp ON pge.citrix_product_id=pgp.id;
@@ -227,9 +232,9 @@ class GoToModel extends FormModel
             ' INNER JOIN MauticLeadBundle:Lead as l'.
             ' WHERE p.product=:product AND l.email=:email AND c.eventType=:eventType ';
 
-        if (0 !== count($eventNames)) {
+        if ([] !== $eventNames) {
             $dql .= 'AND (';
-            foreach ($eventNames as $key=>$event) {
+            foreach (array_keys($eventNames) as $key) {
                 $dql .= 'c.joinUrl Like :event'.$key;
                 if (count($eventNames) > ($key + 1)) {
                     $dql .= ' OR ';
@@ -245,11 +250,12 @@ class GoToModel extends FormModel
             ':email'     => $email,
             ':eventType' => $eventType,
         ]);
-        if (0 !== count($eventNames)) {
+        if ([] !== $eventNames) {
             foreach ($eventNames as $key=>$event) {
                 $query->setParameter(':event'.$key, '%'.$event.'%');
             }
         }
+
         $test = $query->getSQL();
 
         return (int) $query->getResult()[0]['cant'];
@@ -276,7 +282,7 @@ class GoToModel extends FormModel
             GoToEventTypes::REGISTERED
         );
 
-        list($registrantsToAdd, $registrantsToDelete) = $this->filterEventContacts($registrants, $knownRegistrants);
+        [$registrantsToAdd, $registrantsToDelete] = $this->filterEventContacts($registrants, $knownRegistrants);
         $count += $this->batchAddAndRemove(
             $product,
             $eventName,
@@ -295,7 +301,7 @@ class GoToModel extends FormModel
             GoToEventTypes::ATTENDED
         );
 
-        list($attendeesToAdd, $attendeesToDelete) = $this->filterEventContacts($attendees, $knownAttendees);
+        [$attendeesToAdd, $attendeesToDelete] = $this->filterEventContacts($attendees, $knownAttendees);
         $count += $this->batchAddAndRemove(
             $product,
             $eventName,
@@ -340,7 +346,7 @@ class GoToModel extends FormModel
         $newEntities = [];
 
         // Add events
-        if (0 !== count($contactsToAdd)) {
+        if ([] !== $contactsToAdd) {
             $searchEmails = array_keys($contactsToAdd);
             $leads        = $this->leadModel->getRepository()->getLeadsByFieldValue('email', $searchEmails, null, true);
             // todo give as arg?
@@ -380,6 +386,7 @@ class GoToModel extends FormModel
                         ) > 40) ? '...' : '.')
                     );
                 }
+
                 ++$count;
             }
 
@@ -387,7 +394,7 @@ class GoToModel extends FormModel
         }
 
         // Delete events
-        if (0 !== count($emailsToRemove)) {
+        if ([] !== $emailsToRemove) {
             $citrixProductRepository = $this->em->getRepository(GoToProduct::class);
             $citrixEvents            = $this->getRepository()->findAllByMailAndEvent($emailsToRemove, $productKey);
             /** @var GoToEvent $citrixEvent */
@@ -400,12 +407,14 @@ class GoToModel extends FormModel
                         ) > 40) ? '...' : '.')
                     );
                 }
+
                 ++$count;
             }
+
             $this->getRepository()->deleteEntities($citrixEvents);
         }
 
-        if (0 !== count($newEntities)) {
+        if ([] !== $newEntities) {
             /** @var GoToEvent $entity */
             foreach ($newEntities as $entity) {
                 if ($this->dispatcher->hasListeners(GoToEvents::ON_GOTO_EVENT_UPDATE)) {
@@ -436,9 +445,7 @@ class GoToModel extends FormModel
         $delete = array_diff($known, array_map('strtolower', array_keys($found)));
         $add    = array_filter(
             $found,
-            function ($key) use ($known) {
-                return !in_array(strtolower($key), $known);
-            },
+            static fn($key) => !in_array(strtolower($key), $known),
             ARRAY_FILTER_USE_KEY
         );
 
@@ -463,6 +470,7 @@ class GoToModel extends FormModel
         if (null === $persistedProduct) {
             $persistedProduct = new GoToProduct();
         }
+
         $persistedProduct->setName($product['subject']);
         $persistedProduct->setProduct($productType);
         $persistedProduct->setProductKey($product[$productType.'Key']);
@@ -477,7 +485,7 @@ class GoToModel extends FormModel
             try {
                 $persistedProduct->setDate(new \DateTime($product['times'][0]['startTime']));
                 $persistedProduct->setDuration(strtotime($product['times'][0]['endTime']) - strtotime($product['times'][0]['startTime']));
-            } catch (\Exception $e) {
+            } catch (\Exception $exception) {
                 $output->writeln('Invalid Date Format');
             }
         }
@@ -497,6 +505,7 @@ class GoToModel extends FormModel
                 }
             }
         }
+
         $persistedProduct->setStatus(STATUS_ACTIVE);
         $productRepository->saveEntity($persistedProduct);
     }

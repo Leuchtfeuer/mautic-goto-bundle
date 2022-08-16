@@ -52,11 +52,11 @@ class IntegrationRequestSubscriber implements EventSubscriberInterface
     protected function getAuthorization(array $parameters)
     {
         if (!isset($parameters['client_id']) || empty($parameters['client_id'])) {
-            throw new \Exception('No client ID given.', 1554211764);
+            throw new \Exception('No client ID given.', 1_554_211_764);
         }
 
         if (!isset($parameters['client_secret']) || empty($parameters['client_secret'])) {
-            throw new \Exception('No client secret given.', 1554211808);
+            throw new \Exception('No client secret given.', 1_554_211_808);
         }
 
         return sprintf('%s:%s', $parameters['client_id'], $parameters['client_secret']);

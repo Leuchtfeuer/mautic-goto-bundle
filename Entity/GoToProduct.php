@@ -31,6 +31,7 @@ class GoToProduct implements \JsonSerializable
      * @ORM\Column(name="organizer_key", type="string")
      */
     protected $organizer_key;
+
     /**
      * @ORM\Column(name="product", type="string", length=20)
      */
@@ -50,6 +51,7 @@ class GoToProduct implements \JsonSerializable
      * @ORM\Column(name = "date", type ="datetime")
      */
     protected $date;
+
     /**
      * @param ClassMetadata $metadata
      */

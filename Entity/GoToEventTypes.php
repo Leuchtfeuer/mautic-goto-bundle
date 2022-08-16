@@ -16,7 +16,18 @@ use MauticPlugin\MauticGoToBundle\Helper\BasicEnum;
 abstract class GoToEventTypes extends BasicEnum
 {
     // Used for querying events
+    /**
+     * @var string
+     */
     public const STARTED    = 'started';
+
+    /**
+     * @var string
+     */
     public const REGISTERED = 'registered';
+
+    /**
+     * @var string
+     */
     public const ATTENDED   = 'attended';
 }

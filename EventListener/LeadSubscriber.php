@@ -94,7 +94,8 @@ class LeadSubscriber implements EventSubscriberInterface
                 $activeProducts[] = $p;
             }
         }
-        if (0 === count($activeProducts)) {
+
+        if ([] === $activeProducts) {
             return;
         }
 
@@ -118,38 +119,36 @@ class LeadSubscriber implements EventSubscriberInterface
                 // Add total number to counter
                 $event->addToCounter($eventType, $citrixEvents);
 
-                if (!$event->isEngagementCount()) {
-                    if ($citrixEvents['total']) {
-                        // Use a single entity class to help parse the name, description, etc without hydrating entities for every single event
-                        $entity = new GoToEvent();
+                if (!$event->isEngagementCount() && $citrixEvents['total']) {
+                    // Use a single entity class to help parse the name, description, etc without hydrating entities for every single event
+                    $entity = new GoToEvent();
+                    foreach ($citrixEvents['results'] as $citrixEvent) {
+                        $entity->setGoToProduct($productRepository->find((int) $citrixEvent['citrix_product_id']));
+                        $entity->setEventType($citrixEvent['event_type']);
+                        $entity->setEventDate($citrixEvent['event_date']);
 
-                        foreach ($citrixEvents['results'] as $citrixEvent) {
-                            $entity->setGoToProduct($productRepository->find((int) $citrixEvent['citrix_product_id']));
-                            $entity->setEventType($citrixEvent['event_type']);
-                            $entity->setEventDate($citrixEvent['event_date']);
-
-                            $event->addEvent(
-                                [
-                                    'event'      => $eventType,
-                                    'eventId'    => $eventType.$citrixEvent['id'],
-                                    'eventLabel' => $eventTypeName,
-                                    'eventType'  => $eventTypeLabel,
-                                    'timestamp'  => $entity->getEventDate(),
-                                    'extra'      => [
-                                        'eventName' => $entity->getGoToProduct()->getName(),
-                                        'eventId'   => $entity->getId(),
-                                        'eventDesc' => $entity->getGoToProduct()->getDescription(),
-                                        'joinUrl'   => $entity->getJoinUrl(),
-                                    ],
-                                    'contentTemplate' => 'MauticGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
-                                    'contactId'       => $citrixEvent['lead_id'],
-                                ]
-                            );
-                        }
+                        $event->addEvent(
+                            [
+                                'event'      => $eventType,
+                                'eventId'    => $eventType.$citrixEvent['id'],
+                                'eventLabel' => $eventTypeName,
+                                'eventType'  => $eventTypeLabel,
+                                'timestamp'  => $entity->getEventDate(),
+                                'extra'      => [
+                                    'eventName' => $entity->getGoToProduct()->getName(),
+                                    'eventId'   => $entity->getId(),
+                                    'eventDesc' => $entity->getGoToProduct()->getDescription(),
+                                    'joinUrl'   => $entity->getJoinUrl(),
+                                ],
+                                'contentTemplate' => 'MauticGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
+                                'contactId'       => $citrixEvent['lead_id'],
+                            ]
+                        );
                     }
                 }
             }
-        } // foreach $product
+        }
+         // foreach $product
     }
 
     /**
@@ -165,7 +164,8 @@ class LeadSubscriber implements EventSubscriberInterface
                 $activeProducts[] = $p;
             }
         }
-        if (0 === count($activeProducts)) {
+
+        if ([] === $activeProducts) {
             return;
         }
 
@@ -235,7 +235,8 @@ class LeadSubscriber implements EventSubscriberInterface
                     ],
                 ]
             );
-        } // foreach $product
+        }
+         // foreach $product
     }
 
     public function onListFiltering(LeadListFilteringEvent $event)
@@ -246,7 +247,8 @@ class LeadSubscriber implements EventSubscriberInterface
                 $activeProducts[] = $p;
             }
         }
-        if (0 === count($activeProducts)) {
+
+        if ([] === $activeProducts) {
             return;
         }
 
@@ -266,7 +268,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
             if (in_array($currentFilter, $eventFilters, true)) {
                 $eventNames = $details['filter'];
-                preg_match('/^([^ ]+ +[^ ]+) +(.*)$/', $eventNames, $matches);
+                preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $eventNames, $matches);
                 $eventNames    = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
                 $isAnyEvent    = in_array('any', $eventNames, true);
                 $subQueriesSQL = [];
@@ -302,7 +304,8 @@ class LeadSubscriber implements EventSubscriberInterface
                     }
 
                     $subQueriesSQL[$eventType] = $query->getSQL();
-                } // foreach $eventType
+                }
+                 // foreach $eventType
 
                 switch ($currentFilter) {
                     case $product.'-registration':
@@ -335,6 +338,7 @@ class LeadSubscriber implements EventSubscriberInterface
                         break;
                 }
             }
-        } // foreach $product
+        }
+         // foreach $product
     }
 }

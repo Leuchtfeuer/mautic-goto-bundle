@@ -153,7 +153,7 @@ class FormSubscriber implements EventSubscriberInterface
             }
 
             $productsToRegister = $this->getProductsFromPost($actions, $fields, $post, $product);
-            if ('assist' === $product || (0 !== count($productsToRegister))) {
+            if ('assist' === $product || ([] !== $productsToRegister)) {
                 $results = $submission->getResults();
 
                 // persist the new values
@@ -212,13 +212,14 @@ class FormSubscriber implements EventSubscriberInterface
                 }
             } else {
                 throw new BadRequestHttpException('There are no products to '.((null === $startType) ? 'register' : 'start'));
-            } // end-block
-        } catch (\Exception $ex) {
-            GoToHelper::log('onProductRegistration - '.$product.': '.$ex->getMessage());
-            $validationException = new ValidationException($ex->getMessage());
+            }
+             // end-block
+        } catch (\Exception $exception) {
+            GoToHelper::log('onProductRegistration - '.$product.': '.$exception->getMessage());
+            $validationException = new ValidationException($exception->getMessage());
             $validationException->setViolations(
                 [
-                    'email' => $ex->getMessage(),
+                    'email' => $exception->getMessage(),
                 ]
             );
             throw $validationException;
@@ -275,7 +276,7 @@ class FormSubscriber implements EventSubscriberInterface
 //        );
 
         // clean parameter that was breaking the call
-        if (preg_match('/\/G2W\/rest\//', $event->getUrl())) {
+        if (preg_match('#\/G2W\/rest\/#', $event->getUrl())) {
             $params = $event->getParameters();
             unset($params['access_token']);
             $event->setParameters($params);
@@ -332,15 +333,17 @@ class FormSubscriber implements EventSubscriberInterface
         /** @var \Mautic\FormBundle\Entity\Field $field */
         foreach ($fields as $field) {
             if ('plugin.citrix.select.'.$product === $field->getType()) {
-                if (0 === count($productlist)) {
+                if (0 === (is_countable($productlist) ? count($productlist) : 0)) {
                     $productlist = $this->goToModel->getProducts($product);
                 }
+
                 $alias = $field->getAlias();
                 /** @var array $productIds */
                 $productIds = $post[$alias];
                 if (!is_array($productIds) && !is_object($productIds)) {
                     $productIds = [$productIds];
                 }
+
                 if (is_array($productIds) || is_object($productIds)) {
                     foreach ($productIds as $productId) {
                         $products[] = [
@@ -362,13 +365,15 @@ class FormSubscriber implements EventSubscriberInterface
             /** @var Action $action */
             foreach ($actions as $action) {
                 if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
-                    if (0 === count($productlist)) {
+                    if (0 === (is_countable($productlist) ? count($productlist) : 0)) {
                         $productlist = $this->goToModel->getProducts($product);
                     }
+
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
                     if (!GoToHelper::isAuthorized('Goto'.$actionProduct)) {
                         continue;
                     }
+
                     $actionAction = preg_filter('/^.+\.([^\.]+\.[^\.]+)$/', '$1', $action->getType());
                     $productId    = $action->getProperties()['product'];
                     if (array_key_exists(
@@ -397,9 +402,9 @@ class FormSubscriber implements EventSubscriberInterface
         $fields = $form->getFields()->getValues();
 
         // Verify if the form is well configured
-        if (0 !== count($fields)) {
+        if (0 !== (is_countable($fields) ? count($fields) : 0)) {
             $violations = $this->_checkFormValidity($form);
-            if (0 !== count($violations)) {
+            if ([] !== $violations) {
                 $event->stopPropagation();
                 $error     = implode('<br/>', $violations);
                 $exception = (new ValidationException($error))
@@ -450,6 +455,7 @@ class FormSubscriber implements EventSubscriberInterface
                     if (!GoToHelper::isAuthorized('Goto'.$actionProduct)) {
                         continue;
                     }
+
                     $actionAction = preg_filter('/^.+\.([^\.]+\.[^\.]+)$/', '$1', $action->getType());
 
                     // get lead fields
@@ -479,7 +485,8 @@ class FormSubscriber implements EventSubscriberInterface
                                     );
                                 }
                             }
-                        } // foreach $fields
+                        }
+                         // foreach $fields
 
                         if (!$hasCitrixListField) {
                             $errors[$actionProduct.'listfield'] = sprintf(
@@ -499,12 +506,10 @@ class FormSubscriber implements EventSubscriberInterface
                             $errors[$actionField.'notfound'] = sprintf($errorMessages['lead_field_not_found'],
                                 $actionField);
                             break;
-                        } else {
-                            if (!$field->getIsRequired()) {
-                                $errors[$actionField.'required'] = sprintf($errorMessages['field_should_be_required'],
-                                    $actionField);
-                                break;
-                            }
+                        } elseif (!$field->getIsRequired()) {
+                            $errors[$actionField.'required'] = sprintf($errorMessages['field_should_be_required'],
+                                $actionField);
+                            break;
                         }
                     }
 
@@ -515,17 +520,17 @@ class FormSubscriber implements EventSubscriberInterface
                         if (!array_key_exists($mandatoryField, $currentLeadFields)) {
                             $errors[$mandatoryField.'notfound'] = sprintf($errorMessages['lead_field_not_found'],
                                 $mandatoryField);
-                        } else {
-                            if (!$currentLeadFields[$mandatoryField]) {
-                                $errors[$mandatoryField.'required'] = sprintf(
-                                    $errorMessages['field_should_be_required'],
-                                    $mandatoryField
-                                );
-                            }
+                        } elseif (!$currentLeadFields[$mandatoryField]) {
+                            $errors[$mandatoryField.'required'] = sprintf(
+                                $errorMessages['field_should_be_required'],
+                                $mandatoryField
+                            );
                         }
                     }
-                } // end-if there is a Citrix action
-            } // foreach $actions
+                }
+                 // end-if there is a Citrix action
+            }
+             // foreach $actions
         }
 
         return $errors;
@@ -542,7 +547,8 @@ class FormSubscriber implements EventSubscriberInterface
                 $activeProducts[] = $p;
             }
         }
-        if (0 === count($activeProducts)) {
+
+        if ([] === $activeProducts) {
             return;
         }
 
@@ -579,76 +585,69 @@ class FormSubscriber implements EventSubscriberInterface
                     'eventName' => GoToEvents::ON_GOTO_REGISTER_ACTION,
                 ];
                 $event->addSubmitAction('plugin.citrix.action.register.webinar', $action);
-            } else {
-                if (GoToProductTypes::GOTOMEETING === $product) {
-                    $action = [
-                        'group'           => 'plugin.citrix.form.header',
-                        'description'     => 'plugin.citrix.form.header.meeting',
-                        'label'           => 'plugin.citrix.action.start.meeting',
-                        'formType'        => GoToActionType::class,
-                        'template'        => 'MauticFormBundle:Action:generic.html.php',
-                        'eventName'       => GoToEvents::ON_MEETING_START_ACTION,
-                        'formTypeOptions' => [
-                            'attr' => [
-                                'data-product'        => $product,
-                                'data-product-action' => 'start',
-                            ],
+            } elseif (GoToProductTypes::GOTOMEETING === $product) {
+                $action = [
+                    'group'           => 'plugin.citrix.form.header',
+                    'description'     => 'plugin.citrix.form.header.meeting',
+                    'label'           => 'plugin.citrix.action.start.meeting',
+                    'formType'        => GoToActionType::class,
+                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'eventName'       => GoToEvents::ON_MEETING_START_ACTION,
+                    'formTypeOptions' => [
+                        'attr' => [
+                            'data-product'        => $product,
+                            'data-product-action' => 'start',
                         ],
-                    ];
-                    $event->addSubmitAction('plugin.citrix.action.start.meeting', $action);
-                } else {
-                    if (GoToProductTypes::GOTOTRAINING === $product) {
-                        $action = [
-                            'group'           => 'plugin.citrix.form.header',
-                            'description'     => 'plugin.citrix.form.header.training',
-                            'label'           => 'plugin.citrix.action.register.training',
-                            'formType'        => GoToActionType::class,
-                            'template'        => 'MauticFormBundle:Action:generic.html.php',
-                            'eventName'       => GoToEvents::ON_TRAINING_REGISTER_ACTION,
-                            'formTypeOptions' => [
-                                'attr' => [
-                                    'data-product'        => $product,
-                                    'data-product-action' => 'register',
-                                ],
-                            ],
-                        ];
-                        $event->addSubmitAction('plugin.citrix.action.register.training', $action);
-
-                        $action = [
-                            'group'           => 'plugin.citrix.form.header',
-                            'description'     => 'plugin.citrix.form.header.start.training',
-                            'label'           => 'plugin.citrix.action.start.training',
-                            'formType'        => GoToActionType::class,
-                            'template'        => 'MauticFormBundle:Action:generic.html.php',
-                            'eventName'       => GoToEvents::ON_TRAINING_START_ACTION,
-                            'formTypeOptions' => [
-                                'attr' => [
-                                    'data-product'        => $product,
-                                    'data-product-action' => 'start',
-                                ],
-                            ],
-                        ];
-                        $event->addSubmitAction('plugin.citrix.action.start.training', $action);
-                    } else {
-                        if (GoToProductTypes::GOTOASSIST === $product) {
-                            $action = [
-                                'group'           => 'plugin.citrix.form.header',
-                                'description'     => 'plugin.citrix.form.header.assist',
-                                'label'           => 'plugin.citrix.action.screensharing.assist',
-                                'formType'        => GoToActionType::class,
-                                'template'        => 'MauticFormBundle:Action:generic.html.php',
-                                'eventName'       => GoToEvents::ON_ASSIST_REMOTE_ACTION,
-                                'formTypeOptions' => [
-                                    'attr' => [
-                                        'data-product'        => $product,
-                                        'data-product-action' => 'screensharing',
-                                    ],
-                                ],
-                            ];
-                            $event->addSubmitAction('plugin.citrix.action.screensharing.assist', $action);
-                        }
-                    }
-                }
+                    ],
+                ];
+                $event->addSubmitAction('plugin.citrix.action.start.meeting', $action);
+            } elseif (GoToProductTypes::GOTOTRAINING === $product) {
+                $action = [
+                    'group'           => 'plugin.citrix.form.header',
+                    'description'     => 'plugin.citrix.form.header.training',
+                    'label'           => 'plugin.citrix.action.register.training',
+                    'formType'        => GoToActionType::class,
+                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'eventName'       => GoToEvents::ON_TRAINING_REGISTER_ACTION,
+                    'formTypeOptions' => [
+                        'attr' => [
+                            'data-product'        => $product,
+                            'data-product-action' => 'register',
+                        ],
+                    ],
+                ];
+                $event->addSubmitAction('plugin.citrix.action.register.training', $action);
+                $action = [
+                    'group'           => 'plugin.citrix.form.header',
+                    'description'     => 'plugin.citrix.form.header.start.training',
+                    'label'           => 'plugin.citrix.action.start.training',
+                    'formType'        => GoToActionType::class,
+                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'eventName'       => GoToEvents::ON_TRAINING_START_ACTION,
+                    'formTypeOptions' => [
+                        'attr' => [
+                            'data-product'        => $product,
+                            'data-product-action' => 'start',
+                        ],
+                    ],
+                ];
+                $event->addSubmitAction('plugin.citrix.action.start.training', $action);
+            } elseif (GoToProductTypes::GOTOASSIST === $product) {
+                $action = [
+                    'group'           => 'plugin.citrix.form.header',
+                    'description'     => 'plugin.citrix.form.header.assist',
+                    'label'           => 'plugin.citrix.action.screensharing.assist',
+                    'formType'        => GoToActionType::class,
+                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'eventName'       => GoToEvents::ON_ASSIST_REMOTE_ACTION,
+                    'formTypeOptions' => [
+                        'attr' => [
+                            'data-product'        => $product,
+                            'data-product-action' => 'screensharing',
+                        ],
+                    ],
+                ];
+                $event->addSubmitAction('plugin.citrix.action.screensharing.assist', $action);
             }
         }
     }

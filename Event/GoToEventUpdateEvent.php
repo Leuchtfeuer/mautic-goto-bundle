@@ -23,14 +23,17 @@ class GoToEventUpdateEvent extends CommonEvent
      * @var
      */
     private $product;
+
     /**
      * @var
      */
     private $eventName;
+
     /**
      * @var
      */
     private $eventType;
+
     /**
      * @var
      */

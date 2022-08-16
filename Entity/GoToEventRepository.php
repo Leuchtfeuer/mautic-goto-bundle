@@ -19,6 +19,7 @@ use Mautic\LeadBundle\Entity\TimelineTrait;
 
 class GoToEventRepository extends CommonRepository
 {
+    public $_em;
     use TimelineTrait;
 
     /**
@@ -41,7 +42,7 @@ class GoToEventRepository extends CommonRepository
             $q->expr()->eq('c.event_type', ':eventType')
         );
 
-        if ($fromDate) {
+        if ($fromDate !== null) {
             $expr->add(
                 $q->expr()->gte('c.event_date', ':fromDate')
             );
@@ -65,7 +66,7 @@ class GoToEventRepository extends CommonRepository
     {
         $eventType = null;
         if (is_array($product)) {
-            list($product, $eventType) = $product;
+            [$product, $eventType] = $product;
         }
 
         $query = $this->getEntityManager()->getConnection()->createQueryBuilder()
@@ -95,6 +96,7 @@ class GoToEventRepository extends CommonRepository
                 $query->expr()->like('c.product', $query->expr()->literal('%'.$options['search'].'%'))
             ));
         }
+
         $testquery = $query->getSQL();
 
         return $this->getTimelineResults($query, $options, 'cp.product', 'c.event_date', [], ['event_date']);
