@@ -11,10 +11,11 @@
 
 namespace MauticPlugin\MauticGoToBundle\Form\Type;
 
-use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
-
 use DateTime;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
+
+use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
+
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
