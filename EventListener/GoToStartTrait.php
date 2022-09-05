@@ -24,6 +24,9 @@ trait GoToStartTrait
      */
     protected $emailModel;
 
+    /**
+     * @param EmailModel $emailModel
+     */
     public function setEmailModel(EmailModel $emailModel)
     {
         $this->emailModel = $emailModel;
@@ -32,8 +35,9 @@ trait GoToStartTrait
     /**
      * @param string $product
      * @param Lead   $lead
-     * @param        $emailId
-     * @param        $actionId
+     * @param array  $productsToStart
+     * @param  $emailId
+     * @param  $actionId
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException

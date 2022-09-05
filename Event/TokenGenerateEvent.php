@@ -25,6 +25,8 @@ class TokenGenerateEvent extends CommonEvent
 
     /**
      * TokenGenerateEvent constructor.
+     *
+     * @param array $params
      */
     public function __construct(array $params)
     {

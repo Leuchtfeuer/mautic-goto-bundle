@@ -1,13 +1,15 @@
 <?php
 
+
 namespace MauticPlugin\MauticGoToBundle\Helper;
+
 
 class GoToDetailKeywords extends BasicEnum
 {
-    public const GOTODATE        = 'plugin.citrix.product.date';
-    public const GOTOTITLE       = 'plugin.citrix.product.title';
-    public const GOTOAUTHOR      = 'plugin.citrix.product.author';
-    public const GOTOLANGUAGE    = 'plugin.citrix.product.language';
-    public const GOTODESCRIPTION = 'plugin.citrix.product.description';
-    public const GOTODURATION    = 'plugin.citrix.product.duration';
+    const GOTODATE = 'plugin.citrix.product.date';
+    const GOTOTITLE = 'plugin.citrix.product.title';
+    const GOTOAUTHOR = 'plugin.citrix.product.author';
+    const GOTOLANGUAGE = 'plugin.citrix.product.language';
+    const GOTODESCRIPTION = 'plugin.citrix.product.description';
+    const GOTODURATION = 'plugin.citrix.product.duration';
 }

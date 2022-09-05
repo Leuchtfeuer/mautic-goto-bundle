@@ -14,10 +14,11 @@ namespace MauticPlugin\MauticGoToBundle\EventListener;
 use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\CampaignExecutionEvent;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
+use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignActionType;
 use MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignEventType;
 use MauticPlugin\MauticGoToBundle\GoToEvents;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
@@ -38,6 +39,8 @@ class CampaignSubscriber implements EventSubscriberInterface
 
     /**
      * CampaignSubscriber constructor.
+     *
+     * @param GoToModel $goToModel
      */
     public function __construct(GoToModel $goToModel)
     {
@@ -51,41 +54,54 @@ class CampaignSubscriber implements EventSubscriberInterface
     {
         return [
             CampaignEvents::CAMPAIGN_ON_BUILD       => ['onCampaignBuild', 0],
-            GoToEvents::ON_GOTO_WEBINAR_EVENT       => ['onWebinarEvent', 0],
-            GoToEvents::ON_GOTO_MEETING_EVENT       => ['onMeetingEvent', 0],
-            GoToEvents::ON_GOTO_TRAINING_EVENT      => ['onTrainingEvent', 0],
-            GoToEvents::ON_GOTO_ASSIST_EVENT        => ['onAssistEvent', 0],
-            GoToEvents::ON_GOTO_WEBINAR_ACTION      => ['onWebinarAction', 0],
-            GoToEvents::ON_GOTO_MEETING_ACTION      => ['onMeetingAction', 0],
-            GoToEvents::ON_GOTO_TRAINING_ACTION     => ['onTrainingAction', 0],
-            GoToEvents::ON_GOTO_ASSIST_ACTION       => ['onAssistAction', 0],
+            GoToEvents::ON_GOTO_WEBINAR_EVENT   => ['onWebinarEvent', 0],
+            GoToEvents::ON_GOTO_MEETING_EVENT   => ['onMeetingEvent', 0],
+            GoToEvents::ON_GOTO_TRAINING_EVENT  => ['onTrainingEvent', 0],
+            GoToEvents::ON_GOTO_ASSIST_EVENT    => ['onAssistEvent', 0],
+            GoToEvents::ON_GOTO_WEBINAR_ACTION  => ['onWebinarAction', 0],
+            GoToEvents::ON_GOTO_MEETING_ACTION  => ['onMeetingAction', 0],
+            GoToEvents::ON_GOTO_TRAINING_ACTION => ['onTrainingAction', 0],
+            GoToEvents::ON_GOTO_ASSIST_ACTION   => ['onAssistAction', 0],
         ];
     }
 
     /* Actions */
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onWebinarAction(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOWEBINAR, $event));
     }
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onMeetingAction(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOMEETING, $event));
     }
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onTrainingAction(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOTRAINING, $event));
     }
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onAssistAction(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOASSIST, $event));
     }
 
     /**
-     * @param string $product
+     * @param string                 $product
+     * @param CampaignExecutionEvent $event
      *
      * @return bool
      */
@@ -133,28 +149,41 @@ class CampaignSubscriber implements EventSubscriberInterface
 
     /* Events */
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onWebinarEvent(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOWEBINAR, $event));
     }
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onMeetingEvent(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOMEETING, $event));
     }
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onTrainingEvent(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOTRAINING, $event));
     }
 
+    /**
+     * @param CampaignExecutionEvent $event
+     */
     public function onAssistEvent(CampaignExecutionEvent $event)
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOASSIST, $event));
     }
 
     /**
-     * @param string $product
+     * @param string                 $product
+     * @param CampaignExecutionEvent $event
      *
      * @return bool
      *
@@ -196,6 +225,9 @@ class CampaignSubscriber implements EventSubscriberInterface
         return $counter > 0;
     }
 
+    /**
+     * @param CampaignBuilderEvent $event
+     */
     public function onCampaignBuild(CampaignBuilderEvent $event)
     {
         $activeProducts = [];
@@ -233,8 +265,8 @@ class CampaignSubscriber implements EventSubscriberInterface
                             'data-product' => $product,
                         ],
                     ],
-                    'eventName'        => $eventNames[$product],
-                    'channel'          => 'citrix',
+                    'eventName'      => $eventNames[$product],
+                    'channel'        => 'citrix',
                     'channelNameField' => $product.'-list',
                 ]
             );
@@ -249,8 +281,8 @@ class CampaignSubscriber implements EventSubscriberInterface
                             'data-product' => $product,
                         ],
                     ],
-                    'eventName'        => $actionNames[$product],
-                    'channel'          => 'citrix',
+                    'eventName'      => $actionNames[$product],
+                    'channel'        => 'citrix',
                     'channelNameField' => $product.'-list',
                 ]
             );

@@ -11,13 +11,15 @@
 
 namespace MauticPlugin\MauticGoToBundle\EventListener;
 
+use Doctrine\ORM\EntityManager;
+use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
+use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
 use MauticPlugin\MauticGoToBundle\Event\TokenGenerateEvent;
-use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
@@ -41,6 +43,7 @@ class EmailSubscriber implements EventSubscriberInterface
     private $translator;
 
     /**
+     *
      * @var TemplatingHelper
      */
     private $templating;
@@ -52,16 +55,22 @@ class EmailSubscriber implements EventSubscriberInterface
 
     /**
      * FormSubscriber constructor.
+     *
+     * @param GoToModel $goToModel
+     * @param TranslatorInterface $translator
+     * @param TemplatingHelper $templating
+     * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
         GoToModel $goToModel,
         TranslatorInterface $translator,
         TemplatingHelper $templating,
         EventDispatcherInterface $dispatcher
-    ) {
-        $this->goToModel   = $goToModel;
-        $this->translator  = $translator;
-        $this->templating  = $templating;
+    )
+    {
+        $this->goToModel = $goToModel;
+        $this->translator = $translator;
+        $this->templating = $templating;
         $this->dispatcher  = $dispatcher;
     }
 
@@ -71,7 +80,7 @@ class EmailSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            GoToEvents::ON_GOTO_TOKEN_GENERATE     => ['onTokenGenerate', 254],
+            GoToEvents::ON_GOTO_TOKEN_GENERATE => ['onTokenGenerate', 254],
             EmailEvents::EMAIL_ON_BUILD            => ['onEmailBuild', 0],
             EmailEvents::EMAIL_ON_SEND             => ['decodeTokensSend', 0],
             EmailEvents::EMAIL_ON_DISPLAY          => ['decodeTokensDisplay', 0],
@@ -79,6 +88,8 @@ class EmailSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * @param TokenGenerateEvent $event
+     *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
@@ -106,6 +117,8 @@ class EmailSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * @param EmailBuilderEvent $event
+     *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
@@ -138,6 +151,8 @@ class EmailSubscriber implements EventSubscriberInterface
     /**
      * Search and replace tokens with content.
      *
+     * @param EmailSendEvent $event
+     *
      * @throws \RuntimeException
      */
     public function decodeTokensDisplay(EmailSendEvent $event)
@@ -147,6 +162,8 @@ class EmailSubscriber implements EventSubscriberInterface
 
     /**
      * Search and replace tokens with content.
+     *
+     * @param EmailSendEvent $event
      *
      * @throws \RuntimeException
      */
@@ -158,7 +175,8 @@ class EmailSubscriber implements EventSubscriberInterface
     /**
      * Search and replace tokens with content.
      *
-     * @param bool $triggerEvent
+     * @param EmailSendEvent $event
+     * @param bool           $triggerEvent
      *
      * @throws \RuntimeException
      */
@@ -193,6 +211,7 @@ class EmailSubscriber implements EventSubscriberInterface
                     $params = $tokenEvent->getParams();
                     unset($tokenEvent);
                 }
+
 
                 $button = $this->templating->getTemplating()->render(
                     'MauticGoToBundle:SubscribedEvents\EmailToken:token.html.php',

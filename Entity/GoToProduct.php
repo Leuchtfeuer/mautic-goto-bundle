@@ -1,9 +1,12 @@
 <?php
 
+
 namespace MauticPlugin\MauticGoToBundle\Entity;
+
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
+use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
 
 const STATUS_ACTIVE = 'active';
 const STATUS_HIDDEN = 'hidden';
@@ -91,6 +94,9 @@ class GoToProduct implements \JsonSerializable
         $builder->addNamedField('language', 'text', 'language', true);
         $builder->addNamedField('duration', 'text', 'duration', true);
         $builder->addNamedField('status', 'text', 'status', true);
+
+
+
     }
 
     /**
@@ -253,8 +259,10 @@ class GoToProduct implements \JsonSerializable
         $this->language = $language;
     }
 
+
+
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function jsonSerialize()
     {
@@ -292,4 +300,6 @@ class GoToProduct implements \JsonSerializable
     {
         $this->status = $status;
     }
+
+
 }

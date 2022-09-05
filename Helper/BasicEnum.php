@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticGoToBundle\Helper;
 
+use Mautic\CoreBundle\Translation\Translator;
 use ReflectionClass;
 
 abstract class BasicEnum
@@ -92,3 +93,4 @@ abstract class BasicEnum
         return $a;
     }
 }
+
