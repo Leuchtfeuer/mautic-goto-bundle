@@ -21,7 +21,6 @@ trait GoToRegistrationTrait
     /**
      * @param string $product
      * @param Lead   $currentLead
-     * @param array  $productsToRegister
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
@@ -32,12 +31,12 @@ trait GoToRegistrationTrait
      */
     public function registerProduct($product, $currentLead, array $productsToRegister)
     {
-        $leadFields                         = $currentLead->getProfileFields();
+        $leadFields                                   = $currentLead->getProfileFields();
         list($email, $firstname, $lastname, $company) = [
             array_key_exists('email', $leadFields) ? $leadFields['email'] : '',
             array_key_exists('firstname', $leadFields) ? $leadFields['firstname'] : '',
             array_key_exists('lastname', $leadFields) ? $leadFields['lastname'] : '',
-            array_key_exists('company', $leadFields) ? $leadFields['company'] : ''
+            array_key_exists('company', $leadFields) ? $leadFields['company'] : '',
         ];
 
         if ('' !== $email && '' !== $firstname && '' !== $lastname) {
@@ -56,7 +55,6 @@ trait GoToRegistrationTrait
                     $eventName = GoToHelper::getCleanString(
                             $productToRegister['productTitle']
                         ).'_#'.$productToRegister['productId'];
-
 
                     $this->goToModel->addEvent(
                         $product,

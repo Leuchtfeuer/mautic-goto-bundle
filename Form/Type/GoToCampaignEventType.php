@@ -36,9 +36,6 @@ class GoToCampaignEventType extends AbstractType
 
     /**
      * GoToCampaignEventType constructor.
-     *
-     * @param GoToModel         $model
-     * @param TranslatorInterface $translator
      */
     public function __construct(GoToModel $model, TranslatorInterface $translator)
     {

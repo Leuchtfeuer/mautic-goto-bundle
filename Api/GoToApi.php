@@ -2,7 +2,7 @@
 
 namespace MauticPlugin\MauticGoToBundle\Api;
 
-use Joomla\Http\Response;
+use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use MauticPlugin\MauticGoToBundle\Integration\GoToAbstractIntegration;
 
@@ -15,8 +15,6 @@ class GoToApi
 
     /**
      * GoToApi constructor.
-     *
-     * @param GoToAbstractIntegration $integration
      */
     public function __construct(GoToAbstractIntegration $integration)
     {
@@ -25,7 +23,6 @@ class GoToApi
 
     /**
      * @param string $operation
-     * @param array  $settings
      * @param string $route
      * @param bool   $refreshToken
      *
@@ -52,17 +49,14 @@ class GoToApi
             $route,
             $operation
         );
-	if (isset($settings['parameters']['organization'])) {
-            $settings['parameters']['organization'] = htmlspecialchars_decode($settings['parameters']['organization']);
-	}
-	/** @var Response $request */
+        /** @var Response $request */
         $request = $this->integration->makeRequest(
             $url,
             $settings['parameters'],
             $settings['method'],
             $requestSettings
         );
-        $status  = $request->code;
+        $status  = $request->getStatusCode();
         $message = '';
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
@@ -100,29 +94,24 @@ class GoToApi
                 $message = 'The user is already registered';
                 break;
             default:
-                $message = $request->body;
+                $message = $request->getBody();
                 break;
         }
 
-        if ($message !== '') {
+        if ('' !== $message) {
             throw new ApiErrorException($message);
         }
 
-        return $this->integration->parseCallbackResponse($request->body);
+        return $this->integration->parseCallbackResponse($request->getBody());
     }
 
     /**
-     * @param Response $request
-     *
      * @return bool
      */
     private function isInvalidTokenFromReponse(Response $request)
     {
-        $responseData = $this->integration->parseCallbackResponse($request->body);
-        if (isset($responseData['int_err_code']) && $responseData['int_err_code'] == 'InvalidToken') {
-            return true;
-        }
+        $responseData = $this->integration->parseCallbackResponse($request->getBody());
 
-        return false;
+        return isset($responseData['int_err_code']) && 'InvalidToken' === $responseData['int_err_code'];
     }
 }

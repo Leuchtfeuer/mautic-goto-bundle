@@ -26,8 +26,6 @@ class StatsSubscriber extends CommonStatsSubscriber
 
     /**
      * StatsSubscriber constructor.
-     *
-     * @param EntityManager $em
      */
     public function __construct(EntityManager $em)
     {
