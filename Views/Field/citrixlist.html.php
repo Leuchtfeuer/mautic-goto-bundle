@@ -4,8 +4,6 @@ include __DIR__ . '/field_helper.php';
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
 
-$debug = true;
-
 /** @var array $mauticTemplateVars */
 /** @var array $field */
 /** @var string $inputAttr */
@@ -13,7 +11,7 @@ $debug = true;
 
 function buildProductTitle(array $field, array $product)
 {
-    $product_date = DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
+    $product_date = \DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
 
     if (false === $product_date || $product['status'] !== STATUS_ACTIVE || $product_date < new DateTime()) {
         return;
@@ -90,63 +88,32 @@ $html .= '</select>';
 
 $description = '';
 
-if (false && !empty($field['properties']['above_dropdown_details'])) {
+if (!empty($field['properties']['above_dropdown_details'])) {
     $details = $field['properties']['above_dropdown_details'];
 
-    foreach ($without_session_list as $key => $product) {
+    foreach ($selectedProducts as $key => $product) {
         if ($product === null) {
             continue;
         }
 
-        $description .= sprintf('<div %s>', $field['properties']['attribute_container']);
+        $properties = [
+            GoToDetailKeywords::GOTOTITLE => sprintf('<span %s>%s</span>', $field['properties']['attribute_title'], $product['name']),
+            GoToDetailKeywords::GOTOLANGUAGE => sprintf('<span %s>%s</span>', $field['properties']['attribute_language'], locale_get_display_language($product['language'], 'en')),
+            GoToDetailKeywords::GOTOAUTHOR => sprintf('<span %s>%s</span>', $field['properties']['attribute_author'], $product['author']),
+            GoToDetailKeywords::GOTODURATION => sprintf('<span %s>%s</span>', $field['properties']['attribute_duration'], round(intval($product['duration'] / 60))),
+            GoToDetailKeywords::GOTODATE => sprintf('<span %s>%s</span>', $field['properties']['attribute_date'], (DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']))->format('d.m.Y H:i')),
+            GoToDetailKeywords::GOTODESCRIPTION => sprintf('<span %s>%s</span>', $field['properties']['attribute_description'], $product['description']),
 
-        if (in_array(GoToDetailKeywords::GOTOTITLE, $details, false)) {
-            $description .= sprintf(
-                '<span %s>%s</span>',
-                $field['properties']['attribute_title'],
-                $products[$key]['name']
-            );
-        }
-        if (in_array(GoToDetailKeywords::GOTOLANGUAGE, $details, false)) {
-            $lang = locale_get_display_language($products[$key]['language'], 'en');
-            $description .= <<<HTML
-                <span {$field['properties']['attribute_language']}>{$lang}</span>
-HTML;
-        }
-        if (in_array(GoToDetailKeywords::GOTOAUTHOR, $details, false)) {
-            $description .= <<<HTML
-                <span {$field['properties']['attribute_author']}>{$products[$key]['author']}</span>
-HTML;
-        }
-        if (in_array(GoToDetailKeywords::GOTODURATION, $details, false)) {
-            $duration = $products[$key]['duration'] / 60;
-            $description .= <<<HTML
-                <span {$field['properties']['attribute_duration']}>{$duration}</span>
-HTML;
-        }
-        if (in_array(GoToDetailKeywords::GOTODATE, $details, false)) {
-            $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
-            if ($date !== false) {
-                $description .= <<<HTML
-                <span {$field['properties']['attribute_date']}>{$date->format('d.m.Y H:i')}</span>
-HTML;
-            }
-        }
-        if (in_array(GoToDetailKeywords::GOTODESCRIPTION, $details, false)) {
-            $description .= <<<HTML
-                <span {$field['properties']['attribute_description']}>{$products[$key]['description']}</span>
-HTML;
-        }
-        $description .= <<<HTML
-                </div>
-HTML;
-        break;
+        ];
+
+        $rowDescription = join('', array_intersect_key($properties, array_flip($details)));
+        $description .= sprintf('<div %s>%s</div>', $field['properties']['attribute_container'], $rowDescription);
     }
 }
 
 
-    $optionsHtml = $html;
-    $html = <<<HTML
+$optionsHtml = $html;
+$html = <<<HTML
 
             <div $containerAttr>{$label}{$help}
                 <div $containerAttr>{$description}</div>
@@ -156,5 +123,5 @@ HTML;
             </div>
 
 HTML;
-    echo $html;
+echo $html;
 
