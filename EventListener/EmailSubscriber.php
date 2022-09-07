@@ -45,10 +45,7 @@ class EmailSubscriber implements EventSubscriberInterface
      */
     private $templating;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
+    private \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher;
 
     /**
      * FormSubscriber constructor.
@@ -93,7 +90,7 @@ class EmailSubscriber implements EventSubscriberInterface
                 $repo   = $this->goToModel->getRepository();
                 $result = $repo->findRegisteredByEmail('webinar', $email);
 
-                if (0 !== count($result)) {
+                if ([] !== $result) {
                     /** @var GoToEvent $ce */
                     $ce = $result[0];
                     $event->setProductLink($ce->getJoinUrl());
@@ -101,6 +98,7 @@ class EmailSubscriber implements EventSubscriberInterface
             } else {
                 GoToHelper::log('Updating webinar token failed! Email not found '.implode(', ', $event->getParams()));
             }
+
             $event->setProductText($this->translator->trans('plugin.citrix.token.join_webinar'));
         }
     }
@@ -123,7 +121,8 @@ class EmailSubscriber implements EventSubscriberInterface
                 }
             }
         }
-        if (0 === count($activeProducts)) {
+
+        if ([] === $activeProducts) {
             return;
         }
 
@@ -203,6 +202,7 @@ class EmailSubscriber implements EventSubscriberInterface
                 $tokens['{'.$product.'_button}'] = $button;
             }
         }
+
         $event->addTokens($tokens);
     }
 }

@@ -73,7 +73,7 @@ class SyncCommand extends ModeratedCommand
                 }
             }
 
-            if (0 === count($activeProducts)) {
+            if ([] === $activeProducts) {
                 $this->completeRun();
 
                 return;
@@ -85,6 +85,7 @@ class SyncCommand extends ModeratedCommand
 
                 return;
             }
+
             $activeProducts[] = $product;
         }
 
@@ -103,12 +104,14 @@ class SyncCommand extends ModeratedCommand
                 $productIds[]                  = $options['id'];
                 $citrixChoices[$options['id']] = $options['id'];
             }
+
             $diff = array_diff_key($model->getProducts($product), $citrixChoices);
-            foreach ($diff as $key => $name) {
+            foreach (array_keys($diff) as $key) {
                 $productEntity = $model->getProductById($key);
                 $productEntity->setStatus(STATUS_HIDDEN);
                 $model->saveEntity($productEntity);
             }
+
             foreach ($productIds as $productId) {
                 $output->writeln('Persisting ['.$productId.'] to DB');
                 $model->syncProduct($product, $citrixChoices[$productId], $output);
@@ -122,11 +125,11 @@ class SyncCommand extends ModeratedCommand
                     ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
                     $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
-                } catch (\Exception $ex) {
+                } catch (\Exception $exception) {
                     $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');
-                    $output->writeln('<error>'.$ex->getMessage().'</error>');
+                    $output->writeln('<error>'.$exception->getMessage().'</error>');
                     if ('dev' === MAUTIC_ENV) {
-                        $output->writeln('<info>'.(string) $ex.'</info>');
+                        $output->writeln('<info>'.(string) $exception.'</info>');
                     }
                 }
             }

@@ -34,7 +34,8 @@
                 <span class="event-name-slot"><strong>Description:</strong> <?php echo $view->escape($event['extra']['eventDesc']); ?></span><br/>
                 <?php if ('' !== $event['extra']['joinUrl']) : ?>
                     <span class="event-desc-slot"><strong>Join URL:</strong> <a href="<?php echo $view->escape($event['extra']['joinUrl']); ?>"><?php echo $view->escape($event['extra']['joinUrl']); ?></a></span>
-                <?php endif; ?>
+                <?php endif;
+?>
 			</p>
 		</div>
 	</div>

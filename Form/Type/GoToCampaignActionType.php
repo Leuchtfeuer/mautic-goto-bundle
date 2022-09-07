@@ -52,6 +52,7 @@ class GoToCampaignActionType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $c = null;
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr']))
             || !GoToProductTypes::isValidValue($options['attr']['data-product'])
             || !GoToHelper::isAuthorized('Goto'.$options['attr']['data-product'])
@@ -70,11 +71,7 @@ class GoToCampaignActionType extends AbstractType
         ];
 
         $newChoices = [];
-        foreach ($choices as $k => $c) {
-            if (0 === strpos($k, $product)) {
-                $newChoices[$k] = $c;
-            }
-        }
+        $newChoices = array_filter($choices, static fn ($c) => 0 === strpos($k, (string) $product));
 
         $builder->add(
             'event-criteria-'.$product,

@@ -31,13 +31,11 @@ trait GoToRegistrationTrait
      */
     public function registerProduct($product, $currentLead, array $productsToRegister)
     {
-        $leadFields                                   = $currentLead->getProfileFields();
-        list($email, $firstname, $lastname, $company) = [
-            array_key_exists('email', $leadFields) ? $leadFields['email'] : '',
-            array_key_exists('firstname', $leadFields) ? $leadFields['firstname'] : '',
-            array_key_exists('lastname', $leadFields) ? $leadFields['lastname'] : '',
-            array_key_exists('company', $leadFields) ? htmlspecialchars_decode($leadFields['company']) : '',
-        ];
+        $leadFields = $currentLead->getProfileFields();
+        $email      = $leadFields['email'] ?? '';
+        $firstname  = $leadFields['firstname'] ?? '';
+        $lastname   = $leadFields['lastname'] ?? '';
+        $company    = $leadFields['company'] ?? '';
 
         if ('' !== $email && '' !== $firstname && '' !== $lastname) {
             foreach ($productsToRegister as $productToRegister) {

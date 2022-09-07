@@ -61,6 +61,7 @@ class GoToActionType extends AbstractType
         ) {
             return;
         }
+
         $product = $options['attr']['data-product'];
 
         $fields  = $this->model->getSessionFields($options['attr']['data-formid']);
@@ -74,9 +75,7 @@ class GoToActionType extends AbstractType
                 array_merge(
                     ['button', 'freetext', 'captcha'],
                     array_map(
-                        function ($p) {
-                            return 'plugin.citrix.select.'.$p;
-                        },
+                        static fn ($p) => 'plugin.citrix.select.'.$p,
                         GoToProductTypes::toArray()
                     )
                 ),
@@ -84,6 +83,7 @@ class GoToActionType extends AbstractType
             )) {
                 continue;
             }
+
             $choices[$f['id']] = $f['label'];
         }
 

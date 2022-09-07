@@ -13,6 +13,9 @@ namespace MauticPlugin\MauticGoToBundle\Form\Type;
 
 use DateTime;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
+
+use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
+
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
@@ -42,6 +45,7 @@ class GoToListType extends AbstractType
         if (!empty($options['data'])) {
             $selectMessage = empty($options['data']['empty_value']) ? $selectMessage : $options['data']['empty_value'];
         }
+
         $builder->add(
             'empty_value',
             TextType::class,
@@ -82,6 +86,7 @@ class GoToListType extends AbstractType
         if (!empty($options['data']['above_dropdown_details'])) {
             $data_above = $options['data']['above_dropdown_details'];
         }
+
         $builder->add(
             'above_dropdown_details',
             ChoiceType::class,
@@ -124,7 +129,7 @@ class GoToListType extends AbstractType
         $default = false;
 
         if (!empty($options['data'])) {
-            $default = empty($options['data']['multiple']) ? false : true;
+            $default = !empty($options['data']['multiple']);
         }
 
         $builder->add(
@@ -140,7 +145,7 @@ class GoToListType extends AbstractType
         $default_separate = false;
 
         if (!empty($options['data'])) {
-            $default_separate = empty($options['data']['separate']) ? false : true;
+            $default_separate = !empty($options['data']['separate']);
         }
 
         $builder->add(
