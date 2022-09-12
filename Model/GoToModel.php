@@ -19,7 +19,9 @@ use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
 use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\MauticGoToBundle\Entity\GoToProduct;
 use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
+
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
+
 use MauticPlugin\MauticGoToBundle\Event\GoToEventUpdateEvent;
 use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
@@ -341,7 +343,7 @@ class GoToModel extends FormModel
         if (0 !== count($contactsToAdd)) {
             $searchEmails = array_keys($contactsToAdd);
             $leads        = $this->leadModel->getRepository()->getLeadsByFieldValue('email', $searchEmails, null, true);
-            //todo give as arg?
+            // todo give as arg?
             /** @var GoToProductRepository $citrixProductRepository */
             $citrixProductRepository = $this->em->getRepository(GoToProduct::class);
             foreach ($contactsToAdd as $email => $info) {
@@ -374,8 +376,8 @@ class GoToModel extends FormModel
                     $output->writeln(
                         ' + '.$email.' '.$eventType.' to '.
                         substr($citrixEvent->getGoToProduct()->getName(), 0, 40).((strlen(
-                                $citrixEvent->getGoToProduct()->getName()
-                            ) > 40) ? '...' : '.')
+                            $citrixEvent->getGoToProduct()->getName()
+                        ) > 40) ? '...' : '.')
                     );
                 }
                 ++$count;
@@ -394,8 +396,8 @@ class GoToModel extends FormModel
                     $output->writeln(
                         ' - '.$citrixEvent->getContact()->getEmail().' '.$eventType.' from '.
                         substr($citrixEvent->getGoToProduct()->getName(), 0, 40).((strlen(
-                                $citrixEvent->getGoToProduct()->getName()
-                            ) > 40) ? '...' : '.')
+                            $citrixEvent->getGoToProduct()->getName()
+                        ) > 40) ? '...' : '.')
                     );
                 }
                 ++$count;

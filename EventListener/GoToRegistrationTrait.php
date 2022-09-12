@@ -53,8 +53,8 @@ trait GoToRegistrationTrait
                 );
                 if ($isRegistered) {
                     $eventName = GoToHelper::getCleanString(
-                            $productToRegister['productTitle']
-                        ).'_#'.$productToRegister['productId'];
+                        $productToRegister['productTitle']
+                    ).'_#'.$productToRegister['productId'];
 
                     $this->goToModel->addEvent(
                         $product,

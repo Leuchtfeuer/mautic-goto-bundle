@@ -70,7 +70,7 @@ trait GoToStartTrait
 
                     $emailEntity = $this->emailModel->getEntity($emailId);
 
-                    //make sure the email still exists and is published
+                    // make sure the email still exists and is published
                     if (null !== $emailEntity && $emailEntity->isPublished()) {
                         $content = $emailEntity->getCustomHtml();
                         // replace tokens
@@ -102,8 +102,8 @@ trait GoToStartTrait
 
                     // add event to DB
                     $eventName = GoToHelper::getCleanString(
-                            $productToStart['productTitle']
-                        ).'_#'.$productToStart['productId'];
+                        $productToStart['productTitle']
+                    ).'_#'.$productToStart['productId'];
 
                     $this->goToModel->addEvent(
                         $product,
