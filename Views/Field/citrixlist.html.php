@@ -1,43 +1,50 @@
 <?php
 
-include __DIR__.'/field_helper.php';
+declare(strict_types=1);
 
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
-
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 
 /** @var array $mauticTemplateVars */
 /** @var array $field */
 /** @var string $inputAttr */
 /** @var string $labelAttr */
-function buildProductTitle(array $field, array $product)
-{
-    $product_date = \DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
+$defaultInputFormClass = ' not-chosen';
+$defaultInputClass     = 'selectbox';
+$containerType         = 'select';
 
-    if (false === $product_date || STATUS_ACTIVE !== $product['status'] || $product_date < new DateTime()) {
-        return;
-    }
+include __DIR__.'/field_helper.php';
 
-    $parts = [];
+if (!function_exists('buildProductTitle')) {
+    function buildProductTitle(array $field, array $product)
+    {
+        $product_date = \DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
 
-    foreach ($field['properties']['in_dropdown_details'] as $setting) {
-        switch ($setting) {
-            case GoToDetailKeywords::GOTOTITLE:
-                $parts[] = $product['name'];
-                break;
-            case GoToDetailKeywords::GOTODATE:
-                $parts[] = $product_date->format('d.m.Y H:i');
-                break;
-            case GoToDetailKeywords::GOTOAUTHOR:
-                $parts[] = $product['author'];
-                break;
-            case GoToDetailKeywords::GOTOLANGUAGE:
-                $parts[] = $product['language'];
-                break;
+        if (false === $product_date || STATUS_ACTIVE !== $product['status'] || $product_date < new DateTime()) {
+            return;
         }
-    }
 
-    return join(' ', $parts);
+        $parts = [];
+
+        foreach ($field['properties']['in_dropdown_details'] as $setting) {
+            switch ($setting) {
+                case GoToDetailKeywords::GOTOTITLE:
+                    $parts[] = $product['name'];
+                    break;
+                case GoToDetailKeywords::GOTODATE:
+                    $parts[] = $product_date->format('d.m.Y H:i');
+                    break;
+                case GoToDetailKeywords::GOTOAUTHOR:
+                    $parts[] = $product['author'];
+                    break;
+                case GoToDetailKeywords::GOTOLANGUAGE:
+                    $parts[] = $product['language'];
+                    break;
+            }
+        }
+
+        return join(' ', $parts);
+    }
 }
 
 //  some basic values
@@ -56,10 +63,6 @@ foreach ($list as $productKey => $product) {
     $refactored[$productsShouldSplit ? $product['recurrence_key'] : false][$productKey] = $product;
 }
 
-$defaultInputFormClass = ' not-chosen';
-$defaultInputClass     = 'selectbox';
-$containerType         = 'select';
-
 if (!empty($properties['multiple'])) {
     $inputAttr .= ' multiple="multiple"';
 }
@@ -71,13 +74,15 @@ if (!empty($properties['empty_value']) || empty($field['defaultValue']) && empty
     $emptyOption = "<option value=\"\">{$properties['empty_value']}</option>";
 }
 
+$html = '';
+
 foreach ($refactored as $fieldGroup) {
     $optGroupLabel = array_values($fieldGroup)[0]['name'];
 
     $html .= count($refactored) > 1 ? sprintf('<optgroup label="%s">', $optGroupLabel) : '';
 
     foreach ($fieldGroup as $productKey => $product) {
-        $selected = ($productKey === $product['defaultValue']) ? ' selected="selected"' : '';
+        $selected = ($productKey === ($product['defaultValue'] ?? false)) ? ' selected="selected"' : '';
         $html .= "<option value=\"{$view->escape($productKey)}\"{$selected}>{$view->escape(buildProductTitle($field, $product))}</option>";
     }
 
