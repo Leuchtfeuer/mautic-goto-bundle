@@ -10,6 +10,7 @@
  */
 
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
+use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
 
 if (!function_exists('buildTitle')) {
     function buildTitle($list, $products, $field)
@@ -19,7 +20,7 @@ if (!function_exists('buildTitle')) {
             $title        = '';
             $product_date = DateTime::createFromFormat('Y-m-d H:i:s.u', $products[$key]['date']['date']);
 
-            if ($product_date && (\MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE === $products[$key]['status'] && $product_date->getTimestamp() > time())) {
+            if ($product_date && (STATUS_ACTIVE === $products[$key]['status'] && $product_date->getTimestamp() > time())) {
                 foreach ($field['properties']['in_dropdown_details'] as $setting) {
                     switch ($setting) {
                         case GoToDetailKeywords::GOTOTITLE:
@@ -149,7 +150,6 @@ $products    = $field['customParameters']['product_choices'];
 if (empty($without_session_list)) {
     $without_session_list = $not_separate_list;
 }
-
 if (!empty($field['properties']['above_dropdown_details'])) {
     $details = $field['properties']['above_dropdown_details'];
 

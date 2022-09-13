@@ -45,7 +45,7 @@ class EmailSubscriber implements EventSubscriberInterface
      */
     private $templating;
 
-    private \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     /**
      * FormSubscriber constructor.

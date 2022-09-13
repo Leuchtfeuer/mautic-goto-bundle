@@ -16,7 +16,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Command line access
 
 ## Preparations
-* If you have preexisting data: BACKUP now! There is curently no migration.
+* If you have preexisting data: BACKUP now! There is currently no migration.
 
 * Verify existing status, "nothing to update" should show up.
 

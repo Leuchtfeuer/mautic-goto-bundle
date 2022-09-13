@@ -124,6 +124,7 @@ class FormSubscriber implements EventSubscriberInterface
         $post       = $event->getPost();
         $fields     = $form->getFields();
         $actions    = $form->getActions();
+
         try {
             // gotoassist screen sharing does not need a product
             if ('assist' !== $product) {
@@ -472,6 +473,9 @@ class FormSubscriber implements EventSubscriberInterface
                         // search for the select field and perform validation for a corresponding action
 
                         $hasCitrixListField = false;
+                        dump($fields);
+                        exit;
+
                         /** @var Field $field */
                         foreach ($fields as $field) {
                             $fieldProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $field->getType());
