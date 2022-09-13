@@ -86,6 +86,7 @@ abstract class BasicEnum
     public static function getKeyPairs()
     {
         $a = self::getConstants();
+
         return array_combine($a, $a);
     }
 }
