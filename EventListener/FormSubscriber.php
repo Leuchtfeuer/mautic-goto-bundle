@@ -164,7 +164,7 @@ class FormSubscriber implements EventSubscriberInterface
                 if ('assist' !== $product) {
                     // replace the submitted value with something more legible
                     foreach ($productsToRegister as $productToRegister) {
-                        if ($productToRegister['productId']!==null) {
+                        if (null !== $productToRegister['productId']) {
                             $results[$productToRegister['fieldName']] = $productToRegister['productTitle'].' ('.$productToRegister['productId'].')';
                         }
                     }
@@ -309,7 +309,7 @@ class FormSubscriber implements EventSubscriberInterface
                 $values = [$values];
             }
 
-            if ((is_array($values) || is_object($values))) {
+            if (is_array($values) || is_object($values)) {
                 foreach ($values as $value) {
                     if (!array_key_exists($value, $list) && !empty($value)) {
                         $event->failedValidation(
@@ -353,7 +353,7 @@ class FormSubscriber implements EventSubscriberInterface
 
                 if (is_array($productIds) || is_object($productIds)) {
                     foreach ($productIds as $productId) {
-                        if ($productId === null) { // We do have to ignore optional fields
+                        if (null === $productId) { // We do have to ignore optional fields
                             continue;
                         }
                         $products[] = [
@@ -414,10 +414,10 @@ class FormSubscriber implements EventSubscriberInterface
         // Verify if the form is well configured
         if (0 !== (is_countable($fields) ? count($fields) : 0)) {
             $violations = $this->_checkFormValidity($form);
-            //dump($violations); die();
+            // dump($violations); die();
             if ([] !== $violations) {
                 $event->stopPropagation();
-                $error     = implode(" * ", $violations);
+                $error     = implode(' * ', $violations);
                 throw (new ValidationException($error))->setViolations($violations);
             }
         }
@@ -465,14 +465,13 @@ class FormSubscriber implements EventSubscriberInterface
                         continue;
                     }
 
-
                     $actionAction = preg_filter('/^.+\.([^\.]+\.[^\.]+)$/', '$1', $action->getType());
 
                     // get lead fields
                     $currentLeadFields = [];
                     foreach ($fields as $field) {
                         $leadField = $field->getLeadField();
-                        if (null !== $leadField &&  '' !== $leadField) {
+                        if (null !== $leadField && '' !== $leadField) {
                             $currentLeadFields[$leadField] = $field->getIsRequired();
                         }
                     }
