@@ -37,10 +37,13 @@ class GoToActionType extends AbstractType
 
     /**
      * GoToActionType constructor.
+     *
+     * @param FieldModel $fieldModel
+     * @param GoToModel $goToModel
      */
     public function __construct(FieldModel $fieldModel, GoToModel $goToModel)
     {
-        $this->model     = $fieldModel;
+        $this->model = $fieldModel;
         $this->goToModel = $goToModel;
     }
 
@@ -61,7 +64,6 @@ class GoToActionType extends AbstractType
         ) {
             return;
         }
-
         $product = $options['attr']['data-product'];
 
         $fields  = $this->model->getSessionFields($options['attr']['data-formid']);
@@ -75,7 +77,9 @@ class GoToActionType extends AbstractType
                 array_merge(
                     ['button', 'freetext', 'captcha'],
                     array_map(
-                        static fn ($p) => 'plugin.citrix.select.'.$p,
+                        function ($p) {
+                            return 'plugin.citrix.select.'.$p;
+                        },
                         GoToProductTypes::toArray()
                     )
                 ),
@@ -83,7 +87,6 @@ class GoToActionType extends AbstractType
             )) {
                 continue;
             }
-
             $choices[$f['id']] = $f['label'];
         }
 
@@ -94,7 +97,7 @@ class GoToActionType extends AbstractType
             $products = [
                 'form' => 'User selection from form',
             ];
-            $products = array_replace($products, $this->goToModel->getProducts($product, new \DateTime('now'), false, false, false));
+            $products = array_replace($products, $this->goToModel->getProducts($product, new \DateTime('now'), false,false, false));
 
             $builder->add(
                 'product',
@@ -190,6 +193,7 @@ class GoToActionType extends AbstractType
             ]
         );
 
+
         $builder->add(
             'company',
             ChoiceType::class,
@@ -243,3 +247,4 @@ class GoToActionType extends AbstractType
         return 'citrix_submit_action';
     }
 }
+

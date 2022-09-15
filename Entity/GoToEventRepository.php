@@ -16,17 +16,17 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use Mautic\CoreBundle\Entity\CommonRepository;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\TimelineTrait;
+use MauticPlugin\MauticCrmBundle\Integration\Salesforce\Object\Contact;
 
 class GoToEventRepository extends CommonRepository
 {
     use TimelineTrait;
-    public $_em;
 
     /**
      * Fetch the base event data from the database.
      *
-     * @param string    $product
-     * @param string    $eventType
+     * @param string $product
+     * @param string $eventType
      * @param \DateTime $fromDate
      *
      * @return mixed
@@ -42,7 +42,7 @@ class GoToEventRepository extends CommonRepository
             $q->expr()->eq('c.event_type', ':eventType')
         );
 
-        if (null !== $fromDate) {
+        if ($fromDate) {
             $expr->add(
                 $q->expr()->gte('c.event_date', ':fromDate')
             );
@@ -57,8 +57,9 @@ class GoToEventRepository extends CommonRepository
     }
 
     /**
-     * @param      $product
+     * @param       $product
      * @param null $leadId
+     * @param array $options
      *
      * @return array
      */
@@ -66,11 +67,11 @@ class GoToEventRepository extends CommonRepository
     {
         $eventType = null;
         if (is_array($product)) {
-            [$product, $eventType] = $product;
+            list($product, $eventType) = $product;
         }
 
         $query = $this->getEntityManager()->getConnection()->createQueryBuilder()
-            ->from(MAUTIC_TABLE_PREFIX.'plugin_goto_events', 'c')
+            ->from(MAUTIC_TABLE_PREFIX . 'plugin_goto_events', 'c')
             ->leftJoin('c', 'plugin_goto_products', 'cp', 'c.citrix_product_id = cp.id')
             ->select('c.*');
 
@@ -87,18 +88,16 @@ class GoToEventRepository extends CommonRepository
         }
 
         if ($leadId) {
-            $query->andWhere('c.contact_id = '.(int) $leadId);
+            $query->andWhere('c.contact_id = ' . (int)$leadId);
         }
 
         if (isset($options['search']) && $options['search']) {
             $query->andWhere($query->expr()->orX(
-                $query->expr()->like('c.event_name', $query->expr()->literal('%'.$options['search'].'%')),
-                $query->expr()->like('c.product', $query->expr()->literal('%'.$options['search'].'%'))
+                $query->expr()->like('c.event_name', $query->expr()->literal('%' . $options['search'] . '%')),
+                $query->expr()->like('c.product', $query->expr()->literal('%' . $options['search'] . '%'))
             ));
         }
-
         $testquery = $query->getSQL();
-
         return $this->getTimelineResults($query, $options, 'cp.product', 'c.event_date', [], ['event_date']);
     }
 
@@ -110,10 +109,11 @@ class GoToEventRepository extends CommonRepository
      */
     public function findByEmail($product, $email)
     {
+
         return $this->findBy(
             [
                 'product' => $product,
-                'email'   => $email,
+                'email' => $email,
             ]
         );
     }
@@ -140,20 +140,22 @@ class GoToEventRepository extends CommonRepository
     public function findAllByMailAndEvent($email, $eventKey)
     {
         $contactRepository = $this->_em->getRepository(Lead::class);
-        $contacts          = $contactRepository->findBy(['email' => $email]);
+        $contacts = $contactRepository->findBy(['email' => $email]);
         $productRepository = $this->_em->getRepository(GoToProduct::class);
-        $product           = $productRepository->findOneByProductKey($eventKey);
-
+        $product = $productRepository->findOneByProductKey($eventKey);
         return $this->findBy(
             [
-                'contact'       => $contacts,
-                'citrixProduct' => $product,
+                'contact' => $contacts,
+                'citrixProduct' => $product
             ]
         );
     }
 
+
     /**
      * Get a list of entities.
+     *
+     * @param array $args
      *
      * @return Paginator
      */
@@ -164,7 +166,7 @@ class GoToEventRepository extends CommonRepository
         $q = $this->_em
             ->createQueryBuilder()
             ->select($alias)
-            ->from('GoToEvent', $alias, $alias.'.id');
+            ->from('GoToEvent', $alias, $alias . '.id');
 
         $args['qb'] = $q;
 
@@ -208,7 +210,7 @@ class GoToEventRepository extends CommonRepository
     protected function getDefaultOrder()
     {
         return [
-            [$this->getTableAlias().'.eventDate', 'ASC'],
+            [$this->getTableAlias() . '.eventDate', 'ASC'],
         ];
     }
 

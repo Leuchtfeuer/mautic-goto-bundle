@@ -12,15 +12,13 @@
 namespace MauticPlugin\MauticGoToBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
-
-use const MauticPlugin\MauticGoToBundle\Entity\STATUS_HIDDEN;
-
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use const MauticPlugin\MauticGoToBundle\Entity\STATUS_HIDDEN;
 
 /**
  * CLI Command : Synchronizes registrant information from GoTo products.
@@ -73,7 +71,7 @@ class SyncCommand extends ModeratedCommand
                 }
             }
 
-            if ([] === $activeProducts) {
+            if (0 === count($activeProducts)) {
                 $this->completeRun();
 
                 return;
@@ -85,7 +83,6 @@ class SyncCommand extends ModeratedCommand
 
                 return;
             }
-
             $activeProducts[] = $product;
         }
 
@@ -104,14 +101,12 @@ class SyncCommand extends ModeratedCommand
                 $productIds[]                  = $options['id'];
                 $citrixChoices[$options['id']] = $options['id'];
             }
-
             $diff = array_diff_key($model->getProducts($product), $citrixChoices);
-            foreach (array_keys($diff) as $key) {
+            foreach ($diff as $key => $name){
                 $productEntity = $model->getProductById($key);
                 $productEntity->setStatus(STATUS_HIDDEN);
                 $model->saveEntity($productEntity);
             }
-
             foreach ($productIds as $productId) {
                 $output->writeln('Persisting ['.$productId.'] to DB');
                 $model->syncProduct($product, $citrixChoices[$productId], $output);
@@ -121,15 +116,15 @@ class SyncCommand extends ModeratedCommand
                 try {
                     $eventDesc = $citrixChoices[$productId]['subject'];
                     $eventName = GoToHelper::getCleanString(
-                        $eventDesc
-                    ).'_#'.$productId;
+                            $eventDesc
+                        ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
                     $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
-                } catch (\Exception $exception) {
+                } catch (\Exception $ex) {
                     $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');
-                    $output->writeln('<error>'.$exception->getMessage().'</error>');
+                    $output->writeln('<error>'.$ex->getMessage().'</error>');
                     if ('dev' === MAUTIC_ENV) {
-                        $output->writeln('<info>'.(string) $exception.'</info>');
+                        $output->writeln('<info>'.(string) $ex.'</info>');
                     }
                 }
             }

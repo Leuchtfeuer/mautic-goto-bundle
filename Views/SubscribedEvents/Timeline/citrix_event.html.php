@@ -24,7 +24,7 @@
                     '%date%'  => $view['date']->toFullConcat($event['timestamp']),
                     '%event%' => $event['eventLabel'],
                 ]));
-?>
+                ?>
 			</p>
 	    </div>
 		<div class="panel-footer">

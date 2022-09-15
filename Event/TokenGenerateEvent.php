@@ -18,10 +18,15 @@ use Mautic\CoreBundle\Event\CommonEvent;
  */
 class TokenGenerateEvent extends CommonEvent
 {
-    private array $params = [];
+    /**
+     * @var array
+     */
+    private $params = [];
 
     /**
      * TokenGenerateEvent constructor.
+     *
+     * @param array $params
      */
     public function __construct(array $params)
     {

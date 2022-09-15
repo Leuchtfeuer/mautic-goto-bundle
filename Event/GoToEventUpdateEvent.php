@@ -23,17 +23,14 @@ class GoToEventUpdateEvent extends CommonEvent
      * @var
      */
     private $product;
-
     /**
      * @var
      */
     private $eventName;
-
     /**
      * @var
      */
     private $eventType;
-
     /**
      * @var
      */
@@ -52,10 +49,11 @@ class GoToEventUpdateEvent extends CommonEvent
     /**
      * GoToEventUpdateEvent constructor.
      *
-     * @param $product
-     * @param $eventName
-     * @param $eventDesc
-     * @param $eventType
+     * @param      $product
+     * @param      $eventName
+     * @param      $eventDesc
+     * @param      $eventType
+     * @param Lead $lead
      */
     public function __construct($product, $eventName, $eventDesc, $eventType, Lead $lead)
     {

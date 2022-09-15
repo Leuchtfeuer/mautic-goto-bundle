@@ -12,6 +12,7 @@
 namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
+use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\Event\LeadListFilteringEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersOperatorsEvent;
@@ -50,16 +51,23 @@ class LeadSubscriber implements EventSubscriberInterface
 
     /**
      * LeadSubscriber constructor.
+     *
+     * @param GoToModel $model
+     * @param TranslatorInterface $translator
+     * @param EntityManager $entityManager
      */
     public function __construct(
         GoToModel $model,
         EntityManager $entityManager,
         TranslatorInterface $translator
-    ) {
-        $this->model         = $model;
+    )
+    {
+        $this->model = $model;
         $this->entityManager = $entityManager;
-        $this->translator    = $translator;
+        $this->translator = $translator;
     }
+
+
 
     /**
      * @return array
@@ -67,19 +75,24 @@ class LeadSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            LeadEvents::TIMELINE_ON_GENERATE               => ['onTimelineGenerate', 0],
-            LeadEvents::LIST_FILTERS_CHOICES_ON_GENERATE   => ['onListChoicesGenerate', 0],
+            LeadEvents::TIMELINE_ON_GENERATE => ['onTimelineGenerate', 0],
+            LeadEvents::LIST_FILTERS_CHOICES_ON_GENERATE => ['onListChoicesGenerate', 0],
             LeadEvents::LIST_FILTERS_OPERATORS_ON_GENERATE => ['onListOperatorsGenerate', 0],
-            LeadEvents::LIST_FILTERS_ON_FILTERING          => ['onListFiltering', 0],
+            LeadEvents::LIST_FILTERS_ON_FILTERING => ['onListFiltering', 0],
         ];
     }
 
+    /**
+     * @param LeadListFiltersOperatorsEvent $event
+     */
     public function onListOperatorsGenerate(LeadListFiltersOperatorsEvent $event)
     {
         // TODO: add custom operators
     }
 
     /**
+     * @param LeadTimelineEvent $event
+     *
      * @throws \InvalidArgumentException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
@@ -88,26 +101,25 @@ class LeadSubscriber implements EventSubscriberInterface
     {
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->entityManager->getRepository(GoToProduct::class);
-        $activeProducts    = [];
+        $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if (GoToHelper::isAuthorized('Goto' . $p)) {
                 $activeProducts[] = $p;
             }
         }
-
-        if ([] === $activeProducts) {
+        if (0 === count($activeProducts)) {
             return;
         }
 
         foreach ($activeProducts as $product) {
             foreach ([GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED] as $type) {
-                $eventType = $product.'.'.$type;
+                $eventType = $product . '.' . $type;
                 if (!$event->isApplicable($eventType)) {
                     continue;
                 }
 
-                $eventTypeLabel = $this->translator->trans('plugin.citrix.timeline.event.'.$product.'.'.$type);
-                $eventTypeName  = $this->translator->trans('plugin.citrix.timeline.'.$product.'.'.$type);
+                $eventTypeLabel = $this->translator->trans('plugin.citrix.timeline.event.' . $product . '.' . $type);
+                $eventTypeName = $this->translator->trans('plugin.citrix.timeline.' . $product . '.' . $type);
                 $event->addEventType($eventType, $eventTypeName);
 
                 $citrixEvents = $this->model->getRepository()->getEventsForTimeline(
@@ -119,39 +131,43 @@ class LeadSubscriber implements EventSubscriberInterface
                 // Add total number to counter
                 $event->addToCounter($eventType, $citrixEvents);
 
-                if (!$event->isEngagementCount() && $citrixEvents['total']) {
-                    // Use a single entity class to help parse the name, description, etc without hydrating entities for every single event
-                    $entity = new GoToEvent();
-                    foreach ($citrixEvents['results'] as $citrixEvent) {
-                        $entity->setGoToProduct($productRepository->find((int) $citrixEvent['citrix_product_id']));
-                        $entity->setEventType($citrixEvent['event_type']);
-                        $entity->setEventDate($citrixEvent['event_date']);
+                if (!$event->isEngagementCount()) {
+                    if ($citrixEvents['total']) {
+                        // Use a single entity class to help parse the name, description, etc without hydrating entities for every single event
+                        $entity = new GoToEvent();
 
-                        $event->addEvent(
-                            [
-                                'event'      => $eventType,
-                                'eventId'    => $eventType.$citrixEvent['id'],
-                                'eventLabel' => $eventTypeName,
-                                'eventType'  => $eventTypeLabel,
-                                'timestamp'  => $entity->getEventDate(),
-                                'extra'      => [
-                                    'eventName' => $entity->getGoToProduct()->getName(),
-                                    'eventId'   => $entity->getId(),
-                                    'eventDesc' => $entity->getGoToProduct()->getDescription(),
-                                    'joinUrl'   => $entity->getJoinUrl(),
-                                ],
-                                'contentTemplate' => 'MauticGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
-                                'contactId'       => $event->getLeadId(),
-                            ]
-                        );
+                        foreach ($citrixEvents['results'] as $citrixEvent) {
+                            $entity->setGoToProduct($productRepository->find((int)$citrixEvent['citrix_product_id']));
+                            $entity->setEventType($citrixEvent['event_type']);
+                            $entity->setEventDate($citrixEvent['event_date']);
+
+                            $event->addEvent(
+                                [
+                                    'event' => $eventType,
+                                    'eventId' => $eventType . $citrixEvent['id'],
+                                    'eventLabel' => $eventTypeName,
+                                    'eventType' => $eventTypeLabel,
+                                    'timestamp' => $entity->getEventDate(),
+                                    'extra' => [
+                                        'eventName' => $entity->getGoToProduct()->getName(),
+                                        'eventId' => $entity->getId(),
+                                        'eventDesc' => $entity->getGoToProduct()->getDescription(),
+                                        'joinUrl' => $entity->getJoinUrl(),
+                                    ],
+                                    'contentTemplate' => 'MauticGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
+                                    'contactId' => $citrixEvent['lead_id'],
+                                ]
+                            );
+                        }
                     }
                 }
             }
-        }
-        // foreach $product
+        } // foreach $product
     }
 
     /**
+     * @param LeadListFiltersChoicesEvent $event
+     *
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @throws \InvalidArgumentException
@@ -160,18 +176,17 @@ class LeadSubscriber implements EventSubscriberInterface
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if (GoToHelper::isAuthorized('Goto' . $p)) {
                 $activeProducts[] = $p;
             }
         }
-
-        if ([] === $activeProducts) {
+        if (0 === count($activeProducts)) {
             return;
         }
 
         foreach ($activeProducts as $product) {
-            $eventNames           = $this->model->getDistinctEventNamesDesc($product);
-            $eventNames           = array_combine($eventNames, $eventNames);
+            $eventNames = $this->model->getDistinctEventNamesDesc($product);
+            $eventNames = array_combine($eventNames, $eventNames);
             $eventNamesWithoutAny = array_merge(
                 [
                     '-' => '-',
@@ -181,8 +196,8 @@ class LeadSubscriber implements EventSubscriberInterface
 
             $eventNamesWithAny = array_merge(
                 [
-                    '-'   => '-',
-                    'any' => $event->getTranslator()->trans('plugin.citrix.event.'.$product.'.any'),
+                    '-' => '-',
+                    'any' => $event->getTranslator()->trans('plugin.citrix.event.' . $product . '.any'),
                 ],
                 $eventNames
             );
@@ -190,15 +205,15 @@ class LeadSubscriber implements EventSubscriberInterface
             if (in_array($product, [GoToProductTypes::GOTOWEBINAR, GoToProductTypes::GOTOTRAINING])) {
                 $event->addChoice(
                     'lead',
-                    $product.'-registration',
+                    $product . '-registration',
                     [
-                        'label'      => $event->getTranslator()->trans('plugin.citrix.event.'.$product.'.registration'),
+                        'label' => $event->getTranslator()->trans('plugin.citrix.event.' . $product . '.registration'),
                         'properties' => [
                             'type' => 'select',
                             'list' => $eventNamesWithAny,
                         ],
                         'operators' => [
-                            'in'  => $event->getTranslator()->trans('mautic.core.operator.in'),
+                            'in' => $event->getTranslator()->trans('mautic.core.operator.in'),
                             '!in' => $event->getTranslator()->trans('mautic.core.operator.notin'),
                         ],
                     ]
@@ -207,15 +222,15 @@ class LeadSubscriber implements EventSubscriberInterface
 
             $event->addChoice(
                 'lead',
-                $product.'-attendance',
+                $product . '-attendance',
                 [
-                    'label'      => $event->getTranslator()->trans('plugin.citrix.event.'.$product.'.attendance'),
+                    'label' => $event->getTranslator()->trans('plugin.citrix.event.' . $product . '.attendance'),
                     'properties' => [
                         'type' => 'select',
                         'list' => $eventNamesWithAny,
                     ],
                     'operators' => [
-                        'in'  => $event->getTranslator()->trans('mautic.core.operator.in'),
+                        'in' => $event->getTranslator()->trans('mautic.core.operator.in'),
                         '!in' => $event->getTranslator()->trans('mautic.core.operator.notin'),
                     ],
                 ]
@@ -223,9 +238,9 @@ class LeadSubscriber implements EventSubscriberInterface
 
             $event->addChoice(
                 'lead',
-                $product.'-no-attendance',
+                $product . '-no-attendance',
                 [
-                    'label'      => $event->getTranslator()->trans('plugin.citrix.event.'.$product.'.no.attendance'),
+                    'label' => $event->getTranslator()->trans('plugin.citrix.event.' . $product . '.no.attendance'),
                     'properties' => [
                         'type' => 'select',
                         'list' => $eventNamesWithoutAny,
@@ -235,100 +250,105 @@ class LeadSubscriber implements EventSubscriberInterface
                     ],
                 ]
             );
-        }
-        // foreach $product
+        } // foreach $product
     }
 
+    /**
+     * @param LeadListFilteringEvent $event
+     */
     public function onListFiltering(LeadListFilteringEvent $event)
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if (GoToHelper::isAuthorized('Goto' . $p)) {
                 $activeProducts[] = $p;
             }
         }
-
-        if ([] === $activeProducts) {
+        if (0 === count($activeProducts)) {
             return;
         }
 
-        $details             = $event->getDetails();
-        $leadId              = $event->getLeadId();
-        $em                  = $event->getEntityManager();
-        $q                   = $event->getQueryBuilder();
-        $alias               = $event->getAlias();
-        $func                = $event->getFunc();
-        $currentFilter       = $details['field'];
-        $citrixEventsTable   = $em->getClassMetadata('MauticGoToBundle:GoToEvent')->getTableName();
+        $details = $event->getDetails();
+        $leadId = $event->getLeadId();
+        $em = $event->getEntityManager();
+        $q = $event->getQueryBuilder();
+        $alias = $event->getAlias();
+        $func = $event->getFunc();
+        $currentFilter = $details['field'];
+        $citrixEventsTable = $em->getClassMetadata('MauticGoToBundle:GoToEvent')->getTableName();
         $citrixProductsTable = $em->getClassMetadata('MauticGoToBundle:GoToProduct')->getTableName();
-        $leadTable           = $em->getClassMetadata(Lead::class)->getTableName();
+        $leadTable = $em->getClassMetadata(Lead::class)->getTableName();
 
         foreach ($activeProducts as $product) {
-            $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
+            $eventFilters = [$product . '-registration', $product . '-attendance', $product . '-no-attendance'];
 
             if (in_array($currentFilter, $eventFilters, true)) {
                 $eventNames = $details['filter'];
-                preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $eventNames, $matches);
+                preg_match('/^([^ ]+ +[^ ]+) +(.*)$/', $eventNames, $matches);
                 $eventNames = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
-                if (!$eventNames) {
+
+		if(!$eventNames){
                     break;
                 }
-                $isAnyEvent    = in_array('any', $eventNames, true);
+
+                $isAnyEvent = in_array('any', $eventNames, true);
                 $subQueriesSQL = [];
 
                 $eventTypes = [GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED];
                 foreach ($eventTypes as $k => $eventType) {
                     $query = $em->getConnection()->createQueryBuilder()
                         ->select('null')
-                        ->from($citrixEventsTable, $alias.$k)
-                        ->innerJoin($alias.$k, $citrixProductsTable, 'cpt'.$k, $alias.$k.'.citrix_product_id = cpt'.$k.'.id');
+                        ->from($citrixEventsTable, $alias . $k)
+                        ->innerJoin($alias . $k, $citrixProductsTable, 'cpt'.$k,$alias.$k.'.citrix_product_id = cpt'.$k.'.id');
+
+
+
 
                     if (!$isAnyEvent) {
                         $query->where(
                             $q->expr()->andX(
-                                $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
-                                $q->expr()->eq($alias.$k.'.citrix_product_id', $eventNames),
-                                $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
+                                $q->expr()->eq($alias . $k . '.event_type', $q->expr()->literal($eventType)),
+                                $q->expr()->eq($alias . $k . '.citrix_product_id', $eventNames),
+                                $q->expr()->eq($alias . $k . '.contact_id', 'l.id')
                             )
                         );
                     } else {
                         $query->where(
                             $q->expr()->andX(
-                                $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
-                                $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
+                                $q->expr()->eq($alias . $k . '.event_type', $q->expr()->literal($eventType)),
+                                $q->expr()->eq($alias . $k . '.contact_id', 'l.id')
                             )
                         );
                     }
 
                     if ($leadId) {
                         $query->andWhere(
-                            $query->expr()->eq($alias.$k.'.contact_id', $leadId)
+                            $query->expr()->eq($alias . $k . '.contact_id', $leadId)
                         );
                     }
 
                     $subQueriesSQL[$eventType] = $query->getSQL();
-                }
-                // foreach $eventType
+                } // foreach $eventType
 
                 switch ($currentFilter) {
-                    case $product.'-registration':
+                    case $product . '-registration':
                         $event->setSubQuery(
                             sprintf('%s (%s)', 'including' === $func ? 'EXISTS' : 'NOT EXISTS',
                                 $subQueriesSQL[GoToEventTypes::REGISTERED])
                         );
                         break;
 
-                    case $product.'-attendance':
+                    case $product . '-attendance':
                         $event->setSubQuery(
                             sprintf('%s (%s)', 'including' === $func ? 'EXISTS' : 'NOT EXISTS',
                                 $subQueriesSQL[GoToEventTypes::ATTENDED])
                         );
                         break;
 
-                    case $product.'-no-attendance':
+                    case $product . '-no-attendance':
                         $queries = [
                             sprintf('%s (%s)', 'including' === $func ? 'NOT EXISTS' : 'EXISTS',
-                                $subQueriesSQL[GoToEventTypes::ATTENDED]),
+                                $subQueriesSQL[GoToEventTypes::ATTENDED])
                         ];
 
                         if (in_array($product, [GoToProductTypes::GOTOWEBINAR, GoToProductTypes::GOTOTRAINING])) {
@@ -341,7 +361,6 @@ class LeadSubscriber implements EventSubscriberInterface
                         break;
                 }
             }
-        }
-        // foreach $product
+        } // foreach $product
     }
 }

@@ -29,9 +29,12 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return [];
     }
 
+    /**
+     * @param Integration $settings
+     */
     public function setIntegrationSettings(Integration $settings)
     {
-        // make sure URL does not have ending /
+        //make sure URL does not have ending /
         $keys = $this->getDecryptedApiKeys($settings);
         if (array_key_exists('url', $keys) && '/' === substr($keys['url'], -1)) {
             $keys['url'] = substr($keys['url'], 0, -1);

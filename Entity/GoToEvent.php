@@ -14,6 +14,8 @@ namespace MauticPlugin\MauticGoToBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticCrmBundle\Integration\Salesforce\Object\Contact;
+use MauticPlugin\MauticGoToBundle\Entity\GoToEventRepository;
 
 /**
  * @ORM\Table(name="plugin_citrix_events")
@@ -36,12 +38,13 @@ class GoToEvent
     /**
      * @var GoToProduct
      */
+
     protected $citrixProduct;
 
     /**
      * @ORM\Column(name="event_type", type="string", length=50)
      */
-    protected $eventType = 'undefined';
+    protected $eventType;
 
     /**
      * @ORM\Column(name="event_date", type="datetime")
@@ -55,9 +58,13 @@ class GoToEvent
 
     public function __construct()
     {
-        $this->eventDate = new \DateTime();
+        $this->eventDate = new \Datetime();
+        $this->eventType = 'undefined';
     }
 
+    /**
+     * @param ORM\ClassMetadata $metadata
+     */
     public static function loadMetadata(ORM\ClassMetadata $metadata)
     {
         $builder = new ClassMetadataBuilder($metadata);
@@ -133,6 +140,8 @@ class GoToEvent
     }
 
     /**
+     * @param \DateTime $eventDate
+     *
      * @return $this
      */
     public function setEventDate(\DateTime $eventDate)
@@ -177,4 +186,8 @@ class GoToEvent
     {
         $this->joinUrl = $joinUrl;
     }
+
+
+
+
 }

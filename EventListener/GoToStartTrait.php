@@ -24,6 +24,9 @@ trait GoToStartTrait
      */
     protected $emailModel;
 
+    /**
+     * @param EmailModel $emailModel
+     */
     public function setEmailModel(EmailModel $emailModel)
     {
         $this->emailModel = $emailModel;
@@ -32,8 +35,9 @@ trait GoToStartTrait
     /**
      * @param string $product
      * @param Lead   $lead
-     * @param        $emailId
-     * @param        $actionId
+     * @param array  $productsToStart
+     * @param  $emailId
+     * @param  $actionId
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
@@ -46,9 +50,11 @@ trait GoToStartTrait
     public function startProduct($product, $lead, array $productsToStart, $emailId = null, $actionId = null)
     {
         $leadFields                         = $lead->getProfileFields();
-        $email                              = $leadFields['email'] ?? '';
-        $firstname                          = $leadFields['firstname'] ?? '';
-        $lastname                           = $leadFields['lastname'] ?? '';
+        list($email, $firstname, $lastname) = [
+            array_key_exists('email', $leadFields) ? $leadFields['email'] : '',
+            array_key_exists('firstname', $leadFields) ? $leadFields['firstname'] : '',
+            array_key_exists('lastname', $leadFields) ? $leadFields['lastname'] : '',
+        ];
 
         if ('' !== $email && '' !== $firstname && '' !== $lastname) {
             foreach ($productsToStart as $productToStart) {
@@ -68,7 +74,7 @@ trait GoToStartTrait
 
                     $emailEntity = $this->emailModel->getEntity($emailId);
 
-                    // make sure the email still exists and is published
+                    //make sure the email still exists and is published
                     if (null !== $emailEntity && $emailEntity->isPublished()) {
                         $content = $emailEntity->getCustomHtml();
                         // replace tokens
@@ -100,8 +106,8 @@ trait GoToStartTrait
 
                     // add event to DB
                     $eventName = GoToHelper::getCleanString(
-                        $productToStart['productTitle']
-                    ).'_#'.$productToStart['productId'];
+                            $productToStart['productTitle']
+                        ).'_#'.$productToStart['productId'];
 
                     $this->goToModel->addEvent(
                         $product,

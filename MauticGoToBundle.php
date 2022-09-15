@@ -12,6 +12,8 @@
 namespace MauticPlugin\MauticGoToBundle;
 
 use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\ORM\Tools\SchemaTool;
 use Exception;
 use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
@@ -25,23 +27,26 @@ use Psr\Log\LogLevel;
 class MauticGoToBundle extends PluginBundleBase
 {
     /**
-     * Called by PluginController::reloadAction when adding a new plugin that's not already installed.
+     * Called by PluginController::reloadAction when adding a new plugin that's not already installed
      *
+     * @param Plugin $plugin
+     * @param MauticFactory $factory
      * @param null $metadata
      * @param null $installedSchema
-     *
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws Exception
      */
+
     public static function onPluginInstall(Plugin $plugin, MauticFactory $factory, $metadata = null, $installedSchema = null)
     {
         $db             = $factory->getDatabase();
-        $queries        = [];
+        $queries        = array();
 
-        $queries[] = 'DELETE FROM '.MAUTIC_TABLE_PREFIX.'plugins WHERE bundle = "MauticCitrixBundle"';
-        $queries[] = 'DELETE FROM '.MAUTIC_TABLE_PREFIX.'plugin_integration_settings WHERE name LIKE "goto%"';
+        $queries[] = 'DELETE FROM ' . MAUTIC_TABLE_PREFIX . 'plugins WHERE bundle = "MauticCitrixBundle"';
+        $queries[] = 'DELETE FROM ' . MAUTIC_TABLE_PREFIX . 'plugin_integration_settings WHERE name LIKE "goto%"';
 
         if (!empty($queries)) {
+
             $db->beginTransaction();
             try {
                 foreach ($queries as $q) {
@@ -49,21 +54,23 @@ class MauticGoToBundle extends PluginBundleBase
                 }
 
                 $db->commit();
-            } catch (Exception $exception) {
+            } catch (Exception $e) {
                 $db->rollback();
 
-                GoToHelper::log($exception->getMessage(), LogLevel::NOTICE);
+                GoToHelper::log($e->getMessage(), LogLevel::NOTICE);
             }
         }
 
-        if (null !== $metadata) {
+        if ($metadata !== null) {
             try {
                 self::installPluginSchema($metadata, $factory);
-            } catch (TableExistsException $tableExistsException) {
-                GoToHelper::log($tableExistsException->getMessage(), LogLevel::NOTICE);
+            } catch(TableExistsException $e){
+                GoToHelper::log($e->getMessage(), LogLevel::NOTICE);
             }
         }
+
     }
+
 
     public function boot()
     {
