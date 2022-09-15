@@ -1,5 +1,5 @@
 {
-  "name": "leuchtfeuer/mautic-goto-bundle",
+  "name": "leuchtfeuer/mautic-go-to-bundle",
   "description": "This is version specific to Mautic 3.3",
   "type": "mautic-plugin",
   "version": "3.3.1",
