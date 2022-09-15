@@ -1,5 +1,5 @@
 {
-    "name": "leuchtfeuer/mautic-goto-bundle",
+    "name": "leuchtfeuer/mautic-go-to-bundle",
     "type": "mautic-plugin",
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.5"
