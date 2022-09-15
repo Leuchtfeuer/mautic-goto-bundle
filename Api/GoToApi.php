@@ -52,21 +52,27 @@ class GoToApi
             $route,
             $operation
         );
-	if (isset($settings['parameters']['organization'])) {
-            $settings['parameters']['organization'] = htmlspecialchars_decode($settings['parameters']['organization']);
-	}
-	/** @var Response $request */
+
+        /** @var Response|array $request */
         $request = $this->integration->makeRequest(
             $url,
             $settings['parameters'],
             $settings['method'],
             $requestSettings
         );
-        $status  = $request->code;
-        $message = '';
+
+        if ($request instanceof Response) {
+            $status  = $request->code;
+            $message = '';
+        } elseif (is_array($request) && isset($request['error'])) {
+            $status  = $request['error']['code'];
+            $message = $request['error']['message'] ?? '';
+        } else {
+            throw new ApiErrorException('Failed to parse server response: '.print_r($request, true), 501);
+        }
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
-        if ($refreshToken && $this->isInvalidTokenFromReponse($request)) {
+        if ($refreshToken && 403 === $status) {
             $error = $this->integration->authCallback(['use_refresh_token' => true]);
             if (!$error) {
                 // keys changes, load new integration object
