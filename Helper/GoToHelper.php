@@ -392,7 +392,7 @@ class GoToHelper
             return is_array($response) && array_key_exists('joinUrl', $response);
         } catch (\Exception $exception) {
             self::log('registerToProduct: '.$exception->getMessage());
-            throw new BadRequestHttpException($exception->getMessage(), $exception->getCode(), $exception);
+            throw new BadRequestHttpException($exception->getMessage(), $exception, $exception->getCode());
         }
     }
 
