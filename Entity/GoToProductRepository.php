@@ -44,13 +44,13 @@ class GoToProductRepository extends CommonRepository
          * @var array $results
          * @var GoToProduct $result
          */
-        if($reduceSessions){
+        if ($reduceSessions) {
             $recurrenceKeyTemp = '';
-            foreach ($results as $result){
+            foreach ($results as $result) {
                 $recurrenceKeyTemp = $result->getRecurrenceKey();
-                foreach ($results as $key => $session){
+                foreach ($results as $key => $session) {
                     $diff = $result->getDate()->getTimestamp() - $session->getDate()->getTimestamp();
-                    if($recurrenceKeyTemp !== null && $session->getRecurrenceKey() === $recurrenceKeyTemp && ($diff > 0)){
+                    if (null !== $recurrenceKeyTemp && $session->getRecurrenceKey() === $recurrenceKeyTemp && ($diff > 0)) {
                         unset($results[$key]);
                     }
                 }
@@ -59,56 +59,56 @@ class GoToProductRepository extends CommonRepository
         foreach ($results as $result) {
             $return_results[$result->getProductKey()] = json_decode(json_encode($result), true);
         }
+
         return $return_results;
-
     }
 
-    public function getFutureProducts(){
-
+    public function getFutureProducts()
+    {
         return $this->getProductsBetweenSpecificDates(new \DateTime('now'));
-
     }
-
-
 
     /**
      * @param \DateTime $from
      * @param \DateTime $to
+     *
      * @throws \Exception
      */
-    public function getProductsBetweenSpecificDates($from = null, $to = null){
-
-        if($to === null){
+    public function getProductsBetweenSpecificDates($from = null, $to = null)
+    {
+        if (null === $to) {
             $to = new \DateTime('now + 50 years');
         }
-        if($from === null){
+        if (null === $from) {
             $from = new \DateTime('now - 10 years');
         }
 
-        $qb = $this->createQueryBuilder("e");
+        $qb = $this->createQueryBuilder('e');
         $qb
             ->andWhere('e.date BETWEEN :from AND :to')
-            ->setParameter('from', $from )
+            ->setParameter('from', $from)
             ->setParameter('to', $to)
         ;
         $result = $qb->getQuery()->getResult();
+
         return $result;
     }
 
     public function reduceSessionsToWebinar($sessions)
     {
-        $key = "";
-        $temp_array = array();
-        $i = 0;
-        $key_array = array();
+        $key        = '';
+        $temp_array = [];
+        $i          = 0;
+        $key_array  = [];
 
-        foreach($sessions as $session) {
+        foreach ($sessions as $session) {
             if (!in_array($session[$key], $key_array)) {
-                $key_array[$i] = $session[$key];
+                $key_array[$i]  = $session[$key];
                 $temp_array[$i] = $session;
             }
-            $i++;
+            ++$i;
         }
+
         return $temp_array;
     }
 }

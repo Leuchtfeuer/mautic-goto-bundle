@@ -136,7 +136,6 @@ class FormSubscriber implements EventSubscriberInterface
                     if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
                         $actionAction = preg_filter('/^.+\.([^\.]+\.[^\.]+)$/', '$1', $action->getType());
                         $actionAction = str_replace('.', '_', $actionAction);
-
                         if (!array_key_exists($actionAction, $submission->getResults())) {
                             // add new hidden field to store the product id
                             $field = new Field();
