@@ -77,7 +77,7 @@ if (!empty($properties['empty_value']) || empty($field['defaultValue']) && empty
 
 $html = '';
 
-$separate = $field['properties']['separate'] === 1;
+$separate = 1 === $field['properties']['separate'];
 
 foreach ($refactored as $fieldGroup) {
     $optGroupLabel = array_values($fieldGroup)[0]['name'];
