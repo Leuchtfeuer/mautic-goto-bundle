@@ -75,7 +75,7 @@ if (!empty($properties['empty_value']) || empty($field['defaultValue']) && empty
     $emptyOption = "<option value=\"\">{$properties['empty_value']}</option>";
 }
 
-$html = '';
+$html = $emptyOption;
 
 $separate = 1 === $field['properties']['separate'];
 
