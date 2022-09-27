@@ -8,7 +8,6 @@ class GototrainingApi extends GoToApi
 {
     /**
      * @param string $operation
-     * @param array  $parameters
      * @param string $method
      * @param string $route
      *
@@ -24,7 +23,7 @@ class GototrainingApi extends GoToApi
             'parameters' => $parameters,
         ];
 
-        if (preg_match('/start$/', $operation)) {
+        if (preg_match('#start$#', $operation)) {
             $settings['requestSettings'] = [
                 'auth_type' => 'none',
                 'headers'   => [

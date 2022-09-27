@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * @copyright   2016 Mautic Contributors. All rights reserved
  * @author      Mautic
@@ -66,7 +65,7 @@ class GoToHelper
     {
         static $g2wapi;
         if (null === $g2wapi) {
-            $class = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotowebinarApi';
+            $class  = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotowebinarApi';
             $g2wapi = new $class(self::getIntegration('Gotowebinar'));
         }
 

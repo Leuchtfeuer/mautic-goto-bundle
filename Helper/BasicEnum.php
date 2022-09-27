@@ -11,7 +11,6 @@
 
 namespace MauticPlugin\MauticGoToBundle\Helper;
 
-use Mautic\CoreBundle\Translation\Translator;
 use ReflectionClass;
 
 abstract class BasicEnum
@@ -23,7 +22,8 @@ abstract class BasicEnum
         if (null === self::$constCacheArray) {
             self::$constCacheArray = [];
         }
-        $calledClass = get_called_class();
+
+        $calledClass = static::class;
         if (!array_key_exists($calledClass, self::$constCacheArray)) {
             $reflect                             = new ReflectionClass($calledClass);
             self::$constCacheArray[$calledClass] = $reflect->getConstants();
@@ -85,12 +85,8 @@ abstract class BasicEnum
      */
     public static function getKeyPairs()
     {
-        $a = (self::getConstants());
-        $a = array_combine($a, $a);
-        /*foreach ($a as $key => $constant){
-            $name = 'plugin.citrix.product.' . $constant;
-        }*/
-        return $a;
+        $a = self::getConstants();
+
+        return array_combine($a, $a);
     }
 }
-

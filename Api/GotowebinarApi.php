@@ -8,10 +8,9 @@ class GotowebinarApi extends GoToApi
 {
     /**
      * @param string $operation
-     * @param array $parameters
      * @param string $method
+     * @param null   $organizerKey
      *
-     * @param null $organizerKey
      * @return mixed|string
      *
      * @throws ApiErrorException
@@ -19,25 +18,25 @@ class GotowebinarApi extends GoToApi
     public function request($operation, array $parameters = [], $method = 'GET', $organizerKey = null)
     {
         $settings = [
-            'module' => 'G2W',
-            'method' => $method,
-            'parameters' => $parameters,
+            'module'          => 'G2W',
+            'method'          => $method,
+            'parameters'      => $parameters,
             'requestSettings' => [
                 'headers' => [
                     'Accept' => 'application/json;charset=UTF-8',
                 ],
             ],
         ];
-        if ($organizerKey === null) {
+        if (null === $organizerKey) {
             $organizerKey = $this->integration->getOrganizerKey();
         }
+
         return $this->_request($operation, $settings,
             sprintf('rest/v2/organizers/%s', $organizerKey));
     }
 
     /**
      * @param string $operation
-     * @param array $parameters
      * @param string $method
      *
      * @return mixed|string
@@ -47,9 +46,9 @@ class GotowebinarApi extends GoToApi
     public function requestAllWebinars($operation, array $parameters = [], $method = 'GET')
     {
         $settings = [
-            'module' => 'G2W',
-            'method' => $method,
-            'parameters' => $parameters,
+            'module'          => 'G2W',
+            'method'          => $method,
+            'parameters'      => $parameters,
             'requestSettings' => [
                 'headers' => [
                     'Accept' => 'application/json;charset=UTF-8',

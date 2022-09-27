@@ -12,7 +12,7 @@
 return [
     'name'        => 'GoTo',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '1.2',
+    'version'     => '1.4.0',
     'author'      => 'Leuchtfeuer Digital Marketing',
     'routes'      => [
         'public' => [
@@ -67,7 +67,7 @@ return [
                     'mautic.citrix.model.citrix',
                     'translator',
                     'mautic.helper.templating',
-                    'event_dispatcher'
+                    'event_dispatcher',
                 ],
             ],
             'mautic.citrix.stats.subscriber' => [
@@ -83,18 +83,18 @@ return [
         ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
-                'class' => \MauticPlugin\MauticGoToBundle\Form\Type\GoToListType::class,
-                'alias' => 'citrix_list',
+                'class'     => \MauticPlugin\MauticGoToBundle\Form\Type\GoToListType::class,
+                'alias'     => 'citrix_list',
                 'arguments' => [
-                    'mautic.citrix.model.citrix'
-                ]
+                    'mautic.citrix.model.citrix',
+                ],
             ],
             'mautic.form.type.citrix.submitaction' => [
                 'class'     => \MauticPlugin\MauticGoToBundle\Form\Type\GoToActionType::class,
                 'alias'     => 'citrix_submit_action',
                 'arguments' => [
                     'mautic.form.model.field',
-                    'mautic.citrix.model.citrix'
+                    'mautic.citrix.model.citrix',
                 ],
             ],
             'mautic.form.type.citrix.campaignevent' => [

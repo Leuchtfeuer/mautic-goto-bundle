@@ -13,8 +13,15 @@ namespace MauticPlugin\MauticGoToBundle\Helper;
 
 abstract class GoToProductTypes extends BasicEnum
 {
-    const GOTOWEBINAR  = 'webinar';
-    const GOTOMEETING  = 'meeting';
-    const GOTOTRAINING = 'training';
-    const GOTOASSIST   = 'assist';
+    /** @var string */
+    public const GOTOWEBINAR  = 'webinar';
+
+    /** @var string */
+    public const GOTOMEETING  = 'meeting';
+
+    /** @var string */
+    public const GOTOTRAINING = 'training';
+
+    /** @var string */
+    public const GOTOASSIST   = 'assist';
 }

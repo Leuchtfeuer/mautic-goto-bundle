@@ -11,21 +11,22 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 - Caching of GoTo data - thus no wait time, no more "API calls exceeded" issues
 
 ## Requirements
-* Mautic Version 2 (Mautic 3 support expected in 08/2020)
+* Mautic 4.x
+* PHP 7.4, 8.0
 * Command line access
 
 ## Preparations
-* If you have preexisting data: BACKUP now! There is curently no migration.
+* If you have preexisting data: BACKUP now! There is currently no migration.
 
 * Verify existing status, "nothing to update" should show up.
 
       cd [path-to-your-mautic]
-      sudo -u www-data php app/console doctrine:schema:update --force
+      sudo -u www-data php bin/console doctrine:schema:update --force
   This should give you "Nothing to update".
   
 * Remove the existing plugin files and clear cache
 
-      sudo -u www-data php app/console cache:clear
+      sudo -u www-data php bin/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
     
 ## Installation
@@ -33,7 +34,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
   
       cd ~
       wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/master.zip
-      unzip mautic-goto-bundle-master.zip
+      unzip master.zip
       mv mautic-goto-bundle-master MauticGoToBundle
 
 * copy plugin to the Mautic installation
@@ -51,9 +52,9 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       
 * Cleanup (the hard way :)
 
-      rm -rf app/cache/*
-      sudo -u www-data php app/console cache:clear
-      sudo -u www-data php  app/console doctrine:schema:update --force
+      rm -rf var/cache/*
+      sudo -u www-data php bin/console cache:clear
+      sudo -u www-data php  bin/console doctrine:schema:update --force
       
             
 * In the Browser, go to "Settings" -> "Plugins" in the Mautic-Backend, klick on "Install/Update Plugins". The various "GoTo" cards appear in the Plugin list.
@@ -75,11 +76,11 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Try a first manual Sync: 
 
       cd [path-to-your-mautic]
-      sudo -u www-data php  app/console mautic:goto:sync
+      sudo -u www-data php  bin/console mautic:goto:sync
 
 * Add Cron job for the syncing:
 
-      [cron schedule settings] www-data php [path-to-your-mautic]/app/console mautic:goto:sync
+      [cron schedule settings] www-data php [path-to-your-mautic]/bin/console mautic:goto:sync
 
 We suggest to do the sync every 15 minutes.
 If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
@@ -103,6 +104,7 @@ All the other options are unchanged, thus see existing docs such as https://docs
 * In the Form-Action you'll be able to select distinct webinars. This is useless because you want to register the Contact at the Webinar which the contact has chosen.
 * Error Messages are getting displayed without formatting in the Form-Action
 * You're not able to map DB-Fields to GoTo-Fields in the Campaign-Action
+* After updating to a newer version of Mautic, the Sync can possibly start to fail with the following error: "Call to a member function getStatusCode() on array". In that case you need to re-authorize the plugin.
 
 ## API-Requests
 For every ProductType k (Like Meeting-Integration, Assist-Integration, ...) there'll be 2\*n Requests for n-Events (e.g. a meeting, a webinar or a Sessions) happening.

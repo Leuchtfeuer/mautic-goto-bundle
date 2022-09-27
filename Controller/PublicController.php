@@ -21,10 +21,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PublicController extends CommonController
 {
+    public $coreParametersHelper;
+
     /**
      * This proxy is used for the GoToTraining API requests in order to bypass the CORS restrictions in AJAX.
-     *
-     * @param Request $request
      *
      * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      *
@@ -53,23 +53,24 @@ class PublicController extends CommonController
                 ];
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
                 curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request->request->all()));
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request->request->all(), JSON_THROW_ON_ERROR));
             }
+
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_USERAGENT, $request->server->get('HTTP_USER_AGENT', ''));
-            list($header, $contents) = preg_split('/([\r\n][\r\n])\\1/', curl_exec($ch), 2);
+            [$header, $contents]     = preg_split('#([\r\n][\r\n])\1#', curl_exec($ch), 2);
             $status                  = curl_getinfo($ch);
             curl_close($ch);
         }
 
         // Set the JSON data object contents, decoding it from JSON if possible.
-        $decoded_json = json_decode($contents);
+        $decoded_json = json_decode($contents, null, 512, JSON_THROW_ON_ERROR);
         $data         = $decoded_json ?: $contents;
 
         // Generate JSON/JSONP string
-        $json     = json_encode($data);
+        $json     = json_encode($data, JSON_THROW_ON_ERROR);
         $response = new Response($json, $status['http_code']);
 
         // Generate appropriate content-type header.
@@ -89,8 +90,6 @@ class PublicController extends CommonController
      * This action will receive a POST when the session status changes.
      * A POST will also be made when a customer joins the session and when the session ends
      * (whether or not a customer joined).
-     *
-     * @param Request $request
      *
      * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      *
@@ -112,16 +111,16 @@ class PublicController extends CommonController
 
         try {
             /** @var GoToModel $goToModel */
-            $goToModel = $this->get('mautic.model.factory')->getModel('citrix.citrix');
+            $goToModel   = $this->get('mautic.model.factory')->getModel('citrix.citrix');
             $productId   = $post['sessionId'];
             $eventDesc   = sprintf('%s (%s)', $productId, $post['status']);
             $eventName   = GoToHelper::getCleanString(
-                    $eventDesc
-                ).'_#'.$productId;
+                $eventDesc
+            ).'_#'.$productId;
             $product = 'assist';
             $goToModel->syncEvent($product, $productId, $eventName, $eventDesc);
-        } catch (\Exception $ex) {
-            throw new BadRequestHttpException($ex->getMessage());
+        } catch (\Exception $exception) {
+            throw new BadRequestHttpException($exception->getMessage(), $exception->getCode(), $exception);
         }
 
         return new Response('OK');

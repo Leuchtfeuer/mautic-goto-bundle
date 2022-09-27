@@ -8,7 +8,6 @@ class GotoassistApi extends GoToApi
 {
     /**
      * @param string $operation
-     * @param array  $parameters
      * @param string $method
      *
      * @return mixed|string

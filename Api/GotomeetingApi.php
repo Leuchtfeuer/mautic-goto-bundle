@@ -8,7 +8,6 @@ class GotomeetingApi extends GoToApi
 {
     /**
      * @param string $operation
-     * @param array  $parameters
      * @param string $method
      *
      * @return mixed|string
@@ -23,7 +22,7 @@ class GotomeetingApi extends GoToApi
             'parameters' => $parameters,
         ];
 
-        if (preg_match('/start$/', $operation)) {
+        if (preg_match('#start$#', $operation)) {
             $settings['requestSettings'] = [
                 'auth_type' => 'none',
                 'headers'   => [

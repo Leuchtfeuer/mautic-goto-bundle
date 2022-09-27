@@ -116,16 +116,15 @@ class CampaignSubscriber implements EventSubscriberInterface
                     ];
                 }
             }
+
             if (in_array($criteria, ['webinar_register', 'training_register'], true)) {
                 $this->registerProduct($product, $event->getLead(), $products);
-            } else {
-                if (in_array($criteria, ['assist_screensharing', 'training_start', 'meeting_start'], true)) {
-                    $emailId = $config['template'];
-                    $this->startProduct($product, $event->getLead(), $products, $emailId, $actionId);
-                }
+            } elseif (in_array($criteria, ['assist_screensharing', 'training_start', 'meeting_start'], true)) {
+                $emailId = $config['template'];
+                $this->startProduct($product, $event->getLead(), $products, $emailId, $actionId);
             }
-        } catch (\Exception $ex) {
-            GoToHelper::log('onCitrixAction - '.$product.': '.$ex->getMessage());
+        } catch (\Exception $exception) {
+            GoToHelper::log('onCitrixAction - '.$product.': '.$exception->getMessage());
         }
 
         return true;
@@ -180,17 +179,15 @@ class CampaignSubscriber implements EventSubscriberInterface
                 GoToEventTypes::REGISTERED,
                 $isAny ? [] : $list
             );
+        } elseif ('attendedToAtLeast' === $criteria) {
+            $counter = $this->goToModel->countEventsBy(
+                $product,
+                $email,
+                GoToEventTypes::ATTENDED,
+                $isAny ? [] : $list
+            );
         } else {
-            if ('attendedToAtLeast' === $criteria) {
-                $counter = $this->goToModel->countEventsBy(
-                    $product,
-                    $email,
-                    GoToEventTypes::ATTENDED,
-                    $isAny ? [] : $list
-                );
-            } else {
-                return false;
-            }
+            return false;
         }
 
         return $counter > 0;
@@ -204,7 +201,8 @@ class CampaignSubscriber implements EventSubscriberInterface
                 $activeProducts[] = $p;
             }
         }
-        if (0 === count($activeProducts)) {
+
+        if ([] === $activeProducts) {
             return;
         }
 
