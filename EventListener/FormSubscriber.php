@@ -414,7 +414,6 @@ class FormSubscriber implements EventSubscriberInterface
         // Verify if the form is well configured
         if (0 !== (is_countable($fields) ? count($fields) : 0)) {
             $violations = $this->_checkFormValidity($form);
-            // dump($violations); die();
             if ([] !== $violations) {
                 $event->stopPropagation();
                 $error     = implode(' * ', $violations);
