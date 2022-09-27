@@ -46,11 +46,9 @@ trait GoToStartTrait
     public function startProduct($product, $lead, array $productsToStart, $emailId = null, $actionId = null)
     {
         $leadFields                         = $lead->getProfileFields();
-        list($email, $firstname, $lastname) = [
-            array_key_exists('email', $leadFields) ? $leadFields['email'] : '',
-            array_key_exists('firstname', $leadFields) ? $leadFields['firstname'] : '',
-            array_key_exists('lastname', $leadFields) ? $leadFields['lastname'] : '',
-        ];
+        $email                              = $leadFields['email'] ?? '';
+        $firstname                          = $leadFields['firstname'] ?? '';
+        $lastname                           = $leadFields['lastname'] ?? '';
 
         if ('' !== $email && '' !== $firstname && '' !== $lastname) {
             foreach ($productsToStart as $productToStart) {
@@ -70,7 +68,7 @@ trait GoToStartTrait
 
                     $emailEntity = $this->emailModel->getEntity($emailId);
 
-                    //make sure the email still exists and is published
+                    // make sure the email still exists and is published
                     if (null !== $emailEntity && $emailEntity->isPublished()) {
                         $content = $emailEntity->getCustomHtml();
                         // replace tokens
@@ -102,8 +100,8 @@ trait GoToStartTrait
 
                     // add event to DB
                     $eventName = GoToHelper::getCleanString(
-                            $productToStart['productTitle']
-                        ).'_#'.$productToStart['productId'];
+                        $productToStart['productTitle']
+                    ).'_#'.$productToStart['productId'];
 
                     $this->goToModel->addEvent(
                         $product,

@@ -9,9 +9,9 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-$prodName = (isset($product)) ? $product : 'product';
-$link     = (isset($productLink)) ? $productLink : '#';
-$text     = (isset($productText)) ? $productText : 'Start GoTo'.ucfirst($prodName);
+$prodName = $product ?? 'product';
+$link     = $productLink ?? '#';
+$text     = $productText ?? 'Start GoTo'.ucfirst($prodName);
 ?>
 <link rel="stylesheet" href="<?php echo $view['assets']->getUrl('plugins/MauticGoToBundle/Assets/css/citrix.css'); ?>" type="text/css"/>
 <a class="citrix-start-button" href="<?php echo $link; ?>" target="_blank">

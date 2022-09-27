@@ -32,11 +32,7 @@ class GoToProductRepository extends CommonRepository
 
     public function getCitrixChoices($onlyFutures = true, $reduceSessions = true)
     {
-        if ($onlyFutures) {
-            $results = $this->getFutureProducts();
-        } else {
-            $results = $this->getProductsBetweenSpecificDates();
-        }
+        $results        = $onlyFutures ? $this->getFutureProducts() : $this->getProductsBetweenSpecificDates();
         $key            = 'product_key';
         $return_results = [];
         /**
@@ -55,8 +51,9 @@ class GoToProductRepository extends CommonRepository
                 }
             }
         }
+
         foreach ($results as $result) {
-            $return_results[$result->getProductKey()] = json_decode(json_encode($result), true);
+            $return_results[$result->getProductKey()] = json_decode(json_encode($result, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
         }
 
         return $return_results;
@@ -78,6 +75,7 @@ class GoToProductRepository extends CommonRepository
         if (null === $to) {
             $to = new \DateTime('now + 50 years');
         }
+
         if (null === $from) {
             $from = new \DateTime('now - 10 years');
         }
@@ -88,9 +86,8 @@ class GoToProductRepository extends CommonRepository
             ->setParameter('from', $from)
             ->setParameter('to', $to)
         ;
-        $result = $qb->getQuery()->getResult();
 
-        return $result;
+        return $qb->getQuery()->getResult();
     }
 
     public function reduceSessionsToWebinar($sessions)
@@ -105,6 +102,7 @@ class GoToProductRepository extends CommonRepository
                 $key_array[$i]  = $session[$key];
                 $temp_array[$i] = $session;
             }
+
             ++$i;
         }
 

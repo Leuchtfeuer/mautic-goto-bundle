@@ -49,18 +49,18 @@ class MauticGoToBundle extends PluginBundleBase
                 }
 
                 $db->commit();
-            } catch (Exception $e) {
+            } catch (Exception $exception) {
                 $db->rollback();
 
-                GoToHelper::log($e->getMessage(), LogLevel::NOTICE);
+                GoToHelper::log($exception->getMessage(), LogLevel::NOTICE);
             }
         }
 
         if (null !== $metadata) {
             try {
                 self::installPluginSchema($metadata, $factory);
-            } catch (TableExistsException $e) {
-                GoToHelper::log($e->getMessage(), LogLevel::NOTICE);
+            } catch (TableExistsException $tableExistsException) {
+                GoToHelper::log($tableExistsException->getMessage(), LogLevel::NOTICE);
             }
         }
     }

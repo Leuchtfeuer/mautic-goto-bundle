@@ -22,15 +22,11 @@ class GoToApi
     }
 
     /**
-     * @param string $operation
-     * @param string $route
-     * @param bool   $refreshToken
-     *
      * @return mixed|string
      *
      * @throws ApiErrorException
      */
-    protected function _request($operation, array $settings, $route = 'rest', $refreshToken = true)
+    protected function _request(string $operation, array $settings, string $route = 'rest', bool $refreshToken = true)
     {
         $requestSettings = [
             'encode_parameters'   => 'json',
@@ -49,18 +45,27 @@ class GoToApi
             $route,
             $operation
         );
-        /** @var Response $request */
+
+        /** @var Response|array $request */
         $request = $this->integration->makeRequest(
             $url,
             $settings['parameters'],
             $settings['method'],
             $requestSettings
         );
-        $status  = $request->getStatusCode();
-        $message = '';
+
+        if ($request instanceof Response) {
+            $status  = $request->getStatusCode();
+            $message = '';
+        } elseif (is_array($request) && isset($request['error'])) {
+            $status  = $request['error']['code'];
+            $message = $request['error']['message'] ?? '';
+        } else {
+            throw new ApiErrorException('Failed to parse server response: '.print_r($request, true), 501);
+        }
 
         // Try refresh access_token with refresh_token (https://goto-developer.logmeininc.com/how-use-refresh-tokens)
-        if ($refreshToken && $this->isInvalidTokenFromReponse($request)) {
+        if ($refreshToken && is_array($request) && 403 === $status) {
             $error = $this->integration->authCallback(['use_refresh_token' => true]);
             if (!$error) {
                 // keys changes, load new integration object
@@ -103,15 +108,5 @@ class GoToApi
         }
 
         return $this->integration->parseCallbackResponse($request->getBody());
-    }
-
-    /**
-     * @return bool
-     */
-    private function isInvalidTokenFromReponse(Response $request)
-    {
-        $responseData = $this->integration->parseCallbackResponse($request->getBody());
-
-        return isset($responseData['int_err_code']) && 'InvalidToken' === $responseData['int_err_code'];
     }
 }

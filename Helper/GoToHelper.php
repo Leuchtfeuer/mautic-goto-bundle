@@ -18,6 +18,7 @@ use MauticPlugin\MauticGoToBundle\Api\GotoassistApi;
 use MauticPlugin\MauticGoToBundle\Api\GotomeetingApi;
 use MauticPlugin\MauticGoToBundle\Api\GototrainingApi;
 use MauticPlugin\MauticGoToBundle\Api\GotowebinarApi;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -26,10 +27,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class GoToHelper
 {
-    /**
-     * @var LoggerInterface
-     */
-    private static $logger;
+    private static ?\Psr\Log\LoggerInterface $logger = null;
 
     /**
      * @var IntegrationHelper
@@ -112,9 +110,12 @@ class GoToHelper
      */
     public static function log($msg, $level = 'error')
     {
+        //  Make sure the logs are in the same timezone
+        Logger::setTimezone(new \DateTimeZone(date_default_timezone_get()));
+
         try {
             self::$logger->log($level, $msg);
-        } catch (\Exception $ex) {
+        } catch (\Exception $exception) {
             // do nothing
         }
     }
@@ -144,6 +145,7 @@ class GoToHelper
                         $temp[$value] = $result[$value];
                     }
                 }
+
                 $return_results[$result[$key]] = $temp[0];
             }
         }
@@ -197,6 +199,7 @@ class GoToHelper
             if (!self::isAuthorized(self::listToIntegration($listType))) {
                 throw new AuthenticationException('You are not authorized to view '.$listType);
             }
+
             $currentYear = date('Y');
             // TODO: the date range can be configured elsewhere
             $fromTime = ($currentYear - 10).'-01-01T00:00:00Z';
@@ -229,6 +232,7 @@ class GoToHelper
                         $params['startDate'] = $fromTime;
                         $params['endDate']   = $toTime;
                     }
+
                     $results = self::getG2mApi()->request($url, $params);
 
                     return iterator_to_array(self::getKeyPairs($results, 'meetingId', 'subject'));
@@ -255,8 +259,8 @@ class GoToHelper
                         return iterator_to_array(self::getAssistPairs($results['sessions']));
                     }
             }
-        } catch (\Exception $ex) {
-            self::log($ex->getMessage());
+        } catch (\Exception $exception) {
+            self::log($exception->getMessage());
         }
 
         return [];
@@ -283,7 +287,7 @@ class GoToHelper
     {
         try {
             return self::$integrationHelper->getIntegrationObject($integration);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             // do nothing
         }
 
@@ -337,6 +341,7 @@ class GoToHelper
             } else {
                 $safeChar = $char;
             }
+
             $safeStr .= $safeChar;
         }
 
@@ -359,40 +364,35 @@ class GoToHelper
     {
         try {
             $response = [];
-            switch ($product) {
-                case GoToProductTypes::GOTOWEBINAR:
-                    $params = [
-                        'email'        => $email,
-                        'firstName'    => $firstname,
-                        'lastName'     => $lastname,
-                        'organization' => $company,
-                    ];
-
-                    $response = self::getG2wApi()->request(
-                        'webinars/'.$productId.'/registrants?resendConfirmation=true',
-                        $params,
-                        'POST'
-                    );
-                    break;
-                case GoToProductTypes::GOTOTRAINING:
-                    $params = [
-                        'email'     => $email,
-                        'givenName' => $firstname,
-                        'surname'   => $lastname,
-                    ];
-
-                    $response = self::getG2tApi()->request(
-                        'trainings/'.$productId.'/registrants',
-                        $params,
-                        'POST'
-                    );
-                    break;
+            if (GoToProductTypes::GOTOWEBINAR == $product) {
+                $params = [
+                    'email'        => $email,
+                    'firstName'    => $firstname,
+                    'lastName'     => $lastname,
+                    'organization' => $company,
+                ];
+                $response = self::getG2wApi()->request(
+                    'webinars/'.$productId.'/registrants?resendConfirmation=true',
+                    $params,
+                    'POST'
+                );
+            } elseif (GoToProductTypes::GOTOTRAINING == $product) {
+                $params = [
+                    'email'     => $email,
+                    'givenName' => $firstname,
+                    'surname'   => $lastname,
+                ];
+                $response = self::getG2tApi()->request(
+                    'trainings/'.$productId.'/registrants',
+                    $params,
+                    'POST'
+                );
             }
 
             return is_array($response) && array_key_exists('joinUrl', $response);
-        } catch (\Exception $ex) {
-            self::log('registerToProduct: '.$ex->getMessage());
-            throw new BadRequestHttpException($ex->getMessage());
+        } catch (\Exception $exception) {
+            self::log('registerToProduct: '.$exception->getMessage());
+            throw new BadRequestHttpException($exception->getMessage(), $exception, $exception->getCode());
         }
     }
 
@@ -460,9 +460,9 @@ class GoToHelper
                             $response['startScreenSharing']
                         )) ? $response['startScreenSharing']['launchUrl'] : '';
             }
-        } catch (\Exception $ex) {
-            self::log('startProduct: '.$ex->getMessage());
-            throw new BadRequestHttpException($ex->getMessage());
+        } catch (\Exception $exception) {
+            self::log('startProduct: '.$exception->getMessage());
+            throw new BadRequestHttpException($exception->getMessage(), $exception->getCode(), $exception);
         }
 
         return '';
@@ -509,14 +509,10 @@ class GoToHelper
     public static function getRegistrants($product, $productId, $organizerKey)
     {
         $result = [];
-        switch ($product) {
-            case GoToProductTypes::GOTOWEBINAR:
-                $result = self::getG2wApi()->request($product.'s/'.$productId.'/registrants', [], 'GET', $organizerKey);
-                break;
-
-            case GoToProductTypes::GOTOTRAINING:
-                $result = self::getG2tApi()->request($product.'s/'.$productId.'/registrants', [], 'GET');
-                break;
+        if (GoToProductTypes::GOTOWEBINAR == $product) {
+            $result = self::getG2wApi()->request($product.'s/'.$productId.'/registrants', [], 'GET', $organizerKey);
+        } elseif (GoToProductTypes::GOTOTRAINING == $product) {
+            $result = self::getG2tApi()->request($product.'s/'.$productId.'/registrants', [], 'GET');
         }
 
         return self::extractContacts($result);
@@ -578,6 +574,7 @@ class GoToHelper
                     // ignore
                     continue;
                 }
+
                 $emailKey = strtolower($result['attendeeEmail']);
                 $names    = explode(' ', $result['attendeeName']);
                 switch (count($names)) {
@@ -586,7 +583,7 @@ class GoToHelper
                         $lastname  = '';
                         break;
                     case 2:
-                        list($firstname, $lastname) = $names;
+                        [$firstname, $lastname] = $names;
                         break;
                     default:
                         $firstname = $names[0];
@@ -602,10 +599,10 @@ class GoToHelper
             } elseif (!empty($result['email'])) {
                 $emailKey            = strtolower($result['email']);
                 $contacts[$emailKey] = [
-                    'firstname' => (isset($result['firstName'])) ? $result['firstName'] : '',
-                    'lastname'  => (isset($result['lastName'])) ? $result['lastName'] : '',
+                    'firstname' => $result['firstName'] ?? '',
+                    'lastname'  => $result['lastName'] ?? '',
                     'email'     => $result['email'],
-                    'joinUrl'   => (isset($result['joinUrl'])) ? $result['joinUrl'] : '',
+                    'joinUrl'   => $result['joinUrl'] ?? '',
                 ];
             }
 
@@ -635,7 +632,7 @@ class GoToHelper
     {
         try {
             return self::getG2wApi()->request($product.'s/'.$productId.'/panelists', [], 'GET', $organizerKey);
-        } catch (ApiErrorException $e) {
+        } catch (ApiErrorException $apiErrorException) {
             return false;
         }
     }

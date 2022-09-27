@@ -12,10 +12,11 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 
 ## Requirements
 * Mautic 4.x
+* PHP 7.4, 8.0
 * Command line access
 
 ## Preparations
-* If you have preexisting data: BACKUP now! There is curently no migration.
+* If you have preexisting data: BACKUP now! There is currently no migration.
 
 * Verify existing status, "nothing to update" should show up.
 

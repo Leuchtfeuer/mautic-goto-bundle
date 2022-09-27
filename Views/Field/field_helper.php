@@ -41,6 +41,7 @@ if (empty($ignoreName)) {
     if (!empty($properties['multiple'])) {
         $inputName .= '[]';
     }
+
     $name = ' name="'.$inputName.'"';
 }
 
@@ -54,7 +55,8 @@ if (empty($ignoreId)) {
     $inputId = 'id="mauticform_input'.$formName.'_'.$field['alias'].'"';
     $labelId = 'id="mauticform_label'.$formName.'_'.$field['alias'].'" for="mauticform_input'.$formName.'_'.$field['alias'].'"';
 } else {
-    $inputId = $labelId = '';
+    $inputId = '';
+    $labelId = '';
 }
 
 $inputAttr = $inputId.$name.$value;
@@ -69,6 +71,7 @@ if (!empty($inForm)) {
     if (in_array($field['type'], ['button', 'pagebreak'])) {
         $defaultInputFormClass .= ' btn btn-default';
     }
+
     $labelAttr .= ' class="'.$defaultLabelClass.'"';
     $inputAttr .= ' disabled="disabled" class="'.$defaultInputClass.$defaultInputFormClass.'"';
 } else {
@@ -90,7 +93,8 @@ $containerAttr = 'id="mauticform'.$formName.'_'.$id.'" '.htmlspecialchars_decode
 if (!isset($containerClass)) {
     $containerClass = $containerType;
 }
-$order                 = (isset($field['order'])) ? $field['order'] : 0;
+
+$order                 = $field['order'] ?? 0;
 $defaultContainerClass = 'mauticform-row mauticform-'.$containerClass.' mauticform-field-'.$order;
 
 // Field is required
@@ -103,7 +107,7 @@ if (isset($field['isRequired']) && $field['isRequired']) {
         $validationMessage = $view['translator']->trans('mautic.form.field.generic.required', [], 'validators');
     }
 
-    $containerAttr .= " data-validate=\"{$field['alias']}\" data-validation-type=\"{$field['type']}\"";
+    $containerAttr .= sprintf(' data-validate="%s" data-validation-type="%s"', $field['alias'], $field['type']);
 
     if (!empty($properties['multiple'])) {
         $containerAttr .= ' data-validate-multiple="true"';
@@ -123,9 +127,11 @@ if (isset($list) || isset($properties['syncList']) || isset($properties['list'])
     if (!isset($contactFields)) {
         $contactFields = [];
     }
+
     if (!isset($companyFields)) {
         $companyFields = [];
     }
+
     $formFields = array_merge($contactFields, $companyFields);
     if (!empty($properties['syncList']) && !empty($field['leadField']) && isset($formFields[$field['leadField']])) {
         $leadFieldType = $formFields[$field['leadField']]['type'];
@@ -177,6 +183,7 @@ if (isset($list) || isset($properties['syncList']) || isset($properties['list'])
             }
         }
     }
+
     $list           = \Mautic\FormBundle\Helper\FormFieldHelper::parseList($parseList, false, $ignoreNumericalKeys);
     $firstListValue = reset($list);
 }

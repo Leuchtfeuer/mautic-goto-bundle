@@ -12,7 +12,7 @@
 return [
     'name'        => 'GoTo',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '1.2',
+    'version'     => '1.4.0',
     'author'      => 'Leuchtfeuer Digital Marketing',
     'routes'      => [
         'public' => [
