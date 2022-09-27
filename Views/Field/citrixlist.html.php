@@ -75,19 +75,21 @@ if (!empty($properties['empty_value']) || empty($field['defaultValue']) && empty
     $emptyOption = "<option value=\"\">{$properties['empty_value']}</option>";
 }
 
-$html = '';
+$html = $emptyOption;
+
+$separate = 1 === $field['properties']['separate'];
 
 foreach ($refactored as $fieldGroup) {
     $optGroupLabel = array_values($fieldGroup)[0]['name'];
 
-    $html .= count($refactored) > 1 ? sprintf('<optgroup label="%s">', $optGroupLabel) : '';
+    $html .= count($refactored) > 1 && $separate ? sprintf('<optgroup label="%s">', $optGroupLabel) : '';
 
     foreach ($fieldGroup as $productKey => $product) {
         $selected = ($productKey === ($product['defaultValue'] ?? false)) ? ' selected="selected"' : '';
         $html .= "<option value=\"{$view->escape($productKey)}\"{$selected}>{$view->escape(buildProductTitle($field, $product))}</option>";
     }
 
-    $html .= count($refactored) > 1 ? '</optgroup>' : '';
+    $html .= count($refactored) > 1 && $separate ? '</optgroup>' : '';
 }
 $html .= '</select>';
 
