@@ -10,10 +10,10 @@
  */
 
 return [
-    'name'        => 'GoTo',
+    'name'        => 'Leuchtfeuer GoTo (ex Citrix) integration for Mautic with GoToWebinar & Co.',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '1.4.0',
-    'author'      => 'Leuchtfeuer Digital Marketing',
+    'version'     => '2.2.x',
+    'author'      => 'Leuchtfeuer Digital Marketing GmbH',
     'routes'      => [
         'public' => [
             'mautic_citrix_proxy' => [
