@@ -1,4 +1,4 @@
-# GoTo (ex Citrix) integration for Mautic with GoToWebinar & Co.
+# GoTo Integration by Leuchtfeuer
 
 We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoToTraining - formerly known as "Citrix plugin") a complete overhaul. It now comes with a bunch of new and previously missing features; highlights include
 - Editor can offer selected webinars in form, rather than "all current"
@@ -109,3 +109,8 @@ All the other options are unchanged, thus see existing docs such as https://docs
 ## API-Requests
 For every ProductType k (Like Meeting-Integration, Assist-Integration, ...) there'll be 2\*n Requests for n-Events (e.g. a meeting, a webinar or a Sessions) happening.
 For Every Event there'll m Requests for m-Registrants and o Requests for o-Attendees. So ~ *n\*(2\*k+m\*o)*
+
+### Author
+Leuchtfeuer Digital Marketing GmbH
+
+mautic@Leuchtfeuer.com
