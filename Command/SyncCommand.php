@@ -12,9 +12,7 @@
 namespace MauticPlugin\MauticGoToBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
-
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_HIDDEN;
-
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
 use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\MauticGoToBundle\Model\GoToModel;
