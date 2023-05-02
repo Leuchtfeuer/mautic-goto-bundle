@@ -19,9 +19,7 @@ use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
 use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\MauticGoToBundle\Entity\GoToProduct;
 use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
-
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
-
 use MauticPlugin\MauticGoToBundle\Event\GoToEventUpdateEvent;
 use MauticPlugin\MauticGoToBundle\GoToEvents;
 use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;

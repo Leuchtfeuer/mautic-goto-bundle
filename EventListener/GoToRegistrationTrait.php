@@ -35,7 +35,7 @@ trait GoToRegistrationTrait
         $email      = $leadFields['email'] ?? '';
         $firstname  = $leadFields['firstname'] ?? '';
         $lastname   = $leadFields['lastname'] ?? '';
-        $company    = $leadFields['company'] ?? '';
+        $company    = htmlspecialchars_decode($leadFields['company'] ?? '');
 
         if ('' !== $email && '' !== $firstname && '' !== $lastname) {
             foreach ($productsToRegister as $productToRegister) {

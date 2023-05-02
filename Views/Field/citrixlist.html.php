@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
-
 use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
 
 /** @var array $mauticTemplateVars */
