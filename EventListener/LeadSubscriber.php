@@ -267,14 +267,21 @@ class LeadSubscriber implements EventSubscriberInterface
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
 
             if (in_array($currentFilter, $eventFilters, true)) {
-                $eventNames = $details['filter'];
+                $eventNameFilter = $details['filter'];
 
-                $isAnyEvent = in_array('any', $eventNames, true);
+                $isAnyEvent = in_array('any', $eventNameFilter, true);
                 if (!$isAnyEvent) {
-                    preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $eventNames, $matches);
-                    $eventNames = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
+                    $eventIds = [];
+                    foreach ($eventNameFilter as $filter) {
+                        preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $filter, $matches);
 
-                    if (!$eventNames) {
+                        $id = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
+                        if ($id) {
+                            $eventIds[] = $id;
+                        }
+                    }
+
+                    if (empty($eventIds)) {
                         break;
                     }
                 }
@@ -292,7 +299,7 @@ class LeadSubscriber implements EventSubscriberInterface
                         $query->where(
                             $q->expr()->andX(
                                 $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
-                                $q->expr()->eq($alias.$k.'.citrix_product_id', $eventNames),
+                                $q->expr()->in($alias.$k.'.citrix_product_id', $eventIds),
                                 $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
                             )
                         );
