@@ -171,7 +171,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
         foreach ($activeProducts as $product) {
             $eventNames           = $this->model->getDistinctEventNamesDesc($product);
-            $eventNames           = array_combine($eventNames, $eventNames);
+            $eventNames           = array_flip($eventNames);
             $eventNamesWithoutAny = array_merge(
                 [
                     '-' => '-',
@@ -261,7 +261,6 @@ class LeadSubscriber implements EventSubscriberInterface
         $currentFilter       = $details['field'];
         $citrixEventsTable   = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToEvent')->getTableName();
         $citrixProductsTable = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToProduct')->getTableName();
-        $leadTable           = $em->getClassMetadata(Lead::class)->getTableName();
 
         foreach ($activeProducts as $product) {
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
@@ -273,9 +272,7 @@ class LeadSubscriber implements EventSubscriberInterface
                 if (!$isAnyEvent) {
                     $eventIds = [];
                     foreach ($eventNameFilter as $filter) {
-                        preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $filter, $matches);
-
-                        $id = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
+                        $id = $this->model->getProductRepository()->findOneByProductKey($filter)->getId();
                         if ($id) {
                             $eventIds[] = $id;
                         }
