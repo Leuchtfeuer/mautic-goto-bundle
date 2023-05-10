@@ -135,9 +135,9 @@ class PluginEventSubscriber implements EventSubscriberInterface
 
             ++$count;
 
-            $this->logger->alert(sprintf('Segment %s updated successfully', $segment['id']));
+            $this->logger->info(sprintf('Segment %s updated successfully', $segment['id']));
         }
 
-        $this->logger->alert(sprintf('Total %s segments updated!!!', $count));
+        $this->logger->info(sprintf('Total %s segments updated!!!', count($results)));
     }
 }
