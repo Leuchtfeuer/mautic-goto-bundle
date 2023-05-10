@@ -80,6 +80,13 @@ return [
                 'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\IntegrationRequestSubscriber::class,
                 'arguments' => [],
             ],
+            'mautic.citrix.plugin.event.subscriber' => [
+                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\PluginEventSubscriber::class,
+                'arguments' => [
+                    'database_connection',
+                    'logger',
+                ],
+            ]
         ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
