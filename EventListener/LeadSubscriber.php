@@ -24,7 +24,6 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
-use MauticPlugin\MauticSocialBundle\Entity\Lead;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
