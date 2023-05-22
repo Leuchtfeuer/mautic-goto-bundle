@@ -84,7 +84,7 @@ return [
                 'class'     => \MauticPlugin\MauticGoToBundle\EventListener\PluginEventSubscriber::class,
                 'arguments' => [
                     'database_connection',
-                    'logger',
+                    'monolog.logger.mautic',
                 ],
             ]
         ],
