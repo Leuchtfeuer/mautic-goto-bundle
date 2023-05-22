@@ -6,7 +6,6 @@ namespace MauticPlugin\MauticGoToBundle\EventListener;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\RetryableException;
 use Mautic\PluginBundle\Event\PluginUpdateEvent;
 use Mautic\PluginBundle\PluginEvents;
 use Psr\Log\LoggerInterface;
