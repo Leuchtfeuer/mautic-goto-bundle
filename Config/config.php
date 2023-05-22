@@ -86,7 +86,7 @@ return [
                     'database_connection',
                     'monolog.logger.mautic',
                 ],
-            ]
+            ],
         ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
