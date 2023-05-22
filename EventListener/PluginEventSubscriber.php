@@ -133,7 +133,7 @@ class PluginEventSubscriber implements EventSubscriberInterface
                 'id'      => $segment['id'],
             ]);
 
-            $count++;
+            ++$count;
 
             $this->logger->alert(sprintf('Segment %s updated successfully', $segment['id']));
         }
