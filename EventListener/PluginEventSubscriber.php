@@ -6,6 +6,7 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\RetryableException;
 use Mautic\PluginBundle\Event\PluginUpdateEvent;
 use Mautic\PluginBundle\PluginEvents;
 use Psr\Log\LoggerInterface;
@@ -59,11 +60,17 @@ class PluginEventSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $count = 0;
         foreach ($results as $segment) {
             $newFilters         = [];
             $newPropertyFilters = [];
             $filters            = unserialize($segment['filters']);
             foreach ($filters as $filter) {
+                if (!isset($filter['properties'])) {
+                    $newFilters[] = $filter;
+                    continue;
+                }
+
                 if (
                     !in_array($filter['field'], ['webinar-attendance', 'webinar-no-attendance', 'webinar-registration'])
                     || is_array($filter['properties']['filter'])
@@ -74,6 +81,11 @@ class PluginEventSubscriber implements EventSubscriberInterface
 
                 $newPropertyFilters[$filter['field']][$filter['operator']]['glue'][]   = $filter['glue'];
                 $newPropertyFilters[$filter['field']][$filter['operator']]['filter'][] = $filter['properties']['filter'];
+            }
+
+            if (empty($newPropertyFilters)) {
+                $this->logger->alert(sprintf('No updated for %s (%s)', $segment['public_name'], $segment['id']));
+                continue;
             }
 
             foreach ($newPropertyFilters as $field => $filters) {
@@ -100,6 +112,16 @@ class PluginEventSubscriber implements EventSubscriberInterface
                             'date' => sprintf('%%%s%%', date('Y-m-d H:i', strtotime($matches[1]))),
                         ]);
 
+                        if (false === $productKey) {
+                            $productKey = $value;
+                            $this->logger->critical(sprintf(
+                                'Please updated the Segment %s (%s) manually as the "%s" GOTO product is unavailable for mapping.',
+                                $segment['public_name'],
+                                $segment['id'],
+                                $value
+                            ));
+                        }
+
                         $conversion['properties']['filter'][] = $productKey;
                     }
                     $newFilters[] = $conversion;
@@ -112,8 +134,11 @@ class PluginEventSubscriber implements EventSubscriberInterface
                 'id'      => $segment['id'],
             ]);
 
-            $this->logger->info(sprintf('Segment %s updated successfully', $segment['id']));
+            $count++;
+
+            $this->logger->alert(sprintf('Segment %s updated successfully', $segment['id']));
         }
-        $this->logger->info(sprintf('Total %s segments updated!!!', count($results)));
+
+        $this->logger->alert(sprintf('Total %s segments updated!!!', $count));
     }
 }
