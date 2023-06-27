@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * CLI Command : Synchronizes registrant information from GoTo products.
  *
- * php app/console mautic:goto:sync [--product=webinar|meeting|assist|training [--id=%productId%]]
+ * php app/console leuchtfeuer:goto:sync [--product=webinar|meeting|assist|training [--id=%productId%]]
  */
 class SyncCommand extends ModeratedCommand
 {
@@ -34,7 +34,7 @@ class SyncCommand extends ModeratedCommand
      */
     protected function configure()
     {
-        $this->setName('mautic:goto:sync')
+        $this->setName('leuchtfeuer:goto:sync')
             ->setDescription('Synchronizes registrant information from Citrix products')
             ->addOption(
                 'product',

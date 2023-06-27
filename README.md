@@ -76,11 +76,11 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Try a first manual Sync:
 
       cd [path-to-your-mautic]
-      sudo -u www-data php  bin/console mautic:goto:sync
+      sudo -u www-data php  bin/console leuchtfeuer:goto:sync
 
 * Add Cron job for the syncing:
 
-      [cron schedule settings] www-data php [path-to-your-mautic]/bin/console mautic:goto:sync
+      [cron schedule settings] www-data php [path-to-your-mautic]/bin/console leuchtfeuer:goto:sync
 
 We suggest to do the sync every 15 minutes.
 If you sync too frequently, you may run out of API calls on the GoTo side (number of allowed API calls can be increased, though)
