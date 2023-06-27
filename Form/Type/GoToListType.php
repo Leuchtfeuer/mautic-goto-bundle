@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\Form\Type;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Form\Type;
 
 use DateTime;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
-use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
-use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToDetailKeywords;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;

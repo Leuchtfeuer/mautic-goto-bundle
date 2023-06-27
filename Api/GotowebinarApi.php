@@ -1,6 +1,6 @@
 <?php
 
-namespace MauticPlugin\MauticGoToBundle\Api;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
 

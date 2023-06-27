@@ -9,18 +9,18 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\EventListener;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
-use MauticPlugin\MauticGoToBundle\Event\TokenGenerateEvent;
-use MauticPlugin\MauticGoToBundle\GoToEvents;
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
-use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\Event\TokenGenerateEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -194,7 +194,7 @@ class EmailSubscriber implements EventSubscriberInterface
                 }
 
                 $button = $this->templating->getTemplating()->render(
-                    'MauticGoToBundle:SubscribedEvents\EmailToken:token.html.php',
+                    'LeuchtfeuerGoToBundle:SubscribedEvents\EmailToken:token.html.php',
                     $params
                 );
 

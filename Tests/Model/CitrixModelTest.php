@@ -9,9 +9,9 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\Tests\Model;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Tests\Model;
 
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use PHPUnit\Framework\TestCase;
 
 class CitrixModelTest extends TestCase
@@ -25,7 +25,7 @@ class CitrixModelTest extends TestCase
         $fixturesDir = __DIR__.'/../DataFixtures/ORM';
 
         if (file_exists($fixturesDir)) {
-            $classPrefix = 'MauticPlugin\\MauticGoToBundle\\Tests\\DataFixtures\\ORM\\';
+            $classPrefix = 'MauticPlugin\\LeuchtfeuerGoToBundle\\Tests\\DataFixtures\\ORM\\';
             $this->populateFixturesFromDirectory($fixturesDir, $fixtures, $classPrefix, $returnClassNames);
         }
 

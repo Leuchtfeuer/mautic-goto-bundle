@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\EventListener;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
 use Mautic\LeadBundle\Event\LeadListFilteringEvent;
@@ -17,13 +17,13 @@ use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersOperatorsEvent;
 use Mautic\LeadBundle\Event\LeadTimelineEvent;
 use Mautic\LeadBundle\LeadEvents;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
-use MauticPlugin\MauticGoToBundle\Entity\GoToProduct;
-use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
-use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use MauticPlugin\MauticSocialBundle\Entity\Lead;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -140,7 +140,7 @@ class LeadSubscriber implements EventSubscriberInterface
                                     'eventDesc' => $entity->getGoToProduct()->getDescription(),
                                     'joinUrl'   => $entity->getJoinUrl(),
                                 ],
-                                'contentTemplate' => 'MauticGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
+                                'contentTemplate' => 'LeuchtfeuerGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
                                 'contactId'       => $event->getLeadId(),
                             ]
                         );
@@ -259,8 +259,8 @@ class LeadSubscriber implements EventSubscriberInterface
         $alias               = $event->getAlias();
         $func                = $event->getFunc();
         $currentFilter       = $details['field'];
-        $citrixEventsTable   = $em->getClassMetadata('MauticGoToBundle:GoToEvent')->getTableName();
-        $citrixProductsTable = $em->getClassMetadata('MauticGoToBundle:GoToProduct')->getTableName();
+        $citrixEventsTable   = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToEvent')->getTableName();
+        $citrixProductsTable = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToProduct')->getTableName();
         $leadTable           = $em->getClassMetadata(Lead::class)->getTableName();
 
         foreach ($activeProducts as $product) {

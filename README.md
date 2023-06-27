@@ -23,43 +23,43 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       cd [path-to-your-mautic]
       sudo -u www-data php bin/console doctrine:schema:update --force
   This should give you "Nothing to update".
-  
+
 * Remove the existing plugin files and clear cache
 
       sudo -u www-data php bin/console cache:clear
       mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
-    
+
 ## Installation
 * Download the plugin, say to you home directory, e.g. using wget, and prepare it
-  
+
       cd ~
       wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/master.zip
       unzip master.zip
-      mv mautic-goto-bundle-master MauticGoToBundle
+      mv mautic-goto-bundle-master LeuchtfeuerGoToBundle
 
 * copy plugin to the Mautic installation
 
       cd [path-to-your-mautic]
-      cp -rp ~/MauticGoToBundle plugins/MauticGoToBundle
-      chown -R www-data:www-data plugins/MauticGoToBundle   [assuming that your web server uses the "www-data" account]
-      
+      cp -rp ~/LeuchtfeuerGoToBundle plugins/LeuchtfeuerGoToBundle
+      chown -R www-data:www-data plugins/LeuchtfeuerGoToBundle   [assuming that your web server uses the "www-data" account]
+
 * Create symlink (needed due to hard reference in core)
 
       mkdir -p plugins/MauticCitrixBundle/Helper/
       cd plugins/MauticCitrixBundle/Helper/
-      ln -s ../../MauticGoToBundle/Helper/CitrixHelper.php .
+      ln -s ../../LeuchtfeuerGoToBundle/Helper/CitrixHelper.php .
       cd -
-      
+
 * Cleanup (the hard way :)
 
       rm -rf var/cache/*
       sudo -u www-data php bin/console cache:clear
       sudo -u www-data php  bin/console doctrine:schema:update --force
-      
-            
+
+
 * In the Browser, go to "Settings" -> "Plugins" in the Mautic-Backend, klick on "Install/Update Plugins". The various "GoTo" cards appear in the Plugin list.
 * Open the desired plugin (e.g. GoToWebinar) and write down the "Callback URL" from the grey box
-    
+
 ## Authorization in GoTo Dev Account
 * Go to https://developer.logmeininc.com/clients - using your main account in GoToWebinar (not just an organizer account!)
 * From there, create a OAuth token to use for your Mautic, using the following steps:
@@ -73,7 +73,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Now click "Authorize App", log in to GoToWebinar (if requested), and confirm
 
 ## Set up Syncing
-* Try a first manual Sync: 
+* Try a first manual Sync:
 
       cd [path-to-your-mautic]
       sudo -u www-data php  bin/console mautic:goto:sync

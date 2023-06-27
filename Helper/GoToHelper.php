@@ -9,15 +9,15 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\Helper;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Helper;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
-use MauticPlugin\MauticGoToBundle\Api\GotoassistApi;
-use MauticPlugin\MauticGoToBundle\Api\GotomeetingApi;
-use MauticPlugin\MauticGoToBundle\Api\GototrainingApi;
-use MauticPlugin\MauticGoToBundle\Api\GotowebinarApi;
+use MauticPlugin\LeuchtfeuerGoToBundle\Api\GotoassistApi;
+use MauticPlugin\LeuchtfeuerGoToBundle\Api\GotomeetingApi;
+use MauticPlugin\LeuchtfeuerGoToBundle\Api\GototrainingApi;
+use MauticPlugin\LeuchtfeuerGoToBundle\Api\GotowebinarApi;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -49,7 +49,7 @@ class GoToHelper
     {
         static $g2mapi;
         if (null === $g2mapi) {
-            $class  = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotomeetingApi';
+            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotomeetingApi';
             $g2mapi = new $class(self::getIntegration('Gotomeeting'));
         }
 
@@ -65,7 +65,7 @@ class GoToHelper
     {
         static $g2wapi;
         if (null === $g2wapi) {
-            $class  = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotowebinarApi';
+            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotowebinarApi';
             $g2wapi = new $class(self::getIntegration('Gotowebinar'));
         }
 
@@ -81,7 +81,7 @@ class GoToHelper
     {
         static $g2tapi;
         if (null === $g2tapi) {
-            $class  = '\\MauticPlugin\\MauticGoToBundle\\Api\\GototrainingApi';
+            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GototrainingApi';
             $g2tapi = new $class(self::getIntegration('Gototraining'));
         }
 
@@ -97,7 +97,7 @@ class GoToHelper
     {
         static $g2aapi;
         if (null === $g2aapi) {
-            $class  = '\\MauticPlugin\\MauticGoToBundle\\Api\\GotoassistApi';
+            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotoassistApi';
             $g2aapi = new $class(self::getIntegration('Gotoassist'));
         }
 
