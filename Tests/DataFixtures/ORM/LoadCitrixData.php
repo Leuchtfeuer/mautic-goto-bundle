@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\Tests\DataFixtures\ORM;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

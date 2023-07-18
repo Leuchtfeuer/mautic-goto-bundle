@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\Form\Type;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Form\Type;
 
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
-use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;

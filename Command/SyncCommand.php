@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\Command;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
-use const MauticPlugin\MauticGoToBundle\Entity\STATUS_HIDDEN;
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
-use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_HIDDEN;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * CLI Command : Synchronizes registrant information from GoTo products.
  *
- * php app/console mautic:goto:sync [--product=webinar|meeting|assist|training [--id=%productId%]]
+ * php app/console leuchtfeuer:goto:sync [--product=webinar|meeting|assist|training [--id=%productId%]]
  */
 class SyncCommand extends ModeratedCommand
 {
@@ -34,7 +34,7 @@ class SyncCommand extends ModeratedCommand
      */
     protected function configure()
     {
-        $this->setName('mautic:goto:sync')
+        $this->setName('leuchtfeuer:goto:sync')
             ->setDescription('Synchronizes registrant information from Citrix products')
             ->addOption(
                 'product',

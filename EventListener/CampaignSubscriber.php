@@ -9,18 +9,18 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\EventListener;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\CampaignExecutionEvent;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
-use MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignActionType;
-use MauticPlugin\MauticGoToBundle\Form\Type\GoToCampaignEventType;
-use MauticPlugin\MauticGoToBundle\GoToEvents;
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
-use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignActionType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignEventType;
+use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**

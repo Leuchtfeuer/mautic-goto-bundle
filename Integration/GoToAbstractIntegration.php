@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\Integration;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Integration;
 
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
@@ -93,7 +93,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
     {
         static $helper;
         if (null === $helper) {
-            $class  = '\\MauticPlugin\\MauticGoToBundle\\Api\\'.$this->getName().'Api';
+            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\'.$this->getName().'Api';
             $helper = new $class($this);
         }
 
