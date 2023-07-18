@@ -1,10 +1,10 @@
 <?php
 
-namespace MauticPlugin\MauticGoToBundle\Api;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Exception\ApiErrorException;
-use MauticPlugin\MauticGoToBundle\Integration\GoToAbstractIntegration;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GoToAbstractIntegration;
 
 class GoToApi
 {

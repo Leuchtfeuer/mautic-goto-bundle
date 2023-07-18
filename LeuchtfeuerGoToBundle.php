@@ -9,20 +9,20 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle;
+namespace MauticPlugin\LeuchtfeuerGoToBundle;
 
 use Doctrine\DBAL\Exception\TableExistsException;
 use Exception;
 use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
 use Mautic\PluginBundle\Entity\Plugin;
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use Psr\Log\LogLevel;
 
 /**
- * Class MauticGoToBundle.
+ * Class LeuchtfeuerGoToBundle.
  */
-class MauticGoToBundle extends PluginBundleBase
+class LeuchtfeuerGoToBundle extends PluginBundleBase
 {
     /**
      * Called by PluginController::reloadAction when adding a new plugin that's not already installed.

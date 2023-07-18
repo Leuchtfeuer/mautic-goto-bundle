@@ -1,6 +1,6 @@
 <?php
 
-namespace MauticPlugin\MauticGoToBundle\Entity;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;

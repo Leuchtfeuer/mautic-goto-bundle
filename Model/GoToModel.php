@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace MauticPlugin\MauticGoToBundle\Model;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Model;
 
 use Mautic\CampaignBundle\Model\EventModel;
 use Mautic\CoreBundle\Model\FormModel;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEvent;
-use MauticPlugin\MauticGoToBundle\Entity\GoToEventTypes;
-use MauticPlugin\MauticGoToBundle\Entity\GoToProduct;
-use MauticPlugin\MauticGoToBundle\Entity\GoToProductRepository;
-use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
-use MauticPlugin\MauticGoToBundle\Event\GoToEventUpdateEvent;
-use MauticPlugin\MauticGoToBundle\GoToEvents;
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
-use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
+use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
+use MauticPlugin\LeuchtfeuerGoToBundle\Event\GoToEventUpdateEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -48,7 +48,7 @@ class GoToModel extends FormModel
     /**
      * {@inheritdoc}
      *
-     * @return \MauticPlugin\MauticGoToBundle\Entity\GoToEventRepository
+     * @return \MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventRepository
      */
     public function getRepository()
     {
@@ -162,7 +162,7 @@ class GoToModel extends FormModel
         }
 
         $dql = sprintf(
-            "SELECT DISTINCT(c.eventName) FROM MauticGoToBundle:GoToEvent c WHERE c.product='%s'",
+            "SELECT DISTINCT(c.eventName) FROM LeuchtfeuerGoToBundle:GoToEvent c WHERE c.product='%s'",
             $product
         );
         $query = $this->em->createQuery($dql);
@@ -186,7 +186,7 @@ class GoToModel extends FormModel
         }
 
         $dql = sprintf(
-            "SELECT DISTINCT c.product_key, c.name, c.date FROM MauticGoToBundle:GoToProduct c WHERE c.product='%s'",
+            "SELECT DISTINCT c.product_key, c.name, c.date FROM LeuchtfeuerGoToBundle:GoToProduct c WHERE c.product='%s'",
             $product
         );
         $query  = $this->em->createQuery($dql);
@@ -218,8 +218,8 @@ class GoToModel extends FormModel
          * SELECT * FROM mautic_developing.plugin_goto_events as pge
          * INNER JOIN mautic_developing.plugin_goto_products as pgp ON pge.citrix_product_id=pgp.id;
          */
-        $dql = 'SELECT COUNT(c.id) AS cant FROM MauticGoToBundle:GoToEvent c '.
-            ' INNER JOIN MauticGoToBundle:GoToProduct as p'.
+        $dql = 'SELECT COUNT(c.id) AS cant FROM LeuchtfeuerGoToBundle:GoToEvent c '.
+            ' INNER JOIN LeuchtfeuerGoToBundle:GoToProduct as p'.
             ' INNER JOIN MauticLeadBundle:Lead as l'.
             ' WHERE p.product=:product AND l.email=:email AND c.eventType=:eventType ';
 

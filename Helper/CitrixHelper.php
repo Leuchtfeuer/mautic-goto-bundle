@@ -13,6 +13,6 @@ class CitrixHelper
      */
     public static function isAuthorized($integration)
     {
-        return \MauticPlugin\MauticGoToBundle\Helper\GoToHelper::isAuthorized($integration);
+        return \MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper::isAuthorized($integration);
     }
 }

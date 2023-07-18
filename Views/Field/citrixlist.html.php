@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use const MauticPlugin\MauticGoToBundle\Entity\STATUS_ACTIVE;
-use MauticPlugin\MauticGoToBundle\Helper\GoToDetailKeywords;
+use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToDetailKeywords;
 
 /** @var array $mauticTemplateVars */
 /** @var array $field */

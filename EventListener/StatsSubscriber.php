@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\EventListener;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
 use Mautic\CoreBundle\EventListener\CommonStatsSubscriber;
@@ -32,7 +32,7 @@ class StatsSubscriber extends CommonStatsSubscriber
         $this->addContactRestrictedRepositories(
             $em,
             [
-                'MauticGoToBundle:GoToEvent',
+                'LeuchtfeuerGoToBundle:GoToEvent',
             ]
         );
     }

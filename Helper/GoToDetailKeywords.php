@@ -1,6 +1,6 @@
 <?php
 
-namespace MauticPlugin\MauticGoToBundle\Helper;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\Helper;
 
 class GoToDetailKeywords extends BasicEnum
 {

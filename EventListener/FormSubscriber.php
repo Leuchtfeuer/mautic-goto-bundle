@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticGoToBundle\EventListener;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
@@ -28,12 +28,12 @@ use Mautic\FormBundle\Model\SubmissionModel;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Event\PluginIntegrationRequestEvent;
 use Mautic\PluginBundle\PluginEvents;
-use MauticPlugin\MauticGoToBundle\Form\Type\GoToActionType;
-use MauticPlugin\MauticGoToBundle\Form\Type\GoToListType;
-use MauticPlugin\MauticGoToBundle\GoToEvents;
-use MauticPlugin\MauticGoToBundle\Helper\GoToHelper;
-use MauticPlugin\MauticGoToBundle\Helper\GoToProductTypes;
-use MauticPlugin\MauticGoToBundle\Model\GoToModel;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToActionType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType;
+use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
+use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
@@ -542,7 +542,7 @@ class FormSubscriber implements EventSubscriberInterface
             $field = [
                 'label'           => 'plugin.citrix.'.$product.'.listfield',
                 'formType'        => GoToListType::class,
-                'template'        => 'MauticGoToBundle:Field:citrixlist.html.php',
+                'template'        => 'LeuchtfeuerGoToBundle:Field:citrixlist.html.php',
                 'listType'        => $product,
                 'product_choices' => $this->goToModel->getProducts($product, null, null, null, true),
             ];
