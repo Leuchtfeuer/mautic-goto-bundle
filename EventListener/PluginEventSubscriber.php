@@ -42,7 +42,7 @@ class PluginEventSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ('2.2.1' === $event->getOldVersion()) {
+        if ('3.0.0' === $event->getOldVersion()) {
             $this->updateSegments();
         }
     }
