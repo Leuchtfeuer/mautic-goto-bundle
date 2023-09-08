@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MauticPlugin\MauticGoToBundle\EventListener;
+namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
@@ -42,7 +42,7 @@ class PluginEventSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ('2.2.1' === $event->getOldVersion()) {
+        if ('3.0.0' === $event->getOldVersion()) {
             $this->updateSegments();
         }
     }

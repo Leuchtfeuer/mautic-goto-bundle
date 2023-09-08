@@ -12,7 +12,7 @@
 return [
     'name'        => 'GoTo Integration by Leuchtfeuer',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '3.0.0',
+    'version'     => '3.0.1',
     'author'      => 'Leuchtfeuer Digital Marketing GmbH',
     'routes'      => [
         'public' => [
@@ -81,7 +81,7 @@ return [
                 'arguments' => [],
             ],
             'mautic.citrix.plugin.event.subscriber' => [
-                'class'     => \MauticPlugin\MauticGoToBundle\EventListener\PluginEventSubscriber::class,
+                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\PluginEventSubscriber::class,
                 'arguments' => [
                     'database_connection',
                     'logger',
