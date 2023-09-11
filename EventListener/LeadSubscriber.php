@@ -258,6 +258,10 @@ class LeadSubscriber implements EventSubscriberInterface
         $alias               = $event->getAlias();
         $func                = $event->getFunc();
         $currentFilter       = $details['field'];
+<<<<<<< HEAD
+=======
+
+>>>>>>> bbc48c9 (Update namespace in LeadSubscriber)
         $citrixEventsTable   = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToEvent')->getTableName();
         $citrixProductsTable = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToProduct')->getTableName();
 
