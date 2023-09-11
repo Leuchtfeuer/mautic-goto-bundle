@@ -59,14 +59,10 @@ class PluginEventSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $count = 0;
         foreach ($results as $segment) {
-            $newFilters         = [];
-            $newPropertyFilters = [];
-            $filters            = unserialize($segment['filters']);
-            foreach ($filters as $filter) {
+            $filters = unserialize($segment['filters']);
+            foreach ($filters as &$filter) {
                 if (!isset($filter['properties'])) {
-                    $newFilters[] = $filter;
                     continue;
                 }
 
@@ -74,66 +70,53 @@ class PluginEventSubscriber implements EventSubscriberInterface
                     !in_array($filter['field'], ['webinar-attendance', 'webinar-no-attendance', 'webinar-registration'])
                     || is_array($filter['properties']['filter'])
                 ) {
-                    $newFilters[] = $filter;
                     continue;
                 }
 
-                $newPropertyFilters[$filter['field']][$filter['operator']]['glue'][]   = $filter['glue'];
-                $newPropertyFilters[$filter['field']][$filter['operator']]['filter'][] = $filter['properties']['filter'];
-            }
-
-            if (empty($newPropertyFilters)) {
-                $this->logger->alert(sprintf('No updated for %s (%s)', $segment['public_name'], $segment['id']));
-                continue;
-            }
-
-            foreach ($newPropertyFilters as $field => $filters) {
-                foreach ($filters as $key => $filter) {
-                    $conversion = [
-                        'field'    => $field,
-                        'object'   => 'lead',
-                        'type'     => 'select',
-                        'operator' => 'including' === $key ? 'in' : '!in',
-                        'glue'     => array_pop($filter['glue']),
-                    ];
-
-                    foreach ($filter['filter'] as $value) {
-                        if ('Any Webinar' === $value) {
-                            $conversion['properties']['filter'][] = 'any';
-                            break;
-                        }
-
-                        preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $value, $matches);
-
-                        $productSql = 'SELECT product_key FROM plugin_goto_products WHERE name = :name AND date LIKE :date;';
-                        $productKey = $this->connection->fetchOne($productSql, [
-                            'name' => $matches[2],
-                            'date' => sprintf('%%%s%%', date('Y-m-d H:i', strtotime($matches[1]))),
-                        ]);
-
-                        if (false === $productKey) {
-                            $productKey = $value;
-                            $this->logger->critical(sprintf(
-                                'Please updated the Segment %s (%s) manually as the "%s" GOTO product is unavailable for mapping.',
-                                $segment['public_name'],
-                                $segment['id'],
-                                $value
-                            ));
-                        }
-
-                        $conversion['properties']['filter'][] = $productKey;
-                    }
-                    $newFilters[] = $conversion;
-                    unset($conversion);
+                $operator = $filter['operator'];
+                if ('including' === $operator) {
+                    $operator = 'in';
+                } elseif ('excluding' == $operator) {
+                    $operator = '!in';
                 }
+
+                $filter['operator'] = $operator;
+
+                $selectedEvent = $filter['properties']['filter'];
+                unset($filter['properties']['filter']);
+                unset($filter['filter']);
+                if ('Any Webinar' === $selectedEvent) {
+                    $filter['properties']['filter'][] = 'any';
+                    $filter['filter'][]               = 'any';
+                    continue;
+                }
+
+                preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $selectedEvent, $matches);
+
+                $productSql = 'SELECT product_key FROM plugin_goto_products WHERE name = :name AND date LIKE :date;';
+                $productKey = $this->connection->fetchOne($productSql, [
+                    'name' => $matches[2],
+                    'date' => sprintf('%%%s%%', date('Y-m-d H:i', strtotime($matches[1]))),
+                ]);
+
+                if (false === $productKey) {
+                    $productKey = $selectedEvent;
+                    $this->logger->error(sprintf(
+                        'Please updated the Segment %s (%s) manually as the "%s" GOTO product is unavailable for mapping.',
+                        $segment['public_name'],
+                        $segment['id'],
+                        $selectedEvent
+                    ));
+                }
+
+                $filter['properties']['filter'][] = $productKey;
+                $filter['filter'][]               = $productKey;
             }
 
             $this->connection->prepare('UPDATE lead_lists SET filters=:filters WHERE id = :id')->executeStatement([
-                'filters' => serialize($newFilters),
+                'filters' => serialize($filters),
                 'id'      => $segment['id'],
             ]);
-
-            ++$count;
 
             $this->logger->info(sprintf('Segment %s updated successfully', $segment['id']));
         }
