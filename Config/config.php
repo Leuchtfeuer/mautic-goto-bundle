@@ -209,5 +209,12 @@ return [
                 ],
             ],
         ],
+        'fixtures' => [
+            'mautic.citrix.fixture.test.citrix' => [
+                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Tests\DataFixtures\ORM\LoadCitrixData::class,
+                'tag'       => \Doctrine\Bundle\FixturesBundle\DependencyInjection\CompilerPass\FixturesCompilerPass::FIXTURE_TAG,
+                'optional'  => true,
+            ],
+        ]
     ],
 ];

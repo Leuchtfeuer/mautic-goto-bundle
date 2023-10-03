@@ -13,33 +13,18 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
 
 /**
  * Class LoadPageData.
  */
-class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface, ContainerAwareInterface
+class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setContainer(ContainerInterface $container = null)
+    public function load(ObjectManager $manager): void
     {
-        $this->container = $container;
-    }
-
-    public function load(ObjectManager $manager)
-    {
-        $em    = $this->container->get('doctrine')->getManager();
         $today = new \DateTime();
         $email = 'joe.o\'connor@domain.com';
 
@@ -49,23 +34,39 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
         $lead->setEmail($email);
         $lead->checkAttributionDate();
 
-        $em->persist($lead);
-        $em->flush();
+        $manager->persist($lead);
+        $manager->flush();
 
         $this->setReference('lead-citrix', $lead);
 
+        $product = new GoToProduct();
+        $product->setName('Sample Webinar');
+        $product->setDate($today->add(new \DateInterval('P1D')));
+        $product->setDuration(3600);
+        $product->setProductKey('1234567');
+        $product->setRecurrenceKey('7654321');
+        $product->setOrganizerKey('12123434');
+        $product->setProduct('webinar');
+        $product->setStatus('active');
+
+        $manager->persist($product);
+        $manager->flush();
+
+        $this->setReference('citrix-product', $product);
+
+
         // create event
         $event = new GoToEvent();
-        $event->setLead($lead);
+        $event->setContact($lead);
         $event->setEventDate($today);
-        $event->setProduct('webinar');
-        $event->setEmail($email);
+        $event->setGoToProduct($product);
+        $event->setContact($lead);
         $event->setEventType('registered');
-        $event->setEventName('sample-webinar_#0000');
-        $event->setEventDesc('Sample Webinar');
+        $event->setJoinUrl('sample-webinar_#0000');
+//        $event->setEventDesc('Sample Webinar');
 
-        $em->persist($event);
-        $em->flush();
+        $manager->persist($event);
+        $manager->flush();
 
         $this->setReference('citrix-event', $event);
     }

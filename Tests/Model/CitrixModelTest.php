@@ -11,32 +11,51 @@
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Tests\Model;
 
+use Mautic\CoreBundle\Test\MauticMysqlTestCase;
+use Mautic\UserBundle\DataFixtures\ORM\LoadRoleData;
+use Mautic\UserBundle\DataFixtures\ORM\LoadUserData;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
-use PHPUnit\Framework\TestCase;
+use MauticPlugin\LeuchtfeuerGoToBundle\Tests\CreateEntities;
+use MauticPlugin\LeuchtfeuerGoToBundle\Tests\DataFixtures\ORM\LoadCitrixData;
 
-class CitrixModelTest extends TestCase
+class CitrixModelTest extends MauticMysqlTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function getMauticFixtures($returnClassNames = false)
+    use CreateEntities;
+
+    protected function setUp(): void
     {
-        $fixtures    = [];
-        $fixturesDir = __DIR__.'/../DataFixtures/ORM';
+        parent::setUp();
 
-        if (file_exists($fixturesDir)) {
-            $classPrefix = 'MauticPlugin\\LeuchtfeuerGoToBundle\\Tests\\DataFixtures\\ORM\\';
-            $this->populateFixturesFromDirectory($fixturesDir, $fixtures, $classPrefix, $returnClassNames);
-        }
+        $this->fixtures = $this->loadFixtures(
+            [
+                LoadRoleData::class,
+                LoadUserData::class,
+                LoadCitrixData::class
+            ],
+            false
+        )->getReferenceRepository();
 
-        return $fixtures;
+        $this->createIntegration();
+    }
+
+    protected function beforeBeginTransaction(): void
+    {
+        $this->resetAutoincrement(
+            [
+                'leads',
+                'lead_lists',
+                'users',
+            ]
+        );
     }
 
     public function testCountEventsBy()
     {
         /** @var GoToModel $model */
-        $model = $this->container->get(GoToModel::class);
+        $model = self::$container->get('mautic.citrix.model.citrix');
         $count = $model->countEventsBy('webinar', "joe.o'connor@domain.com", 'registered', ['sample-webinar_#0000']);
-        $this->assertEquals($count, 1);
+
+
+        $this->assertEquals(1, $count);
     }
 }
