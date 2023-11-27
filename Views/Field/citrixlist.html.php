@@ -32,7 +32,7 @@ if (!function_exists('buildProductTitle')) {
                     $parts[] = $product['name'];
                     break;
                 case GoToDetailKeywords::GOTODATE:
-                    $parts[] = $product_date->format('d.m.Y H:i');
+                    $parts[] = $product_date->format('d.m.Y H:i:s');
                     break;
                 case GoToDetailKeywords::GOTOAUTHOR:
                     $parts[] = $product['author'];

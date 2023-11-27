@@ -268,12 +268,21 @@ class LeadSubscriber implements EventSubscriberInterface
 
             if (in_array($currentFilter, $eventFilters, true)) {
                 $eventNames = $details['filter'];
-
-                $isAnyEvent = in_array($eventNames, ['any', $this->translator->trans('plugin.citrix.event.'.$product.'.any')],  true);
+                $isAnyEvent = ('Any Webinar' === $eventNames);
                 $productId = 0;
                 if (!$isAnyEvent) {
                     preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $eventNames, $matches);
-                    $productId = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
+                    /*
+                     * As the legacy filters only adds H:i and not H:i:s, the second part were ignored hence no product
+                     * id fetched. This is the hack till we correct the filters with product Ids.
+                     * If strlen(23.05.2024 06:19) => 16, then fetch using range.
+                     * If strlen(23.05.2024 06:19:00) => 19, then just use the normal method.
+                     */
+                    if (strlen($matches[1]) === 19) {
+                        $productId = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
+                    } elseif (strlen($matches[1]) === 16) {
+                        $productId = $this->model->getIdByNameAndDateRange($matches[2], $matches[1]);
+                    }
 
                     if (!$productId) {
                         break;

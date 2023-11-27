@@ -61,7 +61,7 @@ class GoToListType extends AbstractType
         foreach ($products as $key => $product) {
             $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
             if (false !== $date && STATUS_ACTIVE === $product['status']) {
-                $active_products[$key] = $date->format('d.m.Y H:i').' '.(null !== $product['recurrence_key'] ? '(...) ' : '').$product['name'];
+                $active_products[$key] = $date->format('d.m.Y H:i:s').' '.(null !== $product['recurrence_key'] ? '(...) ' : '').$product['name'];
             }
         }
 

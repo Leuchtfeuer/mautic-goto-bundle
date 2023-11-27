@@ -2,7 +2,9 @@
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
+use Doctrine\ORM\NonUniqueResultException;
 use Mautic\CoreBundle\Entity\CommonRepository;
+use function Doctrine\ORM\QueryBuilder;
 
 class GoToProductRepository extends CommonRepository
 {
@@ -88,6 +90,21 @@ class GoToProductRepository extends CommonRepository
         ;
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findOneByProductByNameAndDate(string $name, string $date): ?GoToProduct
+    {
+
+        $qb = $this->createQueryBuilder('e');
+        $qb
+            ->andWhere($qb->expr()->eq('e.name', ':name'))
+            ->andWhere('e.date BETWEEN :from AND :to')
+            ->setParameter('name', $name)
+            ->setParameter('from', new \DateTime($date.':00'))
+            ->setParameter('to', new \DateTime($date.':59'))
+            ->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     public function reduceSessionsToWebinar($sessions)
