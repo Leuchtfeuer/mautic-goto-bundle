@@ -100,13 +100,16 @@ class PluginEventSubscriber implements EventSubscriberInterface
                 ]);
 
                 if (false === $productKey) {
-                    $productKey = $selectedEvent;
-                    $this->logger->error(sprintf(
-                        'Please updated the Segment %s (%s) manually as the "%s" GOTO product is unavailable for mapping.',
+                    $productKey = null;
+                    $message    = sprintf(
+                        'Please update the segment "%s (%s)" manually as the "%s" GOTO product is unavailable for mapping under the "%s" operator.',
                         $segment['public_name'],
                         $segment['id'],
-                        $selectedEvent
-                    ));
+                        $selectedEvent,
+                        '!in' === $operator ? 'Not in' : 'In'
+                    );
+
+                    $this->log($message, 'error');
                 }
 
                 $filter['properties']['filter'][] = $productKey;
@@ -118,9 +121,18 @@ class PluginEventSubscriber implements EventSubscriberInterface
                 'id'      => $segment['id'],
             ]);
 
-            $this->logger->info(sprintf('Segment %s updated successfully', $segment['id']));
+            $this->log(sprintf('Segment %s updated successfully', $segment['id']), 'info');
         }
 
-        $this->logger->info(sprintf('Total %s segments updated!!!', count($results)));
+        $this->log(sprintf('Total %s segments updated!!!', count($results)), 'info');
+    }
+
+    private function log(string $message, string $level): void
+    {
+        if ('cli' === php_sapi_name()) {
+            dump($message);
+        }
+
+        $this->logger->$level($message);
     }
 }
