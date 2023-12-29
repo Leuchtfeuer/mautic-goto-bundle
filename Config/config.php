@@ -36,7 +36,6 @@ return [
                     'mautic.form.model.submission',
                     'translator',
                     'doctrine.orm.entity_manager',
-                    'mautic.helper.templating',
                 ],
                 'methodCalls' => [
                     'setEmailModel' => ['mautic.email.model.email'],
@@ -66,7 +65,7 @@ return [
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                     'translator',
-                    'mautic.helper.templating',
+                    'twig',
                     'event_dispatcher',
                 ],
             ],

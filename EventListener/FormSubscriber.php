@@ -1,20 +1,12 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
 use Mautic\CoreBundle\Exception\BadConfigurationException;
-use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\FormBundle\Entity\Action;
 use Mautic\FormBundle\Entity\Field;
 use Mautic\FormBundle\Entity\Form;
@@ -37,7 +29,7 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class FormSubscriber.
@@ -72,25 +64,18 @@ class FormSubscriber implements EventSubscriberInterface
      */
     private $entityManager;
 
-    /**
-     * @var TemplatingHelper
-     */
-    private $templating;
-
     public function __construct(
         GoToModel $goToModel,
         FormModel $formModel,
         SubmissionModel $submissionModel,
         TranslatorInterface $translator,
-        EntityManager $entityManager,
-        TemplatingHelper $templating
+        EntityManager $entityManager
     ) {
         $this->goToModel       = $goToModel;
         $this->formModel       = $formModel;
         $this->submissionModel = $submissionModel;
         $this->translator      = $translator;
         $this->entityManager   = $entityManager;
-        $this->templating      = $templating;
     }
 
     /**

@@ -1,17 +1,9 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
-use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
@@ -23,7 +15,8 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 /**
  * Class EmailSubscriber.
@@ -41,9 +34,9 @@ class EmailSubscriber implements EventSubscriberInterface
     private $translator;
 
     /**
-     * @var TemplatingHelper
+     * @var Environment
      */
-    private $templating;
+    private $twig;
 
     private EventDispatcherInterface $dispatcher;
 
@@ -51,14 +44,14 @@ class EmailSubscriber implements EventSubscriberInterface
      * FormSubscriber constructor.
      */
     public function __construct(
-        GoToModel $goToModel,
-        TranslatorInterface $translator,
-        TemplatingHelper $templating,
+        GoToModel                $goToModel,
+        TranslatorInterface      $translator,
+        Environment              $twig,
         EventDispatcherInterface $dispatcher
     ) {
         $this->goToModel   = $goToModel;
         $this->translator  = $translator;
-        $this->templating  = $templating;
+        $this->twig        = $twig;
         $this->dispatcher  = $dispatcher;
     }
 
@@ -193,7 +186,7 @@ class EmailSubscriber implements EventSubscriberInterface
                     unset($tokenEvent);
                 }
 
-                $button = $this->templating->getTemplating()->render(
+                $button = $this->twig->render(
                     'LeuchtfeuerGoToBundle:SubscribedEvents\EmailToken:token.html.php',
                     $params
                 );
