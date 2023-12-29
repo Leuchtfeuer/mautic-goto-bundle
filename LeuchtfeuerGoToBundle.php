@@ -1,13 +1,6 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle;
 
@@ -33,7 +26,7 @@ class LeuchtfeuerGoToBundle extends PluginBundleBase
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws Exception
      */
-    public static function onPluginInstall(Plugin $plugin, MauticFactory $factory, $metadata = null, $installedSchema = null)
+    public static function onPluginInstall(Plugin $plugin, MauticFactory $factory, $metadata = null, $installedSchema = null): void
     {
         $db             = $factory->getDatabase();
         $queries        = [];
@@ -65,7 +58,7 @@ class LeuchtfeuerGoToBundle extends PluginBundleBase
         }
     }
 
-    public function boot()
+    public function boot(): void
     {
         parent::boot();
 

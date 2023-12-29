@@ -189,7 +189,7 @@ class GoToEventRepository extends CommonRepository
      *
      * @return array
      */
-    protected function addSearchCommandWhereClause($q, $filter)
+    protected function addSearchCommandWhereClause($q, $filter): array
     {
         return $this->addStandardSearchCommandWhereClause($q, $filter);
     }
@@ -197,7 +197,7 @@ class GoToEventRepository extends CommonRepository
     /**
      * @return array
      */
-    public function getSearchCommands()
+    public function getSearchCommands(): array
     {
         return $this->getStandardSearchCommands();
     }
@@ -205,7 +205,7 @@ class GoToEventRepository extends CommonRepository
     /**
      * @return array
      */
-    protected function getDefaultOrder()
+    protected function getDefaultOrder(): array
     {
         return [
             [$this->getTableAlias().'.eventDate', 'ASC'],
@@ -217,7 +217,7 @@ class GoToEventRepository extends CommonRepository
      *
      * @return string
      */
-    public function getTableAlias()
+    public function getTableAlias(): string
     {
         return 'c';
     }

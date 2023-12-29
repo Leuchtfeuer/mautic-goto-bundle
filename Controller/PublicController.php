@@ -1,17 +1,11 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Controller;
 
 use Mautic\CoreBundle\Controller\CommonController;
+use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
@@ -21,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PublicController extends CommonController
 {
-    public $coreParametersHelper;
+    public CoreParametersHelper $coreParametersHelper;
 
     /**
      * This proxy is used for the GoToTraining API requests in order to bypass the CORS restrictions in AJAX.

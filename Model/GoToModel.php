@@ -1,16 +1,10 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Model;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Mautic\CampaignBundle\Model\EventModel;
 use Mautic\CoreBundle\Model\FormModel;
 use Mautic\LeadBundle\Entity\Lead;
@@ -19,6 +13,7 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
 use MauticPlugin\LeuchtfeuerGoToBundle\Event\GoToEventUpdateEvent;
 use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
@@ -31,17 +26,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class GoToModel extends FormModel
 {
-    public $em;
-    public $dispatcher;
-    /**
-     * @var LeadModel
-     */
-    protected $leadModel;
-
-    /**
-     * @var EventModel
-     */
-    protected $eventModel;
+    public EntityManagerInterface $em;
+    public EventDispatcherInterface $dispatcher;
+    protected LeadModel $leadModel;
+    protected EventModel $eventModel;
 
     /**
      * GoToModel constructor.
