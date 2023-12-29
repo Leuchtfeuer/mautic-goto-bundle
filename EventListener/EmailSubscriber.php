@@ -187,7 +187,7 @@ class EmailSubscriber implements EventSubscriberInterface
                 }
 
                 $button = $this->twig->render(
-                    'LeuchtfeuerGoToBundle:SubscribedEvents\EmailToken:token.html.php',
+                    '@LeuchtfeuerGoTo\SubscribedEvents\EmailToken\token.html.twig',
                     $params
                 );
 

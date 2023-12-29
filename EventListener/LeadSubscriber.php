@@ -140,7 +140,9 @@ class LeadSubscriber implements EventSubscriberInterface
                                     'eventDesc' => $entity->getGoToProduct()->getDescription(),
                                     'joinUrl'   => $entity->getJoinUrl(),
                                 ],
-                                'contentTemplate' => 'LeuchtfeuerGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
+//                                'contentTemplate' => 'LeuchtfeuerGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
+//                                'contentTemplate' => '@LeuchtfeuerGoTo\SubscribedEvents\Timeline\citrix_event.html.php',
+                                'contentTemplate' => '@LeuchtfeuerGoTo\SubscribedEvents\Timeline\citrix_event.html.twig',
                                 'contactId'       => $event->getLeadId(),
                             ]
                         );
