@@ -1,17 +1,12 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
+use Mautic\CoreBundle\Helper\CoreParametersHelper;
+use Mautic\CoreBundle\Helper\PathsHelper;
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_HIDDEN;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
@@ -27,6 +22,19 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SyncCommand extends ModeratedCommand
 {
+    public const COMMAND_NAME = 'leuchtfeuer:goto:sync';
+
+    protected static $defaultName        = self::COMMAND_NAME;
+    protected static $defaultDescription = 'Synchronizes registrant information from Citrix products';
+
+        public function __construct(
+        private GoToModel $goToModel,
+        PathsHelper $pathsHelper,
+        CoreParametersHelper $coreParametersHelper
+    ) {
+        parent::__construct($pathsHelper, $coreParametersHelper);
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -34,8 +42,7 @@ class SyncCommand extends ModeratedCommand
      */
     protected function configure()
     {
-        $this->setName('leuchtfeuer:goto:sync')
-            ->setDescription('Synchronizes registrant information from Citrix products')
+        $this
             ->addOption(
                 'product',
                 'p',
@@ -51,10 +58,8 @@ class SyncCommand extends ModeratedCommand
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var GoToModel $model */
-        $model   = $this->getContainer()->get(GoToModel::class);
         $options = $input->getOptions();
         $product = $options['product'];
 
@@ -62,6 +67,7 @@ class SyncCommand extends ModeratedCommand
             return 0;
         }
 
+        // @todo update the static calls with proper service call.
         $activeProducts = [];
         if (null === $product) {
             // all products
@@ -74,14 +80,14 @@ class SyncCommand extends ModeratedCommand
             if ([] === $activeProducts) {
                 $this->completeRun();
 
-                return;
+                return 0;
             }
         } else {
             if (!GoToProductTypes::isValidValue($product)) {
                 $output->writeln('<error>Invalid product: '.$product.'. Aborted</error>');
                 $this->completeRun();
 
-                return;
+                return 0;
             }
 
             $activeProducts[] = $product;
@@ -103,16 +109,16 @@ class SyncCommand extends ModeratedCommand
                 $citrixChoices[$options['id']] = $options['id'];
             }
 
-            $diff = array_diff_key($model->getProducts($product), $citrixChoices);
+            $diff = array_diff_key($this->goToModel->getProducts($product), $citrixChoices);
             foreach (array_keys($diff) as $key) {
-                $productEntity = $model->getProductById($key);
+                $productEntity = $this->goToModel->getProductById($key);
                 $productEntity->setStatus(STATUS_HIDDEN);
-                $model->saveEntity($productEntity);
+                $this->goToModel->saveEntity($productEntity);
             }
 
             foreach ($productIds as $productId) {
                 $output->writeln('Persisting ['.$productId.'] to DB');
-                $model->syncProduct($product, $citrixChoices[$productId], $output);
+                $this->goToModel->syncProduct($product, $citrixChoices[$productId], $output);
             }
 
             foreach ($productIds as $productId) {
@@ -122,7 +128,7 @@ class SyncCommand extends ModeratedCommand
                         $eventDesc
                     ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
-                    $model->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
+                    $this->goToModel->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
                 } catch (\Exception $exception) {
                     $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');
                     $output->writeln('<error>'.$exception->getMessage().'</error>');
@@ -137,5 +143,7 @@ class SyncCommand extends ModeratedCommand
         $output->writeln('<info>Done.</info>');
 
         $this->completeRun();
+
+        return 0;
     }
 }
