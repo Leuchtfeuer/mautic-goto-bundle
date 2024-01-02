@@ -7,6 +7,7 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Command;
 use Mautic\CoreBundle\Command\ModeratedCommand;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\PathsHelper;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_HIDDEN;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
@@ -29,6 +30,7 @@ class SyncCommand extends ModeratedCommand
 
         public function __construct(
         private GoToModel $goToModel,
+        private GoToHelper $goToHelper,
         PathsHelper $pathsHelper,
         CoreParametersHelper $coreParametersHelper
     ) {
@@ -38,7 +40,7 @@ class SyncCommand extends ModeratedCommand
     /**
      * {@inheritdoc}
      *
-     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function configure()
     {
@@ -72,7 +74,7 @@ class SyncCommand extends ModeratedCommand
         if (null === $product) {
             // all products
             foreach (GoToProductTypes::toArray() as $p) {
-                if (GoToHelper::isAuthorized('Goto'.$p)) {
+                if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                     $activeProducts[] = $p;
                 }
             }
@@ -97,12 +99,11 @@ class SyncCommand extends ModeratedCommand
         foreach ($activeProducts as $product) {
             $output->writeln('<info>Synchronizing registrants for <comment>GoTo'.ucfirst($product).'</comment></info>');
 
-            /** @var array $citrixChoices */
             $citrixChoices = [];
             $productIds    = [];
             if (null === $options['id']) {
                 // all products
-                $citrixChoices = GoToHelper::getGoToChoices($product, true, true);
+                $citrixChoices = $this->goToHelper->getGoToChoices($product, true, true);
                 $productIds    = array_keys($citrixChoices);
             } else {
                 $productIds[]                  = $options['id'];
@@ -124,7 +125,7 @@ class SyncCommand extends ModeratedCommand
             foreach ($productIds as $productId) {
                 try {
                     $eventDesc = $citrixChoices[$productId]['subject'];
-                    $eventName = GoToHelper::getCleanString(
+                    $eventName = $this->goToHelper->getCleanString(
                         $eventDesc
                     ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);

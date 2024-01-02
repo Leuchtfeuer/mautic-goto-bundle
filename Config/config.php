@@ -1,5 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
+use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\CampaignSubscriber;
+use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\EmailSubscriber;
+use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\FormSubscriber;
+use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\IntegrationRequestSubscriber;
+use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\LeadSubscriber;
+use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\StatsSubscriber;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToActionType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignActionType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignEventType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotoassistIntegration;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotomeetingIntegration;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GototrainingIntegration;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotowebinarIntegration;
+
 return [
     'name'        => 'GoTo Integration by Leuchtfeuer',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
@@ -20,7 +37,7 @@ return [
     'services' => [
         'events' => [
             'mautic.citrix.formbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\FormSubscriber::class,
+                'class'     => FormSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                     'mautic.form.model.form',
@@ -33,7 +50,7 @@ return [
                 ],
             ],
             'mautic.citrix.leadbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\LeadSubscriber::class,
+                'class'     => LeadSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                     'doctrine.orm.entity_manager',
@@ -41,7 +58,7 @@ return [
                 ],
             ],
             'mautic.citrix.campaignbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\CampaignSubscriber::class,
+                'class'     => CampaignSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                     'doctrine.orm.entity_manager',
@@ -52,7 +69,7 @@ return [
                 ],
             ],
             'mautic.citrix.emailbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\EmailSubscriber::class,
+                'class'     => EmailSubscriber::class,
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                     'translator',
@@ -61,26 +78,26 @@ return [
                 ],
             ],
             'mautic.citrix.stats.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\StatsSubscriber::class,
+                'class'     => StatsSubscriber::class,
                 'arguments' => [
                     'doctrine.orm.entity_manager',
                 ],
             ],
             'mautic.citrix.integration.request' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\IntegrationRequestSubscriber::class,
+                'class'     => IntegrationRequestSubscriber::class,
                 'arguments' => [],
             ],
         ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType::class,
+                'class'     => GoToListType::class,
                 'alias'     => 'citrix_list',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
             ],
             'mautic.form.type.citrix.submitaction' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToActionType::class,
+                'class'     => GoToActionType::class,
                 'alias'     => 'citrix_submit_action',
                 'arguments' => [
                     'mautic.form.model.field',
@@ -88,7 +105,7 @@ return [
                 ],
             ],
             'mautic.form.type.citrix.campaignevent' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignEventType::class,
+                'class'     => GoToCampaignEventType::class,
                 'alias'     => 'citrix_campaign_event',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
@@ -96,7 +113,7 @@ return [
                 ],
             ],
             'mautic.form.type.citrix.campaignaction' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignActionType::class,
+                'class'     => GoToCampaignActionType::class,
                 'alias'     => 'citrix_campaign_action',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
@@ -104,18 +121,9 @@ return [
                 ],
             ],
         ],
-        'models' => [
-            'mautic.citrix.model.citrix' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel::class,
-                'arguments' => [
-                    'mautic.lead.model.lead',
-                    'mautic.campaign.model.event',
-                ],
-            ],
-        ],
         'integrations' => [
             'mautic.integration.gotoassist' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotoassistIntegration::class,
+                'class'     => GotoassistIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -136,7 +144,7 @@ return [
                 ],
             ],
             'mautic.integration.gotomeeting' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotomeetingIntegration::class,
+                'class'     => GotomeetingIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -157,7 +165,7 @@ return [
                 ],
             ],
             'mautic.integration.gototraining' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GototrainingIntegration::class,
+                'class'     => GototrainingIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -178,7 +186,7 @@ return [
                 ],
             ],
             'mautic.integration.gotowebinar' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotowebinarIntegration::class,
+                'class'     => GotowebinarIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',

@@ -6,14 +6,20 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Model;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Mautic\CampaignBundle\Model\EventModel;
+use Mautic\CoreBundle\Helper\CoreParametersHelper;
+use Mautic\CoreBundle\Helper\UserHelper;
 use Mautic\CoreBundle\Model\FormModel;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
+use Mautic\CoreBundle\Translation\Translator;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
 use MauticPlugin\LeuchtfeuerGoToBundle\Event\GoToEventUpdateEvent;
 use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
@@ -26,18 +32,29 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class GoToModel extends FormModel
 {
-    public EntityManagerInterface $em;
-    public EventDispatcherInterface $dispatcher;
     protected LeadModel $leadModel;
     protected EventModel $eventModel;
 
     /**
      * GoToModel constructor.
      */
-    public function __construct(LeadModel $leadModel, EventModel $eventModel)
-    {
+    public function __construct(
+        LeadModel $leadModel,
+        EventModel $eventModel,
+        protected GoToHelper $goToHelper,
+        protected EntityManagerInterface $em,
+        protected CorePermissions $security,
+        protected EventDispatcherInterface $dispatcher,
+        protected UrlGeneratorInterface $router,
+        protected Translator $translator,
+        protected UserHelper $userHelper,
+        protected LoggerInterface $logger,
+        protected CoreParametersHelper $coreParametersHelper
+    ) {
         $this->leadModel  = $leadModel;
         $this->eventModel = $eventModel;
+
+        parent::__construct($em, $security, $dispatcher, $router, $translator, $userHelper, $logger, $coreParametersHelper);
     }
 
     /**
@@ -68,7 +85,7 @@ class GoToModel extends FormModel
     public function addEvent($product, $email, $eventName, $eventDesc, $eventType, $lead, \DateTime $eventDate = null)
     {
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
-            GoToHelper::log('addEvent: incorrect data');
+            $this->goToHelper->log('addEvent: incorrect data');
 
             return;
         }
@@ -261,7 +278,7 @@ class GoToModel extends FormModel
         /** @var GoToProduct $product_result */
         $product_result   = $cpr->findOneBy(['product_key' => $productId]);
         $organizerKey     = $product_result->getOrganizerKey();
-        $registrants      = GoToHelper::getRegistrants($product, $productId, $organizerKey);
+        $registrants      = $this->goToHelper->getRegistrants($product, $productId, $organizerKey);
         $knownRegistrants = $this->getEmailsByEvent(
             $product,
             $productId,
@@ -280,7 +297,7 @@ class GoToModel extends FormModel
         );
         unset($registrants, $knownRegistrants, $registrantsToAdd, $registrantsToDelete);
 
-        $attendees      = GoToHelper::getAttendees($product, $productId, $organizerKey);
+        $attendees      = $this->goToHelper->getAttendees($product, $productId, $organizerKey);
         $knownAttendees = $this->getEmailsByEvent(
             $product,
             $eventName,
@@ -482,7 +499,7 @@ class GoToModel extends FormModel
         }
 
         $persistedProduct->setAuthor(null);
-        $panelist = GoToHelper::getPanelists($productType, $product['organizerKey'], $product[$productType.'Key']);
+        $panelist = $this->goToHelper->getPanelists($productType, $product['organizerKey'], $product[$productType.'Key']);
         if (!empty($panelist)) {
             foreach ($panelist as $author) {
                 if (empty($persistedProduct->getAuthor())) {
