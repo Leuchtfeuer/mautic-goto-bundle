@@ -1,19 +1,15 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc.
- *
- * @link        https://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
-use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait GoToRegistrationTrait
@@ -22,11 +18,11 @@ trait GoToRegistrationTrait
      * @param string $product
      * @param Lead   $currentLead
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @throws \Doctrine\ORM\ORMInvalidArgumentException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws BadRequestHttpException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @throws ORMInvalidArgumentException
+     * @throws OptimisticLockException
      * @throws \InvalidArgumentException
      */
     public function registerProduct($product, $currentLead, array $productsToRegister)
@@ -41,7 +37,7 @@ trait GoToRegistrationTrait
             foreach ($productsToRegister as $productToRegister) {
                 $productId = $productToRegister['productId'];
 
-                $isRegistered = GoToHelper::registerToProduct(
+                $isRegistered = $this->goToHelper->registerToProduct(
                     $product,
                     $productId,
                     $email,
@@ -50,7 +46,7 @@ trait GoToRegistrationTrait
                     $company
                 );
                 if ($isRegistered) {
-                    $eventName = GoToHelper::getCleanString(
+                    $eventName = $this->goToHelper->getCleanString(
                         $productToRegister['productTitle']
                     ).'_#'.$productToRegister['productId'];
 

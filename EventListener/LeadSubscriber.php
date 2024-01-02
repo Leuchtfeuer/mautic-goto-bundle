@@ -90,7 +90,7 @@ class LeadSubscriber implements EventSubscriberInterface
         $productRepository = $this->entityManager->getRepository(GoToProduct::class);
         $activeProducts    = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -162,7 +162,7 @@ class LeadSubscriber implements EventSubscriberInterface
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -245,7 +245,7 @@ class LeadSubscriber implements EventSubscriberInterface
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }

@@ -24,35 +24,15 @@ use Twig\Environment;
 class EmailSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var GoToModel
-     */
-    protected $goToModel;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    private EventDispatcherInterface $dispatcher;
-
-    /**
      * FormSubscriber constructor.
      */
     public function __construct(
-        GoToModel                $goToModel,
-        TranslatorInterface      $translator,
-        Environment              $twig,
-        EventDispatcherInterface $dispatcher
+        private GoToModel                $goToModel,
+        private TranslatorInterface      $translator,
+        private Environment              $twig,
+        private EventDispatcherInterface $dispatcher,
+        private GoToHelper               $goToHelper
     ) {
-        $this->goToModel   = $goToModel;
-        $this->translator  = $translator;
-        $this->twig        = $twig;
-        $this->dispatcher  = $dispatcher;
     }
 
     /**
@@ -89,7 +69,7 @@ class EmailSubscriber implements EventSubscriberInterface
                     $event->setProductLink($ce->getJoinUrl());
                 }
             } else {
-                GoToHelper::log('Updating webinar token failed! Email not found '.implode(', ', $event->getParams()));
+                $this->goToHelper->log('Updating webinar token failed! Email not found '.implode(', ', $event->getParams()));
             }
 
             $event->setProductText($this->translator->trans('plugin.citrix.token.join_webinar'));
@@ -106,7 +86,7 @@ class EmailSubscriber implements EventSubscriberInterface
         $tokens         = [];
         $activeProducts = [];
         foreach (['meeting', 'training', 'assist', 'webinar'] as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[]          = $p;
                 $tokens['{'.$p.'_button}'] = $this->translator->trans('plugin.citrix.token.'.$p.'_button');
                 if ('webinar' === $p) {
@@ -165,7 +145,7 @@ class EmailSubscriber implements EventSubscriberInterface
 
         $tokens = [];
         foreach ($products as $product) {
-            if (GoToHelper::isAuthorized('Goto'.$product)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$product)) {
                 $params = [
                     'product'     => $product,
                     'productText' => '',

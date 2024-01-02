@@ -45,7 +45,7 @@ class LeuchtfeuerGoToBundle extends PluginBundleBase
 //            } catch (Exception $exception) {
 //                $db->rollback();
 //
-//                GoToHelper::log($exception->getMessage(), LogLevel::NOTICE);
+//                $this->goToHelper->log($exception->getMessage(), LogLevel::NOTICE);
 //            }
 //        }
 //
@@ -53,7 +53,7 @@ class LeuchtfeuerGoToBundle extends PluginBundleBase
 //            try {
 //                self::installPluginSchema($metadata, $factory);
 //            } catch (TableExistsException $tableExistsException) {
-//                GoToHelper::log($tableExistsException->getMessage(), LogLevel::NOTICE);
+//                $this->goToHelper->log($tableExistsException->getMessage(), LogLevel::NOTICE);
 //            }
 //        }
 //    }
@@ -67,7 +67,7 @@ class LeuchtfeuerGoToBundle extends PluginBundleBase
 //            $this->container->getParameter('monolog.logger.mautic')
 //        ) {
 //            dump('here in boot');
-//            GoToHelper::init($this->container->get('mautic.helper.integration'), $this->container->get('monolog.logger.mautic'));
+//            $this->goToHelper->init($this->container->get('mautic.helper.integration'), $this->container->get('monolog.logger.mautic'));
 //        }
 
     }

@@ -36,19 +36,19 @@ return [
     ],
     'services' => [
         'events' => [
-            'mautic.citrix.formbundle.subscriber' => [
-                'class'     => FormSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'mautic.form.model.form',
-                    'mautic.form.model.submission',
-                    'translator',
-                    'doctrine.orm.entity_manager',
-                ],
-                'methodCalls' => [
-                    'setEmailModel' => ['mautic.email.model.email'],
-                ],
-            ],
+//            'mautic.citrix.formbundle.subscriber' => [
+//                'class'     => FormSubscriber::class,
+//                'arguments' => [
+//                    'mautic.citrix.model.citrix',
+//                    'mautic.form.model.form',
+//                    'mautic.form.model.submission',
+//                    'translator',
+//                    'doctrine.orm.entity_manager',
+//                ],
+//                'methodCalls' => [
+//                    'setEmailModel' => ['mautic.email.model.email'],
+//                ],
+//            ],
             'mautic.citrix.leadbundle.subscriber' => [
                 'class'     => LeadSubscriber::class,
                 'arguments' => [
@@ -57,17 +57,17 @@ return [
                     'translator',
                 ],
             ],
-            'mautic.citrix.campaignbundle.subscriber' => [
-                'class'     => CampaignSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'doctrine.orm.entity_manager',
-                    'translator',
-                ],
-                'methodCalls' => [
-                    'setEmailModel' => ['mautic.email.model.email'],
-                ],
-            ],
+//            'mautic.citrix.campaignbundle.subscriber' => [
+//                'class'     => CampaignSubscriber::class,
+//                'arguments' => [
+//                    'mautic.citrix.model.citrix',
+//                    'doctrine.orm.entity_manager',
+//                    'translator',
+//                ],
+//                'methodCalls' => [
+//                    'setEmailModel' => ['mautic.email.model.email'],
+//                ],
+//            ],
             'mautic.citrix.emailbundle.subscriber' => [
                 'class'     => EmailSubscriber::class,
                 'arguments' => [
@@ -112,14 +112,14 @@ return [
                     'translator',
                 ],
             ],
-            'mautic.form.type.citrix.campaignaction' => [
-                'class'     => GoToCampaignActionType::class,
-                'alias'     => 'citrix_campaign_action',
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'translator',
-                ],
-            ],
+//            'mautic.form.type.citrix.campaignaction' => [
+//                'class'     => GoToCampaignActionType::class,
+//                'alias'     => 'citrix_campaign_action',
+//                'arguments' => [
+//                    'mautic.citrix.model.citrix',
+//                    'translator',
+//                ],
+//            ],
         ],
         'integrations' => [
             'mautic.integration.gotoassist' => [

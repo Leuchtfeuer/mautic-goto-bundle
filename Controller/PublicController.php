@@ -9,8 +9,11 @@ use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PublicController extends CommonController
@@ -20,9 +23,9 @@ class PublicController extends CommonController
     /**
      * This proxy is used for the GoToTraining API requests in order to bypass the CORS restrictions in AJAX.
      *
-     * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|JsonResponse|RedirectResponse|Response
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws AccessDeniedHttpException
      * @throws \InvalidArgumentException
      */
     public function proxyAction(Request $request)
@@ -85,9 +88,9 @@ class PublicController extends CommonController
      * A POST will also be made when a customer joins the session and when the session ends
      * (whether or not a customer joined).
      *
-     * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|JsonResponse|RedirectResponse|Response
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws AccessDeniedHttpException
      * @throws \InvalidArgumentException
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      */
@@ -108,7 +111,7 @@ class PublicController extends CommonController
             $goToModel   = $this->get('mautic.model.factory')->getModel('citrix.citrix');
             $productId   = $post['sessionId'];
             $eventDesc   = sprintf('%s (%s)', $productId, $post['status']);
-            $eventName   = GoToHelper::getCleanString(
+            $eventName   = $this->goToHelper->getCleanString(
                 $eventDesc
             ).'_#'.$productId;
             $product = 'assist';

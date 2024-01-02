@@ -1,23 +1,18 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Form\Type;
 
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class GoToCampaignActionType.
@@ -25,29 +20,20 @@ use Symfony\Component\Translation\TranslatorInterface;
 class GoToCampaignActionType extends AbstractType
 {
     /**
-     * @var GoToModel
-     */
-    protected $model;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
      * GoToCampaignEventType constructor.
      */
-    public function __construct(GoToModel $model, TranslatorInterface $translator)
-    {
-        $this->model      = $model;
-        $this->translator = $translator;
+    public function __construct(
+        protected GoToModel $model,
+        protected TranslatorInterface $translator,
+        private GoToHelper $goToHelper
+    ) {
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      * @throws \InvalidArgumentException
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -55,7 +41,7 @@ class GoToCampaignActionType extends AbstractType
         $c = null;
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr']))
             || !GoToProductTypes::isValidValue($options['attr']['data-product'])
-            || !GoToHelper::isAuthorized('Goto'.$options['attr']['data-product'])
+            || !$this->goToHelper->isAuthorized('Goto'.$options['attr']['data-product'])
         ) {
             return;
         }

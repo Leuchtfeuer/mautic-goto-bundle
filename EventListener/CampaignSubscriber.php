@@ -1,13 +1,6 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
@@ -32,16 +25,12 @@ class CampaignSubscriber implements EventSubscriberInterface
     use GoToStartTrait;
 
     /**
-     * @var GoToModel
-     */
-    private $goToModel;
-
-    /**
      * CampaignSubscriber constructor.
      */
-    public function __construct(GoToModel $goToModel)
-    {
-        $this->goToModel = $goToModel;
+    public function __construct(
+        private GoToModel $goToModel,
+        private GoToHelper $goToHelper
+    ) {
     }
 
     /**
@@ -124,7 +113,7 @@ class CampaignSubscriber implements EventSubscriberInterface
                 $this->startProduct($product, $event->getLead(), $products, $emailId, $actionId);
             }
         } catch (\Exception $exception) {
-            GoToHelper::log('onCitrixAction - '.$product.': '.$exception->getMessage());
+            $this->goToHelper->log('onCitrixAction - '.$product.': '.$exception->getMessage());
         }
 
         return true;
@@ -197,7 +186,7 @@ class CampaignSubscriber implements EventSubscriberInterface
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
