@@ -3,9 +3,15 @@
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotowebinarIntegration;
 
-class GotowebinarApi extends GoToApi
+class GotowebinarApi
 {
+    use GoToApi;
+    public function __construct(
+        private GotowebinarIntegration $integration
+    ) {
+    }
     /**
      * @param string $operation
      * @param string $method
