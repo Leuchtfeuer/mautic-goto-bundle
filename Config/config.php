@@ -36,34 +36,6 @@ return [
     ],
     'services' => [
         'events' => [
-            'mautic.citrix.leadbundle.subscriber' => [
-                'class'     => LeadSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'doctrine.orm.entity_manager',
-                    'translator',
-                ],
-            ],
-//            'mautic.citrix.campaignbundle.subscriber' => [
-//                'class'     => CampaignSubscriber::class,
-//                'arguments' => [
-//                    'mautic.citrix.model.citrix',
-//                    'doctrine.orm.entity_manager',
-//                    'translator',
-//                ],
-//                'methodCalls' => [
-//                    'setEmailModel' => ['mautic.email.model.email'],
-//                ],
-//            ],
-            'mautic.citrix.emailbundle.subscriber' => [
-                'class'     => EmailSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'translator',
-                    'twig',
-                    'event_dispatcher',
-                ],
-            ],
             'mautic.citrix.stats.subscriber' => [
                 'class'     => StatsSubscriber::class,
                 'arguments' => [
@@ -83,30 +55,6 @@ return [
                     'mautic.citrix.model.citrix',
                 ],
             ],
-            'mautic.form.type.citrix.submitaction' => [
-                'class'     => GoToActionType::class,
-                'alias'     => 'citrix_submit_action',
-                'arguments' => [
-                    'mautic.form.model.field',
-                    'mautic.citrix.model.citrix',
-                ],
-            ],
-            'mautic.form.type.citrix.campaignevent' => [
-                'class'     => GoToCampaignEventType::class,
-                'alias'     => 'citrix_campaign_event',
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'translator',
-                ],
-            ],
-//            'mautic.form.type.citrix.campaignaction' => [
-//                'class'     => GoToCampaignActionType::class,
-//                'alias'     => 'citrix_campaign_action',
-//                'arguments' => [
-//                    'mautic.citrix.model.citrix',
-//                    'translator',
-//                ],
-//            ],
         ],
         'integrations' => [
             'mautic.integration.gotoassist' => [

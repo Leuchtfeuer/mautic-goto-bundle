@@ -26,7 +26,7 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use MauticPlugin\MauticSocialBundle\Entity\Lead;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class LeadSubscriber.
@@ -34,31 +34,14 @@ use Symfony\Component\Translation\TranslatorInterface;
 class LeadSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var GoToModel
-     */
-    protected $model;
-
-    /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
      * LeadSubscriber constructor.
      */
     public function __construct(
-        GoToModel $model,
-        EntityManager $entityManager,
-        TranslatorInterface $translator
+        private GoToModel           $model,
+        private EntityManager       $entityManager,
+        private TranslatorInterface $translator,
+        private GoToHelper          $goToHelper
     ) {
-        $this->model         = $model;
-        $this->entityManager = $entityManager;
-        $this->translator    = $translator;
     }
 
     /**
