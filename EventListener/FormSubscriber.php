@@ -39,43 +39,14 @@ class FormSubscriber implements EventSubscriberInterface
     use GoToRegistrationTrait;
     use GoToStartTrait;
 
-    /**
-     * @var FormModel
-     */
-    private $formModel;
-
-    /**
-     * @var SubmissionModel
-     */
-    private $submissionModel;
-
-    /**
-     * @var GoToModel
-     */
-    private $goToModel;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
     public function __construct(
-        GoToModel $goToModel,
-        FormModel $formModel,
-        SubmissionModel $submissionModel,
-        TranslatorInterface $translator,
-        EntityManager $entityManager
+        private GoToModel $goToModel,
+        private FormModel $formModel,
+        private SubmissionModel $submissionModel,
+        private TranslatorInterface $translator,
+        private EntityManager $entityManager,
+        private GoToHelper $goToHelper
     ) {
-        $this->goToModel       = $goToModel;
-        $this->formModel       = $formModel;
-        $this->submissionModel = $submissionModel;
-        $this->translator      = $translator;
-        $this->entityManager   = $entityManager;
     }
 
     /**
@@ -206,7 +177,7 @@ class FormSubscriber implements EventSubscriberInterface
             }
             // end-block
         } catch (\Exception $exception) {
-            GoToHelper::log('onProductRegistration - '.$product.': '.$exception->getMessage());
+            $this->goToHelper->log('onProductRegistration - '.$product.': '.$exception->getMessage());
             $validationException = new ValidationException($exception->getMessage());
             $validationException->setViolations(
                 [
@@ -249,7 +220,7 @@ class FormSubscriber implements EventSubscriberInterface
     {
         //        /** @var Response $response */
 //        $response = $event->getResponse();
-//        GoToHelper::log(
+//        $this->goToHelper->log(
 //            PHP_EOL. //$response->getStatusCode() . ' ' .
 //            print_r($response, true)
 //        );
@@ -260,12 +231,6 @@ class FormSubscriber implements EventSubscriberInterface
      */
     public function onRequest(PluginIntegrationRequestEvent $event)
     {
-        //        GoToHelper::log(
-//            PHP_EOL.$event->getMethod().' '.$event->getUrl().' '.
-//            var_export($event->getHeaders(), true).
-//            var_export($event->getParameters(), true)
-//        );
-
         // clean parameter that was breaking the call
         if (preg_match('#\/G2W\/rest\/#', $event->getUrl())) {
             $params = $event->getParameters();
@@ -282,7 +247,7 @@ class FormSubscriber implements EventSubscriberInterface
     {
         $field        = $event->getField();
         $eventType    = preg_filter('/^plugin\.citrix\.select\.(.*)$/', '$1', $field->getType());
-        $doValidation = GoToHelper::isAuthorized('Goto'.$eventType);
+        $doValidation = $this->goToHelper->isAuthorized('Goto'.$eventType);
 
         if ($doValidation) {
             $list = $this->goToModel->getProducts($eventType, new \DateTime('now'), false, false, false);
@@ -365,7 +330,7 @@ class FormSubscriber implements EventSubscriberInterface
                     }
 
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
-                    if (!GoToHelper::isAuthorized('Goto'.$actionProduct)) {
+                    if (!$this->goToHelper->isAuthorized('Goto'.$actionProduct)) {
                         continue;
                     }
 
@@ -445,7 +410,7 @@ class FormSubscriber implements EventSubscriberInterface
             foreach ($actions as $action) {
                 if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
-                    if (!GoToHelper::isAuthorized('Goto'.$actionProduct)) {
+                    if (!$this->goToHelper->isAuthorized('Goto'.$actionProduct)) {
                         continue;
                     }
 
@@ -513,7 +478,7 @@ class FormSubscriber implements EventSubscriberInterface
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -527,7 +492,7 @@ class FormSubscriber implements EventSubscriberInterface
             $field = [
                 'label'           => 'plugin.citrix.'.$product.'.listfield',
                 'formType'        => GoToListType::class,
-                'template'        => 'LeuchtfeuerGoToBundle:Field:citrixlist.html.php',
+                'template'        => '@LeuchtfeuerGoTo/Field/citrixlist.html.twig',
                 'listType'        => $product,
                 'product_choices' => $this->goToModel->getProducts($product, null, null, null, true),
             ];
@@ -551,7 +516,7 @@ class FormSubscriber implements EventSubscriberInterface
                             'data-product-action' => 'register',
                         ],
                     ],
-                    'template'  => 'MauticFormBundle:Action:generic.html.php',
+                    'template'  => '@MauticForm/Action/_generic.html.twig',
                     'eventName' => GoToEvents::ON_GOTO_REGISTER_ACTION,
                 ];
                 $event->addSubmitAction('plugin.citrix.action.register.webinar', $action);
@@ -561,7 +526,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.meeting',
                     'label'           => 'plugin.citrix.action.start.meeting',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_MEETING_START_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
@@ -577,7 +542,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.training',
                     'label'           => 'plugin.citrix.action.register.training',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_TRAINING_REGISTER_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
@@ -592,7 +557,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.start.training',
                     'label'           => 'plugin.citrix.action.start.training',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_TRAINING_START_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
@@ -608,7 +573,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.assist',
                     'label'           => 'plugin.citrix.action.screensharing.assist',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_ASSIST_REMOTE_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
