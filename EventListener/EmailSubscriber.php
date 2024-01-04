@@ -161,7 +161,7 @@ class EmailSubscriber implements EventSubscriberInterface
                 if ($triggerEvent && $this->dispatcher->hasListeners(GoToEvents::ON_GOTO_TOKEN_GENERATE)) {
                     $params['lead'] = $event->getLead();
                     $tokenEvent     = new TokenGenerateEvent($params);
-                    $this->dispatcher->dispatch(GoToEvents::ON_GOTO_TOKEN_GENERATE, $tokenEvent);
+                    $this->dispatcher->dispatch($tokenEvent, GoToEvents::ON_GOTO_TOKEN_GENERATE);
                     $params = $tokenEvent->getParams();
                     unset($tokenEvent);
                 }
