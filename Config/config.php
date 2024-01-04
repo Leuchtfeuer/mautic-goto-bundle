@@ -36,19 +36,6 @@ return [
     ],
     'services' => [
         'events' => [
-//            'mautic.citrix.formbundle.subscriber' => [
-//                'class'     => FormSubscriber::class,
-//                'arguments' => [
-//                    'mautic.citrix.model.citrix',
-//                    'mautic.form.model.form',
-//                    'mautic.form.model.submission',
-//                    'translator',
-//                    'doctrine.orm.entity_manager',
-//                ],
-//                'methodCalls' => [
-//                    'setEmailModel' => ['mautic.email.model.email'],
-//                ],
-//            ],
             'mautic.citrix.leadbundle.subscriber' => [
                 'class'     => LeadSubscriber::class,
                 'arguments' => [
