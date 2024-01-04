@@ -13,7 +13,7 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -24,20 +24,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface, ContainerAwareInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    private ContainerInterface $container;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setContainer(ContainerInterface $container = null)
+    public function setContainer(ContainerInterface $container = null): void
     {
         $this->container = $container;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $em    = $this->container->get('doctrine')->getManager();
         $today = new \DateTime();
@@ -70,10 +64,7 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
         $this->setReference('citrix-event', $event);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrder()
+    public function getOrder(): int
     {
         return 10;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Helper;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
