@@ -232,7 +232,6 @@
 
     {% if properties.above_dropdown_details is not empty %}
         <div {% for attrName, attrValue in containerAttributes %}{{ attrName }}="{% if attrValue is iterable %}{{ attrValue|join(' ') }}{% else %}{{ attrValue }}{% endif %}"{% endfor %}>
-            {{ get_field_description(properties, selectedProducts)|raw }}
             {% for product in selectedProducts %}
                 {% if product is not empty %}
                     <div>
