@@ -7,11 +7,13 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Command;
 use Mautic\CoreBundle\Command\ModeratedCommand;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\PathsHelper;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
+
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_HIDDEN;
+
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,7 +30,7 @@ class SyncCommand extends ModeratedCommand
     protected static $defaultName        = self::COMMAND_NAME;
     protected static $defaultDescription = 'Synchronizes registrant information from Citrix products';
 
-        public function __construct(
+    public function __construct(
         private GoToModel $goToModel,
         private GoToHelper $goToHelper,
         PathsHelper $pathsHelper,

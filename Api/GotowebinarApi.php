@@ -8,10 +8,12 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotowebinarIntegration;
 class GotowebinarApi
 {
     use GoToApi;
+
     public function __construct(
         private GotowebinarIntegration $integration
     ) {
     }
+
     /**
      * @param string $operation
      * @param string $method

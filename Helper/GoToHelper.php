@@ -26,13 +26,11 @@ class GoToHelper
         private GotoassistApi $assistClient,
         private GotomeetingApi $meetingClient,
         private GotowebinarApi $webinarClient,
-        private GototrainingApi $trainingClient) {
+        private GototrainingApi $trainingClient
+    ) {
     }
 
-    /**
-     * @param $msg
-     */
-    public function log($msg, string $level = 'error'): void
+    public function log(string $msg, string $level = 'error'): void
     {
         //  Make sure the logs are in the same timezone
         Logger::setTimezone(new \DateTimeZone(date_default_timezone_get()));
@@ -45,18 +43,15 @@ class GoToHelper
     }
 
     /**
-     * @param array      $results
-     * @param            $key
-     * @param mixed|null $values
+     * @param mixed[] $results
      *
      * @return mixed[]
      *
      * todo: bring back static / disabled it because of xdebug issues
      */
-    public function getKeyPairsWithDetails($results, $key, mixed $values = null): array
+    public function getKeyPairsWithDetails(array $results, mixed $key, mixed $values = null): array
     {
         $return_results = [];
-        /** @var array $results */
         foreach ($results as $result) {
             $temp = [];
             if (null === $values) {
@@ -78,13 +73,9 @@ class GoToHelper
     }
 
     /**
-     * @param array $results
-     * @param       $key
-     * @param       $value
-     *
-     * @return \Generator
+     * @param mixed[] $results
      */
-    public function getKeyPairs(array $results, $key, $value)
+    public function getKeyPairs(array $results, mixed $key, mixed $value): \Generator
     {
         foreach ($results as $result) {
             if (array_key_exists($key, $result) && array_key_exists($value, $result)) {
@@ -94,9 +85,7 @@ class GoToHelper
     }
 
     /**
-     * @param mixed $sessions
-     *
-     * @return \Generator
+     * @param mixed[] $sessions
      */
     public function getAssistPairs(array $sessions, bool $showAll = false): \Generator
     {
@@ -187,10 +176,9 @@ class GoToHelper
         return [];
     }
 
-
     public function isAuthorized(string $integration): bool
     {
-        $myIntegration = $this->getIntegration($integration);;
+        $myIntegration = $this->getIntegration($integration);
 
         return $myIntegration && $myIntegration->getIntegrationSettings() && $myIntegration->getIntegrationSettings()->getIsPublished() && !empty($myIntegration->getKeys()[$myIntegration->getAuthTokenKey()]);
     }
@@ -230,7 +218,7 @@ class GoToHelper
         $availableChars = explode(' ', '0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z');
         $safeStr        = '';
         $safeChar       = '';
-        $chars = str_split($str);
+        $chars          = str_split($str);
         foreach ($chars as $char) {
             if (!in_array($char, $availableChars, true)) {
                 if ('-' !== $safeChar) {
@@ -249,16 +237,15 @@ class GoToHelper
     }
 
     /**
-     * @param $product
-     * @param $productId
-     * @param $email
-     * @param $firstname
-     * @param $lastname
-     * @param $company
+     * @param mixed $productId
+     * @param mixed $email
+     * @param mixed $firstname
+     * @param mixed $lastname
+     * @param mixed $company
      *
      * @throws BadRequestHttpException
      */
-    public function registerToProduct($product, $productId, $email, $firstname, $lastname, $company): bool
+    public function registerToProduct(string $product, $productId, $email, $firstname, $lastname, $company): bool
     {
         try {
             $response = [];
@@ -295,15 +282,14 @@ class GoToHelper
     }
 
     /**
-     * @param $product
-     * @param $productId
-     * @param $email
-     * @param $firstname
-     * @param $lastname
+     * @param mixed $productId
+     * @param mixed $email
+     * @param mixed $firstname
+     * @param mixed $lastname
      *
      * @throws BadRequestHttpException
      */
-    public function startToProduct($product, $productId, $email, $firstname, $lastname): bool|string
+    public function startToProduct(string $product, $productId, $email, $firstname, $lastname): bool|string
     {
         try {
             switch ($product) {

@@ -24,9 +24,6 @@ trait GoToStartTrait
     }
 
     /**
-     * @param mixed|null $emailId
-     * @param mixed|null $actionId
-     *
      * @throws BadRequestHttpException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException

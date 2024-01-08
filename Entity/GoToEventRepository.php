@@ -19,6 +19,7 @@ class GoToEventRepository extends CommonRepository
      * Fetch the base event data from the database.
      *
      * @return mixed
+     *
      * @throws \InvalidArgumentException
      */
     public function getEvents(string $product, string $eventType, \DateTime $fromDate = null)
@@ -45,13 +46,11 @@ class GoToEventRepository extends CommonRepository
     }
 
     /**
-     * @param mixed      $product
-     * @param int|null   $leadId
-     * @param mixed[]    $options
+     * @param mixed[] $options
      *
      * @return mixed[]
      */
-    public function getEventsForTimeline($product, int $leadId = null, array $options = [])
+    public function getEventsForTimeline(mixed $product, int $leadId = null, array $options = []): array
     {
         $eventType = null;
         if (is_array($product)) {

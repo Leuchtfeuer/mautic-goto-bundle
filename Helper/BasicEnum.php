@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Helper;
 
-use ReflectionClass;
-
 abstract class BasicEnum
 {
     private static ?array $constCacheArray = null;
@@ -18,7 +16,7 @@ abstract class BasicEnum
 
         $calledClass = static::class;
         if (!array_key_exists($calledClass, self::$constCacheArray)) {
-            $reflect                             = new ReflectionClass($calledClass);
+            $reflect                             = new \ReflectionClass($calledClass);
             self::$constCacheArray[$calledClass] = $reflect->getConstants();
         }
 
@@ -49,7 +47,7 @@ abstract class BasicEnum
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public static function toArray(): array
     {
@@ -57,7 +55,7 @@ abstract class BasicEnum
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public static function toArrayOfNames(): array
     {
@@ -65,7 +63,7 @@ abstract class BasicEnum
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public static function getKeyPairs(): array
     {

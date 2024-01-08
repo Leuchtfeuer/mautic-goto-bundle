@@ -6,8 +6,6 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Exception\ApiErrorException;
-use Mautic\PluginBundle\Integration\UnifiedIntegrationInterface;
-use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GoToAbstractIntegration;
 
 trait GoToApi
 {

@@ -4,13 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle;
 
-use Doctrine\DBAL\Exception\TableExistsException;
-use Exception;
-use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
-use Mautic\PluginBundle\Entity\Plugin;
-use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
-use Psr\Log\LogLevel;
 
 /**
  * Class LeuchtfeuerGoToBundle.
@@ -57,18 +51,4 @@ class LeuchtfeuerGoToBundle extends PluginBundleBase
 //            }
 //        }
 //    }
-
-    public function boot(): void
-    {
-        parent::boot();
-
-//        if (
-//            $this->container->getParameter('mautic.helper.integration') &&
-//            $this->container->getParameter('monolog.logger.mautic')
-//        ) {
-//            dump('here in boot');
-//            $this->goToHelper->init($this->container->get('mautic.helper.integration'), $this->container->get('monolog.logger.mautic'));
-//        }
-
-    }
 }

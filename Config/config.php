@@ -2,15 +2,8 @@
 
 declare(strict_types=1);
 
-use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\CampaignSubscriber;
-use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\EmailSubscriber;
-use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\FormSubscriber;
 use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\IntegrationRequestSubscriber;
-use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\LeadSubscriber;
 use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\StatsSubscriber;
-use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToActionType;
-use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignActionType;
-use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignEventType;
 use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType;
 use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotoassistIntegration;
 use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotomeetingIntegration;

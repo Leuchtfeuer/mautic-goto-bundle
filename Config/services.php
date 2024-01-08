@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Mautic\CoreBundle\DependencyInjection\MauticCoreExtension;
 use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\CampaignSubscriber;
-use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\EmailSubscriber;
 use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\FormSubscriber;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return function (ContainerConfigurator $configurator): void {
@@ -32,6 +32,4 @@ return function (ContainerConfigurator $configurator): void {
 
     $services->set(FormSubscriber::class)
         ->call('setEmailModel', [service('mautic.email.model.email')]);
-//    $services->alias('mautic.citrix.emailbundle.subscriber', EmailSubscriber::class)
-//        ->call('setEmailModel', [service('mautic.email.model.email')]);
 };

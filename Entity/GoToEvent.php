@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\LeadBundle\Entity\Lead;
@@ -96,10 +95,7 @@ class GoToEvent
         return $this->joinUrl;
     }
 
-    /**
-     * @param $eventType
-     */
-    public function setEventType($eventType): static
+    public function setEventType(string $eventType): static
     {
         $this->eventType = $eventType;
 

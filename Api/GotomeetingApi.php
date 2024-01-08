@@ -8,6 +8,7 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotomeetingIntegration;
 class GotomeetingApi
 {
     use GoToApi;
+
     public function __construct(
         private GotomeetingIntegration $integration
     ) {

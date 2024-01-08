@@ -8,6 +8,7 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GototrainingIntegration;
 class GototrainingApi
 {
     use GoToApi;
+
     public function __construct(
       private GototrainingIntegration $integration
     ) {

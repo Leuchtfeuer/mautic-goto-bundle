@@ -27,11 +27,11 @@ class EmailSubscriber implements EventSubscriberInterface
      * FormSubscriber constructor.
      */
     public function __construct(
-        private GoToModel                $goToModel,
-        private TranslatorInterface      $translator,
-        private Environment              $twig,
+        private GoToModel $goToModel,
+        private TranslatorInterface $translator,
+        private Environment $twig,
         private EventDispatcherInterface $dispatcher,
-        private GoToHelper               $goToHelper
+        private GoToHelper $goToHelper
     ) {
     }
 

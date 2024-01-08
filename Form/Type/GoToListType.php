@@ -1,26 +1,20 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Form\Type;
 
-use DateTime;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
-use Symfony\Component\OptionsResolver\Exception\AccessException;
+
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
+
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToDetailKeywords;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -57,7 +51,7 @@ class GoToListType extends AbstractType
         $products        = $this->citrixModel->getProducts('webinar', new \DateTime('now'), null, true, true);
         $active_products = [];
         foreach ($products as $key => $product) {
-            $date = DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
+            $date = \DateTime::createFromFormat('Y-m-d H:i:s.u', $product['date']['date']);
             if (false !== $date && STATUS_ACTIVE === $product['status']) {
                 $active_products[$key] = $date->format('d.m.Y H:i').' '.(null !== $product['recurrence_key'] ? '(...) ' : '').$product['name'];
             }

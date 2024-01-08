@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Model;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use Mautic\CampaignBundle\Model\EventModel;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\UserHelper;
@@ -17,15 +19,19 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
+
 use MauticPlugin\LeuchtfeuerGoToBundle\Event\GoToEventUpdateEvent;
 use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Class GoToModel.
@@ -62,20 +68,13 @@ class GoToModel extends FormModel
     }
 
     /**
-     * @param string    $product
-     * @param string    $email
-     * @param string    $eventName
-     * @param string    $eventDesc
-     * @param Lead      $lead
-     * @param string    $eventType
-     *
-     * @throws \Doctrine\ORM\ORMInvalidArgumentException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMInvalidArgumentException
+     * @throws OptimisticLockException
      * @throws \InvalidArgumentException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
-    public function addEvent($product, $email, $eventName, $eventDesc, $eventType, $lead, \DateTime $eventDate = null): void
+    public function addEvent(string $product, string $email, string $eventName, string $eventDesc, string $eventType, Lead $lead, \DateTime $eventDate = null): void
     {
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             $this->goToHelper->log('addEvent: incorrect data');
@@ -121,12 +120,7 @@ class GoToModel extends FormModel
         return $this->getRepository()->findByEmail($product, $email);
     }
 
-    /**
-     * @param string $product
-     * @param string $productId
-     * @param string $eventType
-     */
-    public function getEmailsByEvent($product, $productId, $eventType): array
+    public function getEmailsByEvent(string $product, string $productId, string $eventType): array
     {
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->em->getRepository(GoToProduct::class);
@@ -153,10 +147,7 @@ class GoToModel extends FormModel
         return $emails;
     }
 
-    /**
-     * @param string $product
-     */
-    public function getDistinctEventNames($product): array
+    public function getDistinctEventNames(string $product): array
     {
         if (!GoToProductTypes::isValidValue($product)) {
             return []; // is not a valid citrix product
@@ -175,10 +166,7 @@ class GoToModel extends FormModel
         );
     }
 
-    /**
-     * @param string $product
-     */
-    public function getDistinctEventNamesDesc($product): array
+    public function getDistinctEventNamesDesc(string $product): array
     {
         if (!GoToProductTypes::isValidValue($product)) {
             return []; // is not a valid citrix product
@@ -201,11 +189,9 @@ class GoToModel extends FormModel
     }
 
     /**
-     * @param string $product
-     * @param string $email
-     * @param string $eventType
+     * @param mixed[] $eventNames
      */
-    public function countEventsBy($product, $email, $eventType, array $eventNames = []): int
+    public function countEventsBy(string $product, string $email, string $eventType, array $eventNames = []): int
     {
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return 0; // is not a valid citrix product
@@ -247,15 +233,7 @@ class GoToModel extends FormModel
         return (int) $query->getResult()[0]['cant'];
     }
 
-    /**
-     * @param      $product
-     * @param      $productId
-     * @param      $eventName
-     * @param      $eventDesc
-     * @param int  $count
-     * @param null $output
-     */
-    public function syncEvent($product, $productId, $eventName, $eventDesc, &$count = 0, $output = null): void
+    public function syncEvent(string $product, string $productId, string $eventName, string $eventDesc, int &$count = 0, OutputInterface $output = null): void
     {
         $cpr = $this->em->getRepository(GoToProduct::class);
         /** @var GoToProduct $product_result */
@@ -301,23 +279,17 @@ class GoToModel extends FormModel
     }
 
     /**
-     * @param string          $product
-     * @param string          $eventName
-     * @param string          $productKey
-     * @param string          $eventType
-     *
-     *
-     * @throws \Doctrine\ORM\ORMInvalidArgumentException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMInvalidArgumentException
+     * @throws OptimisticLockException
      * @throws \InvalidArgumentException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function batchAddAndRemove(
-        $product,
-        $eventName,
-        $productKey,
-        $eventType,
+        string $product,
+        string $eventName,
+        string $productKey,
+        string $eventType,
         array $contactsToAdd = [],
         array $emailsToRemove = [],
         OutputInterface $output = null
@@ -413,11 +385,7 @@ class GoToModel extends FormModel
         return $count;
     }
 
-    /**
-     * @param $found
-     * @param $known
-     */
-    private function filterEventContacts($found, $known): array
+    private function filterEventContacts(mixed $found, mixed $known): array
     {
         // Lowercase the emails to keep things consistent
         $known  = array_map('strtolower', $known);
@@ -432,11 +400,9 @@ class GoToModel extends FormModel
     }
 
     /**
-     * @param $productType
-     * @param $product
-     * @param OutputInterface $output
+     * @param mixed[] $product
      */
-    public function syncProduct($productType, $product, $output = null): void
+    public function syncProduct(string $productType, array $product, OutputInterface $output = null): void
     {
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->em->getRepository(GoToProduct::class);
@@ -464,7 +430,7 @@ class GoToModel extends FormModel
             try {
                 $persistedProduct->setDate(new \DateTime($product['times'][0]['startTime']));
                 $persistedProduct->getDate()->setTimezone(new \DateTimeZone($product['timeZone']));
-                $persistedProduct->setDuration((string)strtotime($product['times'][0]['endTime']) - strtotime($product['times'][0]['startTime']));
+                $persistedProduct->setDuration((string) (strtotime($product['times'][0]['endTime']) - strtotime($product['times'][0]['startTime'])));
             } catch (\Exception) {
                 $output->writeln('Invalid Date Format');
             }
@@ -490,7 +456,7 @@ class GoToModel extends FormModel
         $productRepository->saveEntity($persistedProduct);
     }
 
-    public function getProducts($product_name, $from = null, $to = null, $reduceSessions = false, $withDetails = null)
+    public function getProducts(string $product_name, \DateTime $from = null, \DateTime $to = null, bool $reduceSessions = false, bool $withDetails = null)
     {
         $cpr      = $this->em->getRepository(GoToProduct::class);
         $products = $cpr->getCitrixChoices(true, $reduceSessions);

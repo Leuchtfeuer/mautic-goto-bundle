@@ -33,10 +33,10 @@ class LeadSubscriber implements EventSubscriberInterface
      * LeadSubscriber constructor.
      */
     public function __construct(
-        private GoToModel           $model,
-        private EntityManager       $entityManager,
+        private GoToModel $model,
+        private EntityManager $entityManager,
         private TranslatorInterface $translator,
-        private GoToHelper          $goToHelper
+        private GoToHelper $goToHelper
     ) {
     }
 

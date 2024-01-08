@@ -15,15 +15,15 @@ class GoToProduct implements \JsonSerializable
     protected int $id;
     protected string $product_key;
     protected ?string $recurrence_key;
-    protected string $organizer_key;
+    protected ?string $organizer_key;
     protected string $product;
     protected string $name;
-    protected string $description;
+    protected ?string $description;
     protected \DateTime $date;
     protected ?string $author;
-    protected string $language;
-    protected string $duration;
-    protected string $status;
+    protected ?string $language;
+    protected ?string $duration;
+    protected ?string $status;
 
     public static function loadMetadata(ClassMetadata $metadata): void
     {

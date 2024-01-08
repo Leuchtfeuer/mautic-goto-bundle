@@ -20,7 +20,8 @@ class GoToEventUpdateEvent extends CommonEvent
         private string $eventName,
         private string $eventDesc,
         private string $eventType,
-        private Lead $lead) {
+        private Lead $lead
+    ) {
     }
 
     public function getProduct(): string
