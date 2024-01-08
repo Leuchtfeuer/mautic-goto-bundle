@@ -1,17 +1,11 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc.
- *
- * @link        https://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
 use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Mautic\CoreBundle\Entity\CommonRepository;
 use Mautic\LeadBundle\Entity\Lead;
@@ -20,20 +14,14 @@ use Mautic\LeadBundle\Entity\TimelineTrait;
 class GoToEventRepository extends CommonRepository
 {
     use TimelineTrait;
-    public $_em;
 
     /**
      * Fetch the base event data from the database.
      *
-     * @param string    $product
-     * @param string    $eventType
-     * @param \DateTime $fromDate
-     *
      * @return mixed
-     *
      * @throws \InvalidArgumentException
      */
-    public function getEvents($product, $eventType, \DateTime $fromDate = null)
+    public function getEvents(string $product, string $eventType, \DateTime $fromDate = null)
     {
         $q = $this->createQueryBuilder('c');
 
@@ -57,12 +45,13 @@ class GoToEventRepository extends CommonRepository
     }
 
     /**
-     * @param      $product
-     * @param null $leadId
+     * @param mixed      $product
+     * @param int|null   $leadId
+     * @param mixed[]    $options
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getEventsForTimeline($product, $leadId = null, array $options = [])
+    public function getEventsForTimeline($product, int $leadId = null, array $options = [])
     {
         $eventType = null;
         if (is_array($product)) {
@@ -97,18 +86,15 @@ class GoToEventRepository extends CommonRepository
             ));
         }
 
-        $testquery = $query->getSQL();
+        $query->getSQL();
 
         return $this->getTimelineResults($query, $options, 'cp.product', 'c.event_date', [], ['event_date']);
     }
 
     /**
-     * @param string $product
-     * @param string $email
-     *
-     * @return array
+     * @return mixed[]
      */
-    public function findByEmail($product, $email)
+    public function findByEmail(string $product, string $email): array
     {
         return $this->findBy(
             [
@@ -119,12 +105,9 @@ class GoToEventRepository extends CommonRepository
     }
 
     /**
-     * @param string $product
-     * @param string $email
-     *
-     * @return array
+     * @return mixed[]
      */
-    public function findRegisteredByEmail($product, $email)
+    public function findRegisteredByEmail(string $product, string $email): array
     {
         $query = $this->createQueryBuilder('c')
             ->innerJoin(GoToProduct::class, 'cp', Join::WITH, 'c.citrixProduct = cp.id')
@@ -137,11 +120,16 @@ class GoToEventRepository extends CommonRepository
         return $query->getQuery()->getResult();
     }
 
-    public function findAllByMailAndEvent($email, $eventKey)
+    /**
+     * @param mixed[] $email
+     *
+     * @return array|object[]
+     */
+    public function findAllByMailAndEvent($email, string $eventKey): array
     {
-        $contactRepository = $this->_em->getRepository(Lead::class);
+        $contactRepository = $this->getEntityManager()->getRepository(Lead::class);
         $contacts          = $contactRepository->findBy(['email' => $email]);
-        $productRepository = $this->_em->getRepository(GoToProduct::class);
+        $productRepository = $this->getEntityManager()->getRepository(GoToProduct::class);
         $product           = $productRepository->findOneByProductKey($eventKey);
 
         return $this->findBy(
@@ -155,13 +143,13 @@ class GoToEventRepository extends CommonRepository
     /**
      * Get a list of entities.
      *
-     * @return Paginator
+     * @param mixed[] $args
      */
-    public function getEntities(array $args = [])
+    public function getEntities(array $args = []): Paginator
     {
         $alias = $this->getTableAlias();
 
-        $q = $this->_em
+        $q = $this->getEntityManager()
             ->createQueryBuilder()
             ->select($alias)
             ->from('GoToEvent', $alias, $alias.'.id');
@@ -172,38 +160,31 @@ class GoToEventRepository extends CommonRepository
     }
 
     /**
-     * @param \Doctrine\ORM\QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $q
-     * @param                                                              $filter
-     *
-     * @return array
+     * @param QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $qb
+     * @param mixed                                          $filter
      */
-    protected function addCatchAllWhereClause($q, $filter)
+    protected function addCatchAllWhereClause($qb, $filter): array
     {
-        return $this->addStandardCatchAllWhereClause($q, $filter,
+        return $this->addStandardCatchAllWhereClause($qb, $filter,
             ['c.product', 'c.email', 'c.eventType', 'c.eventName']);
     }
 
     /**
-     * @param \Doctrine\ORM\QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $q
-     * @param                                                              $filter
-     *
-     * @return array
+     * @param QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $q
+     * @param mixed                                          $filter
      */
     protected function addSearchCommandWhereClause($q, $filter): array
     {
         return $this->addStandardSearchCommandWhereClause($q, $filter);
     }
 
-    /**
-     * @return array
-     */
     public function getSearchCommands(): array
     {
         return $this->getStandardSearchCommands();
     }
 
     /**
-     * @return array
+     * @return array<int, int|string>
      */
     protected function getDefaultOrder(): array
     {
@@ -212,11 +193,6 @@ class GoToEventRepository extends CommonRepository
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getTableAlias(): string
     {
         return 'c';

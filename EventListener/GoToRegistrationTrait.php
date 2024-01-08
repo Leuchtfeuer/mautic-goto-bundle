@@ -15,9 +15,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 trait GoToRegistrationTrait
 {
     /**
-     * @param string $product
-     * @param Lead   $currentLead
-     *
      * @throws BadRequestHttpException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
@@ -25,7 +22,7 @@ trait GoToRegistrationTrait
      * @throws OptimisticLockException
      * @throws \InvalidArgumentException
      */
-    public function registerProduct($product, $currentLead, array $productsToRegister)
+    public function registerProduct(string $product, Lead $currentLead, array $productsToRegister): void
     {
         $leadFields = $currentLead->getProfileFields();
         $email      = $leadFields['email'] ?? '';

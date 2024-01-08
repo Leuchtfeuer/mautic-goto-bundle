@@ -26,6 +26,8 @@ use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
@@ -49,10 +51,7 @@ class FormSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::FORM_ON_BUILD                    => ['onFormBuilder', 0],
@@ -70,12 +69,9 @@ class FormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param string $product
-     * @param string $startType indicates that this is a start product, not registration
-     *
      * @throws ValidationException
      */
-    private function _doRegistration(SubmissionEvent $event, $product, $startType = null)
+    private function _doRegistration(SubmissionEvent $event, string $product, string $startType = null): void
     {
         $submission = $event->getSubmission();
         $form       = $submission->getForm();
@@ -89,7 +85,7 @@ class FormSubscriber implements EventSubscriberInterface
                 // check if there are products in the actions
                 /** @var Action $action */
                 foreach ($actions as $action) {
-                    if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
+                    if (str_starts_with($action->getType(), 'plugin.citrix.action')) {
                         $actionAction = preg_filter('/^.+\.([^\.]+\.[^\.]+)$/', '$1', $action->getType());
                         $actionAction = str_replace('.', '_', $actionAction);
 
@@ -188,27 +184,27 @@ class FormSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onWebinarRegister(SubmissionEvent $event)
+    public function onWebinarRegister(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOWEBINAR);
     }
 
-    public function onMeetingStart(SubmissionEvent $event)
+    public function onMeetingStart(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOMEETING, 'start.meeting');
     }
 
-    public function onTrainingRegister(SubmissionEvent $event)
+    public function onTrainingRegister(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOTRAINING);
     }
 
-    public function onTrainingStart(SubmissionEvent $event)
+    public function onTrainingStart(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOTRAINING, 'start.training');
     }
 
-    public function onAssistRemote(SubmissionEvent $event)
+    public function onAssistRemote(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOASSIST, 'screensharing.assist');
     }
@@ -216,7 +212,7 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * Helper function to debug REST responses.
      */
-    public function onResponse(PluginIntegrationRequestEvent $event)
+    public function onResponse(PluginIntegrationRequestEvent $event): void
     {
         //        /** @var Response $response */
 //        $response = $event->getResponse();
@@ -229,7 +225,7 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * Helper function to debug REST requests.
      */
-    public function onRequest(PluginIntegrationRequestEvent $event)
+    public function onRequest(PluginIntegrationRequestEvent $event): void
     {
         // clean parameter that was breaking the call
         if (preg_match('#\/G2W\/rest\/#', $event->getUrl())) {
@@ -240,10 +236,10 @@ class FormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
-    public function onFormValidate(Events\ValidationEvent $event)
+    public function onFormValidate(Events\ValidationEvent $event): void
     {
         $field        = $event->getField();
         $eventType    = preg_filter('/^plugin\.citrix\.select\.(.*)$/', '$1', $field->getType());
@@ -272,25 +268,21 @@ class FormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param Collection $actions
-     * @param Collection $fields
-     * @param array      $post
-     * @param string     $product
+     * @param mixed[] $post
      *
-     * @return array
+     * @return mixed[]
      */
-    private function getProductsFromPost($actions, $fields, $post, $product)
+    private function getProductsFromPost(Collection $actions, Collection $fields, array $post, string $product): array
     {
-        /** @var array $productlist */
-        $productlist = [];
+        $productList = [];
 
         $products = [];
 
         /** @var \Mautic\FormBundle\Entity\Field $field */
         foreach ($fields as $field) {
             if ('plugin.citrix.select.'.$product === $field->getType()) {
-                if (0 === (is_countable($productlist) ? count($productlist) : 0)) {
-                    $productlist = $this->goToModel->getProducts($product);
+                if (0 === (is_countable($productList) ? count($productList) : 0)) {
+                    $productList = $this->goToModel->getProducts($product);
                 }
 
                 $alias = $field->getAlias();
@@ -311,8 +303,8 @@ class FormSubscriber implements EventSubscriberInterface
                             'productId'    => $productId,
                             'productTitle' => array_key_exists(
                                 $productId,
-                                $productlist
-                            ) ? $productlist[$productId] : 'untitled',
+                                $productList
+                            ) ? $productList[$productId] : 'untitled',
                         ];
                     }
                 }
@@ -324,9 +316,9 @@ class FormSubscriber implements EventSubscriberInterface
             // check if there are products in the actions
             /** @var Action $action */
             foreach ($actions as $action) {
-                if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
-                    if (0 === (is_countable($productlist) ? count($productlist) : 0)) {
-                        $productlist = $this->goToModel->getProducts($product);
+                if (str_starts_with($action->getType(), 'plugin.citrix.action')) {
+                    if (0 === (is_countable($productList) ? count($productList) : 0)) {
+                        $productList = $this->goToModel->getProducts($product);
                     }
 
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
@@ -338,12 +330,12 @@ class FormSubscriber implements EventSubscriberInterface
                     $productId    = $action->getProperties()['product'];
                     if (array_key_exists(
                         $productId,
-                        $productlist
+                        $productList
                     )) {
                         $products[] = [
                             'fieldName'    => str_replace('.', '_', $actionAction),
                             'productId'    => $productId,
-                            'productTitle' => $productlist[$productId],
+                            'productTitle' => $productList[$productId],
                         ];
                     }
                 }
@@ -356,7 +348,7 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * @throws ValidationException
      */
-    public function onFormPreSave(Events\FormEvent $event)
+    public function onFormPreSave(Events\FormEvent $event): void
     {
         $form   = $event->getForm();
         $fields = $form->getFields()->getValues();
@@ -372,16 +364,14 @@ class FormSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onFormSubmit(SubmissionEvent $event)
+    public function onFormSubmit(SubmissionEvent $event): void
     {
     }
 
     /**
-     * @return array
-     *
      * @throws \InvalidArgumentException
      */
-    private function _checkFormValidity(Form $form)
+    private function _checkFormValidity(Form $form): array
     {
         $errors  = [];
         $actions = $form->getActions();
@@ -408,7 +398,7 @@ class FormSubscriber implements EventSubscriberInterface
 
             /** @var Action $action */
             foreach ($actions as $action) {
-                if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
+                if (str_starts_with($action->getType(), 'plugin.citrix.action')) {
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
                     if (!$this->goToHelper->isAuthorized('Goto'.$actionProduct)) {
                         continue;
@@ -474,7 +464,7 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * @throws InvalidArgumentException|BadConfigurationException
      */
-    public function onFormBuilder(Events\FormBuilderEvent $event)
+    public function onFormBuilder(Events\FormBuilderEvent $event): void
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {

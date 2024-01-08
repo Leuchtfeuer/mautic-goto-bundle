@@ -42,7 +42,7 @@ class GoToActionType extends AbstractType
      * @throws InvalidOptionsException
      * @throws MissingOptionsException
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr'])) ||
             !GoToProductTypes::isValidValue($options['attr']['data-product']) ||
@@ -224,10 +224,7 @@ class GoToActionType extends AbstractType
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'citrix_submit_action';
     }

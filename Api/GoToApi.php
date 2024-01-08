@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use GuzzleHttp\Psr7\Response;
@@ -63,11 +65,7 @@ trait GoToApi
 
         switch ($status) {
             case 200:
-                // request ok
-                break;
             case 201:
-                // POST ok
-                break;
             case 204:
                 // PUT/DELETE ok
                 break;

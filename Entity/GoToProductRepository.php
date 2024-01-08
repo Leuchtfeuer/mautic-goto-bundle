@@ -1,26 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
 use Mautic\CoreBundle\Entity\CommonRepository;
 
 class GoToProductRepository extends CommonRepository
 {
-    /**
-     * @param $key
-     *
-     * @return GoToProduct|null
-     */
-    public function findOneByProductKey($key)
+    public function findOneByProductKey(string $key): ?GoToProduct
     {
         return $this->findOneBy(['product_key' => $key]);
     }
 
-    public function findSessionsByRecurrenceKey()
+    public function findSessionsByRecurrenceKey(): void
     {
     }
 
-    public function getById($id)
+    public function getById(int $id): ?GoToProduct
     {
         return $this->find($id);
     }
@@ -30,10 +27,14 @@ class GoToProductRepository extends CommonRepository
         return $this->findBy(['recurrence_key' => null]);
     }
 
-    public function getCitrixChoices($onlyFutures = true, $reduceSessions = true)
+    /**
+     * @return mixed[]
+     *
+     * @throws \Exception
+     */
+    public function getCitrixChoices(bool $onlyFutures = true, bool $reduceSessions = true): array
     {
         $results        = $onlyFutures ? $this->getFutureProducts() : $this->getProductsBetweenSpecificDates();
-        $key            = 'product_key';
         $return_results = [];
         /**
          * @var array       $results
@@ -59,18 +60,18 @@ class GoToProductRepository extends CommonRepository
         return $return_results;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getFutureProducts()
     {
         return $this->getProductsBetweenSpecificDates(new \DateTime('now'));
     }
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     *
      * @throws \Exception
      */
-    public function getProductsBetweenSpecificDates($from = null, $to = null)
+    public function getProductsBetweenSpecificDates(\DateTime $from = null, \DateTime $to = null)
     {
         if (null === $to) {
             $to = new \DateTime('now + 50 years');
@@ -90,7 +91,10 @@ class GoToProductRepository extends CommonRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function reduceSessionsToWebinar($sessions)
+    /**
+     * @return mixed[]
+     */
+    public function reduceSessionsToWebinar($sessions): array
     {
         $key        = '';
         $temp_array = [];

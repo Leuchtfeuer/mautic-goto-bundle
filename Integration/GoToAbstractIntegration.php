@@ -14,9 +14,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 {
     protected $auth;
 
-    /**
-     * @return array
-     */
     public function getSupportedFeatures(): array
     {
         return [];
@@ -26,7 +23,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
     {
         // make sure URL does not have ending /
         $keys = $this->getDecryptedApiKeys($settings);
-        if (array_key_exists('url', $keys) && '/' === substr($keys['url'], -1)) {
+        if (array_key_exists('url', $keys) && str_ends_with($keys['url'], '/')) {
             $keys['url'] = substr($keys['url'], 0, -1);
             $this->encryptAndSetApiKeys($keys, $settings);
         }
@@ -47,8 +44,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
     public function getAuthenticationType(): string
     {
@@ -57,8 +52,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * {@inheritdoc}
-     *
-     * @return array
      */
     public function getRequiredKeyFields(): array
     {
@@ -93,9 +86,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $helper;
     }
 
-    /**
-     * @return array
-     */
     public function getFormSettings(): array
     {
         return [
@@ -104,9 +94,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getApiUrl(): string
     {
         return 'https://api.getgo.com';
@@ -114,8 +101,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
     public function getAccessTokenUrl(): string
     {
@@ -124,8 +109,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
     public function getAuthenticationUrl(): string
     {
@@ -134,8 +117,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * {@inheritdoc}
-     *
-     * @return bool
      */
     public function isAuthorized(): bool
     {
@@ -144,9 +125,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return isset($keys[$this->getAuthTokenKey()]);
     }
 
-    /**
-     * @return string
-     */
     public function getApiKey(): string
     {
         $keys = $this->getKeys();
@@ -154,9 +132,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $keys[$this->getAuthTokenKey()];
     }
 
-    /**
-     * @return string
-     */
     public function getOrganizerKey(): string
     {
         $keys = $this->getKeys();
@@ -164,7 +139,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $keys['organizer_key'];
     }
 
-    public function getAccountKey()
+    public function getAccountKey(): string
     {
         $keys = $this->getKeys();
 

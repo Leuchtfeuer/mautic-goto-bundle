@@ -134,7 +134,7 @@ class SyncCommand extends ModeratedCommand
                     $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');
                     $output->writeln('<error>'.$exception->getMessage().'</error>');
                     if ('dev' === MAUTIC_ENV) {
-                        $output->writeln('<info>'.(string) $exception.'</info>');
+                        $output->writeln('<info>'.$exception.'</info>');
                     }
                 }
             }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\NotSupported;
 use Mautic\LeadBundle\Event\LeadListFilteringEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersOperatorsEvent;
@@ -18,6 +19,8 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use MauticPlugin\MauticSocialBundle\Entity\Lead;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -37,10 +40,7 @@ class LeadSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             LeadEvents::TIMELINE_ON_GENERATE               => ['onTimelineGenerate', 0],
@@ -50,17 +50,17 @@ class LeadSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onListOperatorsGenerate(LeadListFiltersOperatorsEvent $event)
+    public function onListOperatorsGenerate(LeadListFiltersOperatorsEvent $event): void
     {
         // TODO: add custom operators
     }
 
     /**
      * @throws \InvalidArgumentException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException|NotSupported
      */
-    public function onTimelineGenerate(LeadTimelineEvent $event)
+    public function onTimelineGenerate(LeadTimelineEvent $event): void
     {
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->entityManager->getRepository(GoToProduct::class);
@@ -116,8 +116,6 @@ class LeadSubscriber implements EventSubscriberInterface
                                     'eventDesc' => $entity->getGoToProduct()->getDescription(),
                                     'joinUrl'   => $entity->getJoinUrl(),
                                 ],
-//                                'contentTemplate' => 'LeuchtfeuerGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
-//                                'contentTemplate' => '@LeuchtfeuerGoTo\SubscribedEvents\Timeline\citrix_event.html.php',
                                 'contentTemplate' => '@LeuchtfeuerGoTo\SubscribedEvents\Timeline\citrix_event.html.twig',
                                 'contactId'       => $event->getLeadId(),
                             ]
@@ -130,11 +128,11 @@ class LeadSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      * @throws \InvalidArgumentException
      */
-    public function onListChoicesGenerate(LeadListFiltersChoicesEvent $event)
+    public function onListChoicesGenerate(LeadListFiltersChoicesEvent $event): void
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
@@ -217,7 +215,7 @@ class LeadSubscriber implements EventSubscriberInterface
         // foreach $product
     }
 
-    public function onListFiltering(LeadListFilteringEvent $event)
+    public function onListFiltering(LeadListFilteringEvent $event): void
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
@@ -239,7 +237,7 @@ class LeadSubscriber implements EventSubscriberInterface
         $currentFilter       = $details['field'];
         $citrixEventsTable   = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToEvent')->getTableName();
         $citrixProductsTable = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToProduct')->getTableName();
-        $leadTable           = $em->getClassMetadata(Lead::class)->getTableName();
+        $em->getClassMetadata(Lead::class)->getTableName();
 
         foreach ($activeProducts as $product) {
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];

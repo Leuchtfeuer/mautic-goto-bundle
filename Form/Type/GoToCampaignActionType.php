@@ -36,7 +36,7 @@ class GoToCampaignActionType extends AbstractType
      * @throws ServiceNotFoundException
      * @throws \InvalidArgumentException
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $c = null;
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr']))
@@ -58,7 +58,7 @@ class GoToCampaignActionType extends AbstractType
 
         $newChoices = [];
         foreach ($choices as $k => $c) {
-            if (0 === strpos($k, $product)) {
+            if (str_starts_with($k, $product)) {
                 $newChoices[$k] = $c;
             }
         }
@@ -114,10 +114,7 @@ class GoToCampaignActionType extends AbstractType
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'citrix_campaign_action';
     }

@@ -20,119 +20,40 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class GoToHelper
 {
-    private IntegrationHelper $integrationHelper;
-    private LoggerInterface $logger;
-    private GotoassistApi $assistClient;
-    private GotomeetingApi $meetingClient;
-    private GotowebinarApi $webinarClient;
-    private GototrainingApi $trainingClient;
-
     public function __construct(
-        IntegrationHelper $integrationHelper,
-        LoggerInterface $logger,
-        GotoassistApi $assistClient,
-        GotomeetingApi $meetingClient,
-        GotowebinarApi $webinarClient,
-        GototrainingApi $trainingClient
-    ) {
-        $this->integrationHelper = $integrationHelper;
-        $this->logger            = $logger;
-        $this->assistClient      = $assistClient;
-        $this->meetingClient     = $meetingClient;
-        $this->webinarClient     = $webinarClient;
-        $this->trainingClient    = $trainingClient;
+        private IntegrationHelper $integrationHelper,
+        private LoggerInterface $logger,
+        private GotoassistApi $assistClient,
+        private GotomeetingApi $meetingClient,
+        private GotowebinarApi $webinarClient,
+        private GototrainingApi $trainingClient) {
     }
 
     /**
-     * Get the API helper.
-     *
-     * @return GotomeetingApi
+     * @param $msg
      */
-    public function getG2mApi()
-    {
-        static $g2mapi;
-        if (null === $g2mapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotomeetingApi';
-            $g2mapi = new $class($this->getIntegration('Gotomeeting'));
-        }
-
-        return $g2mapi;
-    }
-
-    /**
-     * Get the API helper.
-     *
-     * @return GotowebinarApi
-     */
-    public function getG2wApi()
-    {
-        static $g2wapi;
-        if (null === $g2wapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotowebinarApi';
-            $g2wapi = new $class($this->getIntegration('Gotowebinar'));
-        }
-
-        return $g2wapi;
-    }
-
-    /**
-     * Get the API helper.
-     *
-     * @return GototrainingApi
-     */
-    public function getG2tApi()
-    {
-        static $g2tapi;
-        if (null === $g2tapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GototrainingApi';
-            $g2tapi = new $class($this->getIntegration('Gototraining'));
-        }
-
-        return $g2tapi;
-    }
-
-    /**
-     * Get the API helper.
-     *
-     * @return GotoassistApi
-     */
-    public function getG2aApi()
-    {
-        static $g2aapi;
-        if (null === $g2aapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotoassistApi';
-            $g2aapi = new $class($this->getIntegration('Gotoassist'));
-        }
-
-        return $g2aapi;
-    }
-
-    /**
-     * @param        $msg
-     * @param string $level
-     */
-    public function log($msg, $level = 'error')
+    public function log($msg, string $level = 'error'): void
     {
         //  Make sure the logs are in the same timezone
         Logger::setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
         try {
             $this->logger->log($level, $msg);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // do nothing
         }
     }
 
     /**
-     * @param array $results
-     * @param       $key
-     * @param       $value
+     * @param array      $results
+     * @param            $key
+     * @param mixed|null $values
      *
-     * @return mixed
+     * @return mixed[]
      *
      * todo: bring back static / disabled it because of xdebug issues
      */
-    public function getKeyPairsWithDetails($results, $key, $values = null)
+    public function getKeyPairsWithDetails($results, $key, mixed $values = null): array
     {
         $return_results = [];
         /** @var array $results */
@@ -163,9 +84,8 @@ class GoToHelper
      *
      * @return \Generator
      */
-    public function getKeyPairs($results, $key, $value)
+    public function getKeyPairs(array $results, $key, $value)
     {
-        /** @var array $results */
         foreach ($results as $result) {
             if (array_key_exists($key, $result) && array_key_exists($value, $result)) {
                 yield $result[$key] => $result[$value];
@@ -174,12 +94,11 @@ class GoToHelper
     }
 
     /**
-     * @param array $sessions
-     * @param bool  $showAll  Whether to show only active sessions
+     * @param mixed $sessions
      *
      * @return \Generator
      */
-    public function getAssistPairs($sessions, $showAll = false)
+    public function getAssistPairs(array $sessions, bool $showAll = false): \Generator
     {
         /** @var array $sessions */
         foreach ($sessions as $session) {
@@ -190,12 +109,11 @@ class GoToHelper
     }
 
     /**
-     * @param      $listType    string Can be one of 'webinar', 'meeting', 'training' or 'assist'
-     * @param bool $onlyFutures
+     * @param string $listType Can be one of 'webinar', 'meeting', 'training' or 'assist'
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getGoToChoices($listType, $onlyFutures = true, $withDetails = false)
+    public function getGoToChoices(string $listType, bool $onlyFutures = true, bool $withDetails = false): array
     {
         try {
             // Check if integration is enabled
@@ -281,19 +199,14 @@ class GoToHelper
     {
         try {
             return $this->integrationHelper->getIntegrationObject($integration);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // do nothing
         }
 
         return null;
     }
 
-    /**
-     * @param $listType
-     *
-     * @return mixed
-     */
-    private function listToIntegration($listType)
+    private function listToIntegration(string $listType): string
     {
         if (GoToProductTypes::isValidValue($listType)) {
             return 'Goto'.$listType;
@@ -307,13 +220,7 @@ class GoToHelper
         return $this->webinarClient->request('webinars/'.$webinarKey);
     }
 
-    /**
-     * @param string $str
-     * @param int    $limit
-     *
-     * @return string
-     */
-    public function getCleanString($str, $limit = 20)
+    public function getCleanString(string $str, int $limit = 20): string
     {
         $str = htmlentities(strtolower($str), ENT_NOQUOTES, 'utf-8');
         $str = preg_replace('#&([A-za-z])(?:acute|cedil|caron|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
@@ -323,7 +230,6 @@ class GoToHelper
         $availableChars = explode(' ', '0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z');
         $safeStr        = '';
         $safeChar       = '';
-        /** @var array $chars */
         $chars = str_split($str);
         foreach ($chars as $char) {
             if (!in_array($char, $availableChars, true)) {
@@ -350,11 +256,9 @@ class GoToHelper
      * @param $lastname
      * @param $company
      *
-     * @return bool
-     *
      * @throws BadRequestHttpException
      */
-    public function registerToProduct($product, $productId, $email, $firstname, $lastname, $company)
+    public function registerToProduct($product, $productId, $email, $firstname, $lastname, $company): bool
     {
         try {
             $response = [];
@@ -397,11 +301,9 @@ class GoToHelper
      * @param $firstname
      * @param $lastname
      *
-     * @return bool
-     *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
-    public function startToProduct($product, $productId, $email, $firstname, $lastname)
+    public function startToProduct($product, $productId, $email, $firstname, $lastname): bool|string
     {
         try {
             switch ($product) {
@@ -463,14 +365,9 @@ class GoToHelper
     }
 
     /**
-     * @param string $product
-     * @param string $productId
-     *
-     * @return string
-     *
-     * @throws \Mautic\PluginBundle\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public function getEventName($product, $productId)
+    public function getEventName(string $product, string $productId): string
     {
         switch ($product) {
             case GoToProductTypes::GOTOWEBINAR:
@@ -493,14 +390,11 @@ class GoToHelper
     }
 
     /**
-     * @param string $product
-     * @param string $productId
+     * @return mixed[]
      *
-     * @return array
-     *
-     * @throws \Mautic\PluginBundle\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public function getRegistrants($product, $productId, $organizerKey)
+    public function getRegistrants(string $product, string $productId, string $organizerKey): array
     {
         $result = [];
         if (GoToProductTypes::GOTOWEBINAR == $product) {
@@ -513,14 +407,11 @@ class GoToHelper
     }
 
     /**
-     * @param string $product
-     * @param string $productId
+     * @return mixed[]
      *
-     * @return array
-     *
-     * @throws \Mautic\PluginBundle\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public function getAttendees($product, $productId, $organizerKey)
+    public function getAttendees(string $product, string $productId, string $organizerKey): array
     {
         $result = [];
         switch ($product) {
@@ -553,11 +444,11 @@ class GoToHelper
     }
 
     /**
-     * @param $results
+     * @param mixed[] $results
      *
-     * @return array
+     * @return mixed[]
      */
-    protected function extractContacts($results)
+    protected function extractContacts(array $results): array
     {
         $contacts = [];
 
@@ -622,11 +513,11 @@ class GoToHelper
         return $contacts;
     }
 
-    public function getPanelists($product, $organizerKey, $productId)
+    public function getPanelists(string $product, string $organizerKey, string $productId)
     {
         try {
             return $this->webinarClient->request($product.'s/'.$productId.'/panelists', [], 'GET', $organizerKey);
-        } catch (ApiErrorException $apiErrorException) {
+        } catch (ApiErrorException) {
             return false;
         }
     }

@@ -13,6 +13,7 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Form\Type;
 
 use DateTime;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
+use Symfony\Component\OptionsResolver\Exception\AccessException;
 use const MauticPlugin\LeuchtfeuerGoToBundle\Entity\STATUS_ACTIVE;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToDetailKeywords;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
@@ -27,17 +28,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class GoToListType extends AbstractType
 {
-    private $citrixModel;
-
-    public function __construct(GoToModel $citrixModel)
+    public function __construct(private GoToModel $citrixModel)
     {
-        $this->citrixModel = $citrixModel;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $selectMessage = 'Please Select...';
         if (!empty($options['data'])) {
@@ -232,9 +230,9 @@ class GoToListType extends AbstractType
     /**
      * {@inheritdoc}
      *
-     * @throws \Symfony\Component\OptionsResolver\Exception\AccessException
+     * @throws AccessException
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             [
@@ -244,10 +242,7 @@ class GoToListType extends AbstractType
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'citrix_list';
     }

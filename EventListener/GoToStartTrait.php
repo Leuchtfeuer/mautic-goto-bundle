@@ -16,21 +16,16 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait GoToStartTrait
 {
-    /**
-     * @var EmailModel
-     */
-    protected $emailModel;
+    protected EmailModel $emailModel;
 
-    public function setEmailModel(EmailModel $emailModel)
+    public function setEmailModel(EmailModel $emailModel): void
     {
         $this->emailModel = $emailModel;
     }
 
     /**
-     * @param string $product
-     * @param Lead   $lead
-     * @param        $emailId
-     * @param        $actionId
+     * @param mixed|null $emailId
+     * @param mixed|null $actionId
      *
      * @throws BadRequestHttpException
      * @throws ServiceCircularReferenceException
@@ -40,7 +35,7 @@ trait GoToStartTrait
      * @throws \InvalidArgumentException
      * @throws ORMException
      */
-    public function startProduct($product, $lead, array $productsToStart, $emailId = null, $actionId = null)
+    public function startProduct(string $product, Lead $lead, array $productsToStart, mixed $emailId = null, mixed $actionId = null): void
     {
         $leadFields                         = $lead->getProfileFields();
         $email                              = $leadFields['email'] ?? '';

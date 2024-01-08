@@ -35,10 +35,7 @@ class EmailSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             GoToEvents::ON_GOTO_TOKEN_GENERATE     => ['onTokenGenerate', 254],
@@ -52,7 +49,7 @@ class EmailSubscriber implements EventSubscriberInterface
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function onTokenGenerate(TokenGenerateEvent $event)
+    public function onTokenGenerate(TokenGenerateEvent $event): void
     {
         // inject product details in $event->params on email send
         if ('webinar' == $event->getProduct()) {
@@ -80,7 +77,7 @@ class EmailSubscriber implements EventSubscriberInterface
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function onEmailBuild(EmailBuilderEvent $event)
+    public function onEmailBuild(EmailBuilderEvent $event): void
     {
         // register tokens only if the plugins are enabled
         $tokens         = [];
@@ -112,7 +109,7 @@ class EmailSubscriber implements EventSubscriberInterface
      *
      * @throws \RuntimeException
      */
-    public function decodeTokensDisplay(EmailSendEvent $event)
+    public function decodeTokensDisplay(EmailSendEvent $event): void
     {
         $this->decodeTokens($event, false);
     }
@@ -122,7 +119,7 @@ class EmailSubscriber implements EventSubscriberInterface
      *
      * @throws \RuntimeException
      */
-    public function decodeTokensSend(EmailSendEvent $event)
+    public function decodeTokensSend(EmailSendEvent $event): void
     {
         $this->decodeTokens($event, true);
     }
@@ -130,11 +127,9 @@ class EmailSubscriber implements EventSubscriberInterface
     /**
      * Search and replace tokens with content.
      *
-     * @param bool $triggerEvent
-     *
      * @throws \RuntimeException
      */
-    public function decodeTokens(EmailSendEvent $event, $triggerEvent = false)
+    public function decodeTokens(EmailSendEvent $event, bool $triggerEvent = false): void
     {
         $products = [
             GoToProductTypes::GOTOMEETING,

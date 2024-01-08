@@ -36,7 +36,7 @@ class GoToCampaignEventType extends AbstractType
      * @throws ServiceNotFoundException
      * @throws \InvalidArgumentException
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr']))
             || !GoToProductTypes::isValidValue($options['attr']['data-product'])
@@ -82,10 +82,7 @@ class GoToCampaignEventType extends AbstractType
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'citrix_campaign_event';
     }
