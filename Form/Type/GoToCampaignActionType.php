@@ -72,7 +72,7 @@ class GoToCampaignActionType extends AbstractType
             ]
         );
 
-        $productArray= $this->model->getProducts($product, new \DateTime('now'), false, false, false);
+        $productArray= $this->model->getProducts($product, new \DateTime('now'), null, false, false);
 
         if (GoToProductTypes::GOTOASSIST !== $product) {
             $builder->add(

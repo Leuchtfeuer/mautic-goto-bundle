@@ -17,6 +17,8 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 /**
  * Class CampaignSubscriber.
@@ -31,7 +33,9 @@ class CampaignSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private GoToModel $goToModel,
-        private GoToHelper $goToHelper
+        private GoToHelper $goToHelper,
+        private Environment $twig,
+        private TranslatorInterface $translator
     ) {
     }
 
@@ -52,26 +56,41 @@ class CampaignSubscriber implements EventSubscriberInterface
 
     /* Actions */
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onWebinarAction(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOWEBINAR, $event));
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onMeetingAction(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOMEETING, $event));
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onTrainingAction(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOTRAINING, $event));
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onAssistAction(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixAction(GoToProductTypes::GOTOASSIST, $event));
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onCitrixAction(string $product, CampaignExecutionEvent $event): bool
     {
         if (!GoToProductTypes::isValidValue($product)) {
@@ -81,11 +100,10 @@ class CampaignSubscriber implements EventSubscriberInterface
         // get firstName, lastName and email from keys for sender email
         $config   = $event->getConfig();
         $criteria = $config['event-criteria-'.$product];
-        /** @var array $list */
         $list     = $config[$product.'-list'];
         $actionId = 'citrix.action.'.$product;
         try {
-            $productlist = $this->goToModel->getProducts($product, new \DateTime('now'), false);
+            $productlist = $this->goToModel->getProducts($product, new \DateTime('now'));
             $products    = [];
 
             foreach ($list as $productId) {
@@ -115,21 +133,33 @@ class CampaignSubscriber implements EventSubscriberInterface
 
     /* Events */
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onWebinarEvent(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOWEBINAR, $event));
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onMeetingEvent(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOMEETING, $event));
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onTrainingEvent(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOTRAINING, $event));
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function onAssistEvent(CampaignExecutionEvent $event): void
     {
         $event->setResult($this->onCitrixEvent(GoToProductTypes::GOTOASSIST, $event));
@@ -138,6 +168,8 @@ class CampaignSubscriber implements EventSubscriberInterface
     /**
      * @throws ServiceNotFoundException
      * @throws ServiceCircularReferenceException
+     *
+     * @phpstan-ignore-next-line
      */
     public function onCitrixEvent(string $product, CampaignExecutionEvent $event): bool
     {

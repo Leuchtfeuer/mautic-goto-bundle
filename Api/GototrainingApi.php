@@ -15,15 +15,11 @@ class GototrainingApi
     }
 
     /**
-     * @param string $operation
-     * @param string $method
-     * @param string $route
-     *
-     * @return mixed|string
+     * @param mixed[] $parameters
      *
      * @throws ApiErrorException
      */
-    public function request($operation, array $parameters = [], $method = 'GET', $route = 'rest')
+    public function request(string $operation, array $parameters = [], string $method = 'GET', string $route = 'rest'): mixed
     {
         $settings = [
             'module'     => 'G2T',

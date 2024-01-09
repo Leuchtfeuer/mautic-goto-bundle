@@ -32,6 +32,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 /**
  * Class FormSubscriber.
@@ -47,7 +48,8 @@ class FormSubscriber implements EventSubscriberInterface
         private SubmissionModel $submissionModel,
         private TranslatorInterface $translator,
         private EntityManager $entityManager,
-        private GoToHelper $goToHelper
+        private GoToHelper $goToHelper,
+        private Environment $twig
     ) {
     }
 
@@ -138,7 +140,6 @@ class FormSubscriber implements EventSubscriberInterface
                         ];
                 }
 
-                /** @var Lead $currentLead */
                 $currentLead = $event->getLead();
 
                 // execute action
@@ -246,15 +247,14 @@ class FormSubscriber implements EventSubscriberInterface
         $doValidation = $this->goToHelper->isAuthorized('Goto'.$eventType);
 
         if ($doValidation) {
-            $list = $this->goToModel->getProducts($eventType, new \DateTime('now'), false, false, false);
-
-            /** @var array $values */
+            $list   = $this->goToModel->getProducts($eventType, new \DateTime('now'), null, false, false);
             $values = $event->getValue();
 
             if (!is_array($values) && !is_object($values)) {
                 $values = [$values];
             }
 
+            /** @phpstan-ignore-next-line */
             if (is_array($values) || is_object($values)) {
                 foreach ($values as $value) {
                     if (!array_key_exists($value, $list) && !empty($value)) {
@@ -278,21 +278,22 @@ class FormSubscriber implements EventSubscriberInterface
 
         $products = [];
 
-        /** @var \Mautic\FormBundle\Entity\Field $field */
+        /** @var Field $field */
         foreach ($fields as $field) {
             if ('plugin.citrix.select.'.$product === $field->getType()) {
-                if (0 === (is_countable($productList) ? count($productList) : 0)) {
+                if (0 === (!is_countable($productList) ? 0 : count($productList))) {
                     $productList = $this->goToModel->getProducts($product);
                 }
 
-                $alias = $field->getAlias();
-                /** @var array $productIds */
+                $alias      = $field->getAlias();
                 $productIds = $post[$alias];
 
+                /** @phpstan-ignore-next-line */
                 if (!is_array($productIds) && !is_object($productIds)) {
                     $productIds = [$productIds];
                 }
 
+                /** @phpstan-ignore-next-line */
                 if (is_array($productIds) || is_object($productIds)) {
                     foreach ($productIds as $productId) {
                         if (null === $productId) { // We do have to ignore optional fields
@@ -317,7 +318,7 @@ class FormSubscriber implements EventSubscriberInterface
             /** @var Action $action */
             foreach ($actions as $action) {
                 if (str_starts_with($action->getType(), 'plugin.citrix.action')) {
-                    if (0 === (is_countable($productList) ? count($productList) : 0)) {
+                    if (0 === (!is_countable($productList) ? 0 : count($productList))) {
                         $productList = $this->goToModel->getProducts($product);
                     }
 
@@ -354,7 +355,7 @@ class FormSubscriber implements EventSubscriberInterface
         $fields = $form->getFields()->getValues();
 
         // Verify if the form is well configured
-        if (0 !== (is_countable($fields) ? count($fields) : 0)) {
+        if (0 !== (!is_countable($fields) ? 0 : count($fields))) {
             $violations = $this->_checkFormValidity($form);
             if ([] !== $violations) {
                 $event->stopPropagation();
@@ -369,6 +370,8 @@ class FormSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * @return mixed[]
+     *
      * @throws \InvalidArgumentException
      */
     private function _checkFormValidity(Form $form): array
@@ -377,7 +380,7 @@ class FormSubscriber implements EventSubscriberInterface
         $actions = $form->getActions();
         $fields  = $form->getFields();
 
-        if (null !== $actions && null !== $fields) {
+        if ($actions->count() && $fields->count()) {
             $actionFields = [
                 'register.webinar'     => ['email', 'firstname', 'lastname'],
                 'register.training'    => ['email', 'firstname', 'lastname'],
@@ -409,7 +412,7 @@ class FormSubscriber implements EventSubscriberInterface
                     // get lead fields
                     $currentLeadFields = [];
                     foreach ($fields as $field) {
-                        $leadField = $field->getLeadField();
+                        $leadField = $field->getLeadField(); // @phpstan-ignore-line
                         if (null !== $leadField && '' !== $leadField) {
                             $currentLeadFields[$leadField] = $field->getIsRequired();
                         }
@@ -428,10 +431,11 @@ class FormSubscriber implements EventSubscriberInterface
 
                             if ($fieldProduct === $actionProduct) {
                                 $hasCitrixListField = true;
-                            } elseif (in_array($field->getLeadField(), $actionFields[$actionAction]) && !$field->getIsRequired()) { // Mandatory fields
+                            } elseif (in_array($field->getLeadField(), $actionFields[$actionAction]) && !$field->getIsRequired()) { // Mandatory fields @phpstan-ignore-line
+                                /** @phpstan-ignore-next-line */
                                 $errors[$field->getLeadField().'required'] = sprintf(
                                     $errorMessages['field_should_be_required'],
-                                    $this->translator->trans('plugin.citrix.'.$field->getLeadField().'.listfield')
+                                    $this->translator->trans('plugin.citrix.'.$field->getLeadField().'.listfield') // @phpstan-ignore-line
                                 );
                             }
                         }
@@ -445,7 +449,6 @@ class FormSubscriber implements EventSubscriberInterface
                     }
 
                     // check for lead fields
-                    /** @var array $mandatoryFields */
                     $mandatoryFields = $actionFields[$actionAction];
                     foreach ($mandatoryFields as $mandatoryField) {
                         if (!array_key_exists($mandatoryField, $currentLeadFields)) {
@@ -484,7 +487,7 @@ class FormSubscriber implements EventSubscriberInterface
                 'formType'        => GoToListType::class,
                 'template'        => '@LeuchtfeuerGoTo/Field/citrixlist.html.twig',
                 'listType'        => $product,
-                'product_choices' => $this->goToModel->getProducts($product, null, null, null, true),
+                'product_choices' => $this->goToModel->getProducts($product, null, null, false, true),
             ];
             $event->addFormField('plugin.citrix.select.'.$product, $field);
 

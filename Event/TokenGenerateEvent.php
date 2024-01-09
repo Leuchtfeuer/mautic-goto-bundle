@@ -13,6 +13,8 @@ class TokenGenerateEvent extends CommonEvent
 {
     /**
      * TokenGenerateEvent constructor.
+     *
+     * @param mixed[] $params
      */
     public function __construct(private array $params)
     {

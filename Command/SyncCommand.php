@@ -40,11 +40,9 @@ class SyncCommand extends ModeratedCommand
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws InvalidArgumentException
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->addOption(

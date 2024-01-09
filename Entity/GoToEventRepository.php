@@ -79,7 +79,7 @@ class GoToEventRepository extends CommonRepository
         }
 
         if (isset($options['search']) && $options['search']) {
-            $query->andWhere($query->expr()->orX(
+            $query->andWhere($query->expr()->or(
                 $query->expr()->like('c.event_name', $query->expr()->literal('%'.$options['search'].'%')),
                 $query->expr()->like('c.product', $query->expr()->literal('%'.$options['search'].'%'))
             ));
@@ -161,6 +161,8 @@ class GoToEventRepository extends CommonRepository
     /**
      * @param QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $qb
      * @param mixed                                          $filter
+     *
+     * @return mixed[]
      */
     protected function addCatchAllWhereClause($qb, $filter): array
     {
@@ -171,6 +173,8 @@ class GoToEventRepository extends CommonRepository
     /**
      * @param QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $q
      * @param mixed                                          $filter
+     *
+     * @return mixed[]
      */
     protected function addSearchCommandWhereClause($q, $filter): array
     {
@@ -183,7 +187,7 @@ class GoToEventRepository extends CommonRepository
     }
 
     /**
-     * @return array<int, int|string>
+     * @return array<int, array<int, string>>
      */
     protected function getDefaultOrder(): array
     {

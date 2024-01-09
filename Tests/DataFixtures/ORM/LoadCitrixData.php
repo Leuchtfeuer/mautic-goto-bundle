@@ -9,6 +9,7 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -41,15 +42,32 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
 
         $this->setReference('lead-citrix', $lead);
 
+        // create a product
+
+        $product = new GoToProduct();
+        $product->setProductKey('product-key-1');
+        $product->setRecurrenceKey('recurrence-key-1');
+        $product->setOrganizerKey('org-key');
+        $product->setProduct('webinar');
+        $product->setName('Webinar 01');
+        $product->setDate(new \DateTime());
+        $product->setDescription('Description');
+        $product->setAuthor('Org');
+        $product->setLanguage('en_US');
+        $product->setDuration('3600');
+        $product->setStatus('active');
+
+        $em->persist($product);
+        $em->flush();
+
+        $this->setReference('citrix-product-1', $product);
+
         // create event
         $event = new GoToEvent();
-        $event->setLead($lead);
+        $event->setContact($lead);
         $event->setEventDate($today);
-        $event->setProduct('webinar');
-        $event->setEmail($email);
+        $event->setGoToProduct($product);
         $event->setEventType('registered');
-        $event->setEventName('sample-webinar_#0000');
-        $event->setEventDesc('Sample Webinar');
 
         $em->persist($event);
         $em->flush();

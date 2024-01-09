@@ -10,10 +10,12 @@ use Mautic\PluginBundle\Integration\AbstractIntegration;
 /**
  * Class GoToAbstractIntegration.
  */
+/** @phpstan-ignore-next-line */
 abstract class GoToAbstractIntegration extends AbstractIntegration
 {
-    protected $auth;
-
+    /**
+     * @return mixed[]
+     */
     public function getSupportedFeatures(): array
     {
         return [];
@@ -22,17 +24,21 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
     public function setIntegrationSettings(Integration $settings): void
     {
         // make sure URL does not have ending /
+        /** @phpstan-ignore-next-line */
         $keys = $this->getDecryptedApiKeys($settings);
         if (array_key_exists('url', $keys) && str_ends_with($keys['url'], '/')) {
             $keys['url'] = substr($keys['url'], 0, -1);
             $this->encryptAndSetApiKeys($keys, $settings);
         }
 
+        /** @phpstan-ignore-next-line  */
         parent::setIntegrationSettings($settings);
     }
 
     /**
      * Refresh tokens.
+     *
+     * @return string[]
      */
     public function getRefreshTokenKeys(): array
     {
@@ -51,7 +57,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
     }
 
     /**
-     * {@inheritdoc}
+     * @return array|string[]
      */
     public function getRequiredKeyFields(): array
     {

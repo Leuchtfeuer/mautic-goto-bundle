@@ -6,9 +6,17 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Helper;
 
 abstract class BasicEnum
 {
+    /**
+     * @var mixed[]|null
+     */
     private static ?array $constCacheArray = null;
 
-    private static function getConstants()
+    /**
+     * @return mixed[]
+     *
+     * @throws \ReflectionException
+     */
+    private static function getConstants(): array
     {
         if (null === self::$constCacheArray) {
             self::$constCacheArray = [];

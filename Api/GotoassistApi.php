@@ -15,14 +15,11 @@ class GotoassistApi
     }
 
     /**
-     * @param string $operation
-     * @param string $method
-     *
-     * @return mixed|string
+     * @param mixed[] $parameters
      *
      * @throws ApiErrorException
      */
-    public function request($operation, array $parameters = [], $method = 'GET')
+    public function request(string $operation, array $parameters = [], string $method = 'GET'): mixed
     {
         $settings = [
             'module'          => 'G2A',

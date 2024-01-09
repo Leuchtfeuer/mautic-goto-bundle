@@ -15,7 +15,7 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class GoToHelper
@@ -26,7 +26,8 @@ class GoToHelper
         private GotoassistApi $assistClient,
         private GotomeetingApi $meetingClient,
         private GotowebinarApi $webinarClient,
-        private GototrainingApi $trainingClient
+        private GototrainingApi $trainingClient,
+        private RouterInterface $router
     ) {
     }
 
@@ -89,7 +90,6 @@ class GoToHelper
      */
     public function getAssistPairs(array $sessions, bool $showAll = false): \Generator
     {
-        /** @var array $sessions */
         foreach ($sessions as $session) {
             if ($showAll || !in_array($session['status'], ['notStarted', 'abandoned'], true)) {
                 yield $session['sessionId'] => sprintf('%s (%s)', $session['sessionId'], $session['status']);
@@ -180,9 +180,10 @@ class GoToHelper
     {
         $myIntegration = $this->getIntegration($integration);
 
-        return $myIntegration && $myIntegration->getIntegrationSettings() && $myIntegration->getIntegrationSettings()->getIsPublished() && !empty($myIntegration->getKeys()[$myIntegration->getAuthTokenKey()]);
+        return $myIntegration && $myIntegration->getIntegrationSettings()->getIsPublished() && !empty($myIntegration->getKeys()[$myIntegration->getAuthTokenKey()]);
     }
 
+    /** @phpstan-ignore-next-line  */
     private function getIntegration(string $integration): ?AbstractIntegration
     {
         try {
@@ -203,7 +204,7 @@ class GoToHelper
         return '';
     }
 
-    public function getWebinarDetails($webinarKey)
+    public function getWebinarDetails(string $webinarKey): mixed
     {
         return $this->webinarClient->request('webinars/'.$webinarKey);
     }
@@ -309,10 +310,8 @@ class GoToHelper
 
                 case GoToProductTypes::GOTOASSIST:
                     // TODO: use the sessioncallback to update attendance status
-                    /** @var Router $router */
-                    $router = $this->getContainer()->get('router');
                     $params = [
-                        'sessionStatusCallbackUrl' => $router
+                        'sessionStatusCallbackUrl' => $this->router
                             ->generate(
                                 'mautic_citrix_sessionchanged',
                                 [],
@@ -344,7 +343,7 @@ class GoToHelper
             }
         } catch (\Exception $exception) {
             $this->log('startProduct: '.$exception->getMessage());
-            throw new BadRequestHttpException($exception->getMessage(), $exception->getCode(), $exception);
+            throw new BadRequestHttpException($exception->getMessage(), $exception, $exception->getCode());
         }
 
         return '';
@@ -499,7 +498,7 @@ class GoToHelper
         return $contacts;
     }
 
-    public function getPanelists(string $product, string $organizerKey, string $productId)
+    public function getPanelists(string $product, string $organizerKey, string $productId): mixed
     {
         try {
             return $this->webinarClient->request($product.'s/'.$productId.'/panelists', [], 'GET', $organizerKey);

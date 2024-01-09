@@ -15,15 +15,11 @@ class GotowebinarApi
     }
 
     /**
-     * @param string $operation
-     * @param string $method
-     * @param null   $organizerKey
-     *
-     * @return mixed|string
+     * @param mixed[] $parameters
      *
      * @throws ApiErrorException
      */
-    public function request($operation, array $parameters = [], $method = 'GET', $organizerKey = null)
+    public function request(string $operation, array $parameters = [], string $method = 'GET', string $organizerKey = null): mixed
     {
         $settings = [
             'module'          => 'G2W',
@@ -44,14 +40,11 @@ class GotowebinarApi
     }
 
     /**
-     * @param string $operation
-     * @param string $method
-     *
-     * @return mixed|string
+     * @param mixed[] $parameters
      *
      * @throws ApiErrorException
      */
-    public function requestAllWebinars($operation, array $parameters = [], $method = 'GET')
+    public function requestAllWebinars(string $operation, array $parameters = [], string $method = 'GET'): mixed
     {
         $settings = [
             'module'          => 'G2W',

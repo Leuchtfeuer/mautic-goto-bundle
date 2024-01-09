@@ -22,7 +22,10 @@ class GoToProductRepository extends CommonRepository
         return $this->find($id);
     }
 
-    public function getAllNonRecurringProducts()
+    /**
+     * @return mixed[]
+     */
+    public function getAllNonRecurringProducts(): array
     {
         return $this->findBy(['recurrence_key' => null]);
     }
@@ -36,10 +39,6 @@ class GoToProductRepository extends CommonRepository
     {
         $results        = $onlyFutures ? $this->getFutureProducts() : $this->getProductsBetweenSpecificDates();
         $return_results = [];
-        /**
-         * @var array       $results
-         * @var GoToProduct $result
-         */
         if ($reduceSessions) {
             $recurrenceKeyTemp = '';
             foreach ($results as $result) {
@@ -63,7 +62,7 @@ class GoToProductRepository extends CommonRepository
     /**
      * @throws \Exception
      */
-    public function getFutureProducts()
+    public function getFutureProducts(): mixed
     {
         return $this->getProductsBetweenSpecificDates(new \DateTime('now'));
     }
@@ -71,7 +70,7 @@ class GoToProductRepository extends CommonRepository
     /**
      * @throws \Exception
      */
-    public function getProductsBetweenSpecificDates(\DateTime $from = null, \DateTime $to = null)
+    public function getProductsBetweenSpecificDates(\DateTime $from = null, \DateTime $to = null): mixed
     {
         if (null === $to) {
             $to = new \DateTime('now + 50 years');
@@ -91,9 +90,11 @@ class GoToProductRepository extends CommonRepository
     }
 
     /**
+     * @param mixed[] $sessions
+     *
      * @return mixed[]
      */
-    public function reduceSessionsToWebinar($sessions): array
+    public function reduceSessionsToWebinar(array $sessions): array
     {
         $key        = '';
         $temp_array = [];

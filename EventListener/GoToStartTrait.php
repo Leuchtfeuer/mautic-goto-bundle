@@ -24,6 +24,8 @@ trait GoToStartTrait
     }
 
     /**
+     * @param mixed[] $productsToStart
+     *
      * @throws BadRequestHttpException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
@@ -65,11 +67,11 @@ trait GoToStartTrait
                             $params = [
                                 'product'     => $product,
                                 'productLink' => $hostUrl,
-                                'productText' => sprintf($this->translator->trans('plugin.citrix.start.producttext'), ucfirst($product)),
+                                'productText' => $this->translator->trans('plugin.citrix.start.producttext', ['%product%' => ucfirst($product)]),
                             ];
 
-                            $button = $this->templating->render(
-                                'LeuchtfeuerGoToBundle:SubscribedEvents\EmailToken:token.html.php',
+                            $button = $this->twig->render(
+                                '@LeuchtfeuerGoTo\SubscribedEvents\EmailToken\token.html.twig',
                                 $params
                             );
                             $content = str_replace('{'.$product.'_button}', $button, $content);

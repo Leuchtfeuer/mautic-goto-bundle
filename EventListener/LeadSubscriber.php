@@ -235,8 +235,8 @@ class LeadSubscriber implements EventSubscriberInterface
         $alias               = $event->getAlias();
         $func                = $event->getFunc();
         $currentFilter       = $details['field'];
-        $citrixEventsTable   = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToEvent')->getTableName();
-        $citrixProductsTable = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToProduct')->getTableName();
+        $citrixEventsTable   = $em->getClassMetadata(GoToEvent::class)->getTableName();
+        $citrixProductsTable = $em->getClassMetadata(GoToProduct::class)->getTableName();
         $em->getClassMetadata(Lead::class)->getTableName();
 
         foreach ($activeProducts as $product) {
@@ -249,6 +249,8 @@ class LeadSubscriber implements EventSubscriberInterface
                 if (!$eventNames) {
                     break;
                 }
+                // @todo, remove the following.
+                /* @phpstan-ignore-next-line */
                 $isAnyEvent    = in_array('any', $eventNames, true);
                 $subQueriesSQL = [];
 
@@ -261,7 +263,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
                     if (!$isAnyEvent) {
                         $query->where(
-                            $q->expr()->andX(
+                            $q->expr()->and(
                                 $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
                                 $q->expr()->eq($alias.$k.'.citrix_product_id', $eventNames),
                                 $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
@@ -269,7 +271,7 @@ class LeadSubscriber implements EventSubscriberInterface
                         );
                     } else {
                         $query->where(
-                            $q->expr()->andX(
+                            $q->expr()->and(
                                 $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
                                 $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
                             )

@@ -15,6 +15,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 trait GoToRegistrationTrait
 {
     /**
+     * @param mixed[] $productsToRegister
+     *
      * @throws BadRequestHttpException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException

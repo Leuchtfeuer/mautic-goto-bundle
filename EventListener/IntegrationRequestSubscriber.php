@@ -38,6 +38,8 @@ class IntegrationRequestSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * @param mixed[] $parameters
+     *
      * @throws \Exception
      */
     protected function getAuthorization(array $parameters): string

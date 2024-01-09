@@ -106,12 +106,9 @@ class GoToModel extends FormModel
     }
 
     /**
-     * @param string $product
-     * @param string $email
-     *
-     * @return array
+     * @return mixed[]
      */
-    public function getEventsByLeadEmail($product, $email)
+    public function getEventsByLeadEmail(string $product, string $email): array
     {
         if (!GoToProductTypes::isValidValue($product)) {
             return []; // is not a valid citrix product
@@ -120,6 +117,9 @@ class GoToModel extends FormModel
         return $this->getRepository()->findByEmail($product, $email);
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getEmailsByEvent(string $product, string $productId, string $eventType): array
     {
         /** @var GoToProductRepository $productRepository */
@@ -137,7 +137,7 @@ class GoToModel extends FormModel
         );
 
         $emails = [];
-        if (0 !== (is_countable($goToEvents) ? count($goToEvents) : 0)) {
+        if (0 !== (!is_countable($goToEvents) ? 0 : count($goToEvents))) {
             $emails = array_map(
                 static fn (GoToEvent $citrixEvent) => $citrixEvent->getContact()->getEmail(),
                 $goToEvents
@@ -147,6 +147,9 @@ class GoToModel extends FormModel
         return $emails;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getDistinctEventNames(string $product): array
     {
         if (!GoToProductTypes::isValidValue($product)) {
@@ -166,6 +169,9 @@ class GoToModel extends FormModel
         );
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getDistinctEventNamesDesc(string $product): array
     {
         if (!GoToProductTypes::isValidValue($product)) {
@@ -279,6 +285,9 @@ class GoToModel extends FormModel
     }
 
     /**
+     * @param mixed[] $contactsToAdd
+     * @param mixed[] $emailsToRemove
+     *
      * @throws ORMInvalidArgumentException
      * @throws OptimisticLockException
      * @throws \InvalidArgumentException
@@ -373,18 +382,21 @@ class GoToModel extends FormModel
         /** @var GoToEvent $entity */
         foreach ($newEntities as $entity) {
             if ($this->dispatcher->hasListeners(GoToEvents::ON_GOTO_EVENT_UPDATE)) {
-                $citrixEvent = new GoToEventUpdateEvent($product, $eventName, $productKey, $eventType, $entity->getLead());
+                $citrixEvent = new GoToEventUpdateEvent($product, $eventName, $productKey, $eventType, $entity->getContact());
                 $this->dispatcher->dispatch($citrixEvent, GoToEvents::ON_GOTO_EVENT_UPDATE);
                 unset($citrixEvent);
             }
         }
 
-        $this->em->clear(Lead::class);
-        $this->em->clear(GoToEvent::class);
+        $this->em->clear();
+        $this->em->clear();
 
         return $count;
     }
 
+    /**
+     * @return mixed[]
+     */
     private function filterEventContacts(mixed $found, mixed $known): array
     {
         // Lowercase the emails to keep things consistent
@@ -407,11 +419,11 @@ class GoToModel extends FormModel
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->em->getRepository(GoToProduct::class);
 
-        /** @var GoToProduct $persistedProduct */
         $persistedProduct = $productRepository->findOneBy([
             'product_key' => $product[$productType.'Key'],
             'product'     => $productType,
         ]);
+
         if (null === $persistedProduct) {
             $persistedProduct = new GoToProduct();
         }
@@ -456,7 +468,10 @@ class GoToModel extends FormModel
         $productRepository->saveEntity($persistedProduct);
     }
 
-    public function getProducts(string $product_name, \DateTime $from = null, \DateTime $to = null, bool $reduceSessions = false, bool $withDetails = null)
+    /**
+     * @return mixed[]
+     */
+    public function getProducts(string $product_name, \DateTime $from = null, \DateTime $to = null, bool $reduceSessions = false, bool $withDetails = null): array
     {
         $cpr      = $this->em->getRepository(GoToProduct::class);
         $products = $cpr->getCitrixChoices(true, $reduceSessions);
@@ -475,7 +490,7 @@ class GoToModel extends FormModel
         return $products;
     }
 
-    public function getIdByNameAndDate($name, $date)
+    public function getIdByNameAndDate(string $name, string $date): int|null
     {
         $productRepository = $this->em->getRepository(GoToProduct::class);
         $result            = $productRepository->findOneBy(['name' => $name, 'date' => $date]);
@@ -483,7 +498,7 @@ class GoToModel extends FormModel
         return $result ? $result->getId() : null;
     }
 
-    public function getProductById($id)
+    public function getProductById(mixed $id): ?GoToProduct
     {
         $cpr = $this->em->getRepository(GoToProduct::class);
 

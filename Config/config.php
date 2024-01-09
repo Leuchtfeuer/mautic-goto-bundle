@@ -19,11 +19,11 @@ return [
         'public' => [
             'mautic_citrix_proxy' => [
                 'path'       => '/citrix/proxy',
-                'controller' => 'LeuchtfeuerGoToBundle:Public:proxy',
+                'controller' => 'MauticPlugin\LeuchtfeuerGoToBundle\Controller\PublicController::proxyAction',
             ],
             'mautic_citrix_sessionchanged' => [
                 'path'       => '/citrix/sessionChanged',
-                'controller' => 'LeuchtfeuerGoToBundle:Public:sessionChanged',
+                'controller' => 'MauticPlugin\LeuchtfeuerGoToBundle\Controller\PublicController::sessionChangedAction',
             ],
         ],
     ],

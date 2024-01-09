@@ -15,7 +15,7 @@ class GoToEvent
     protected ?GoToProduct $citrixProduct;
     protected string $eventType = 'undefined';
     protected \DateTime $eventDate;
-    protected string $joinUrl;
+    protected ?string $joinUrl;
 
     public function __construct()
     {

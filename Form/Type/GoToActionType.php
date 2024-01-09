@@ -83,7 +83,7 @@ class GoToActionType extends AbstractType
             $products = [
                 'form' => 'User selection from form',
             ];
-            $products = array_replace($products, $this->goToModel->getProducts($product, new \DateTime('now'), false, false, false));
+            $products = array_replace($products, $this->goToModel->getProducts($product, new \DateTime('now'), null, false, false));
 
             $builder->add(
                 'product',
