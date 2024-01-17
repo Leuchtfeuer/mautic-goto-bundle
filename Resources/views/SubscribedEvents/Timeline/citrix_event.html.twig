@@ -19,9 +19,11 @@
                 <span class="event-name-slot">
                     <strong>Name:</strong> {{ event.extra.eventName }}
                 </span><br/>
-                <span class="event-name-slot">
-                    <strong>Description:</strong> {{ event.extra.eventDesc }}
-                </span><br/>
+                {% if event.extra.eventDesc|trim  %}
+                    <span class="event-desc-slot">
+                        <strong>Description:</strong> {{ event.extra.eventDesc }}
+                    </span><br/>
+                {% endif %}
                 {% if event.extra.joinUrl|trim %}
                     <span class="event-desc-slot">
                         <strong>Join URL:</strong> <a href="{{ event.extra.joinUrl }}">{{ event.extra.joinUrl }}</a>

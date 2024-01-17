@@ -138,7 +138,7 @@ class PublicController extends CommonController
                 $eventDesc
             ).'_#'.$productId;
             $product = 'assist';
-            $this->goToModel->syncEvent($product, $productId, $eventName, $eventDesc);
+            $this->goToModel->syncEvent($product, (string) $productId, $eventName, $eventDesc);
         } catch (\Exception $exception) {
             throw new BadRequestHttpException($exception->getMessage(), $exception, $exception->getCode());
         }

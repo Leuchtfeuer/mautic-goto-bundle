@@ -313,6 +313,7 @@ class GoToModel extends FormModel
         // Add events
         if ([] !== $contactsToAdd) {
             $searchEmails = array_keys($contactsToAdd);
+            /** @phpstan-ignore-next-line  */
             $leads        = $this->leadModel->getRepository()->getLeadsByFieldValue('email', $searchEmails, null, true);
             // todo give as arg?
             /** @var GoToProductRepository $citrixProductRepository */
@@ -502,6 +503,6 @@ class GoToModel extends FormModel
     {
         $cpr = $this->em->getRepository(GoToProduct::class);
 
-        return $cpr->findOneByProductKey($id);
+        return $cpr->findOneByProductKey((string) $id);
     }
 }

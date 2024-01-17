@@ -183,8 +183,11 @@ class GoToHelper
         return $myIntegration && $myIntegration->getIntegrationSettings()->getIsPublished() && !empty($myIntegration->getKeys()[$myIntegration->getAuthTokenKey()]);
     }
 
-    /** @phpstan-ignore-next-line  */
-    private function getIntegration(string $integration): ?AbstractIntegration
+    /**
+     * @phpstan-ignore-next-line
+     * @return AbstractIntegration|bool
+     */
+    private function getIntegration(string $integration)
     {
         try {
             return $this->integrationHelper->getIntegrationObject($integration);
@@ -192,7 +195,7 @@ class GoToHelper
             // do nothing
         }
 
-        return null;
+        return false;
     }
 
     private function listToIntegration(string $listType): string

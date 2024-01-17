@@ -129,7 +129,7 @@ class SyncCommand extends ModeratedCommand
                         $eventDesc
                     ).'_#'.$productId;
                     $output->writeln('Synchronizing: ['.$productId.'] '.$eventName);
-                    $this->goToModel->syncEvent($product, $productId, $eventName, $eventDesc, $count, $output);
+                    $this->goToModel->syncEvent($product, (string) $productId, $eventName, $eventDesc, $count, $output);
                 } catch (\Exception $exception) {
                     $output->writeln('<error>Error syncing '.$product.': '.$productId.'.</error>');
                     $output->writeln('<error>'.$exception->getMessage().'</error>');

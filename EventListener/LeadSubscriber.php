@@ -112,9 +112,9 @@ class LeadSubscriber implements EventSubscriberInterface
                                 'timestamp'  => $entity->getEventDate(),
                                 'extra'      => [
                                     'eventName' => $entity->getGoToProduct()->getName(),
-                                    'eventId'   => $entity->getId(),
+                                    'eventId'   => $citrixEvent['citrix_product_id'],
                                     'eventDesc' => $entity->getGoToProduct()->getDescription(),
-                                    'joinUrl'   => $entity->getJoinUrl(),
+                                    'joinUrl'   => $citrixEvent['join_url'],
                                 ],
                                 'contentTemplate' => '@LeuchtfeuerGoTo\SubscribedEvents\Timeline\citrix_event.html.twig',
                                 'contactId'       => $event->getLeadId(),

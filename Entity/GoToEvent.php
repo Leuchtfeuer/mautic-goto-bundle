@@ -90,7 +90,7 @@ class GoToEvent
         return $this->eventType;
     }
 
-    public function getJoinUrl(): string
+    public function getJoinUrl(): ?string
     {
         return $this->joinUrl;
     }
