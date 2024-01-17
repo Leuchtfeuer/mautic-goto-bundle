@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\IntegrationRequestSubscriber;
-use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\StatsSubscriber;
 use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType;
 use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotoassistIntegration;
 use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotomeetingIntegration;
@@ -28,18 +26,6 @@ return [
         ],
     ],
     'services' => [
-        'events' => [
-            'mautic.citrix.stats.subscriber' => [
-                'class'     => StatsSubscriber::class,
-                'arguments' => [
-                    'doctrine.orm.entity_manager',
-                ],
-            ],
-            'mautic.citrix.integration.request' => [
-                'class'     => IntegrationRequestSubscriber::class,
-                'arguments' => [],
-            ],
-        ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
                 'class'     => GoToListType::class,
