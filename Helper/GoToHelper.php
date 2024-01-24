@@ -185,6 +185,7 @@ class GoToHelper
 
     /**
      * @phpstan-ignore-next-line
+     *
      * @return AbstractIntegration|bool
      */
     private function getIntegration(string $integration)
