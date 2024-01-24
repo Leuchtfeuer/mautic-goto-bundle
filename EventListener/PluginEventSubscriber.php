@@ -120,11 +120,9 @@ class PluginEventSubscriber implements EventSubscriberInterface
                 'filters' => serialize($filters),
                 'id'      => $segment['id'],
             ]);
-
-            $this->log(sprintf('Segment %s updated successfully', $segment['id']), 'info');
         }
 
-        $this->log(sprintf('Total %s segments updated!!!', count($results)), 'info');
+        $this->log(sprintf('Total %s segments migrated!', count($results)), 'info');
     }
 
     private function log(string $message, string $level): void
