@@ -110,7 +110,6 @@ class PluginEventSubscriber implements EventSubscriberInterface
                     );
 
                     $this->log($message, 'error');
-                    dump($message, 'error');
                 }
 
                 $filter['properties']['filter'][] = $productKey;
@@ -124,7 +123,6 @@ class PluginEventSubscriber implements EventSubscriberInterface
         }
 
         $this->log(sprintf('Total %s segments migrated!', count($results)), 'info');
-        dump(sprintf('Total %s segments migrated!', count($results)), 'info');
     }
 
     private function log(string $message, string $level): void
