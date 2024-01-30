@@ -24,7 +24,6 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
-use MauticPlugin\MauticSocialBundle\Entity\Lead;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -171,7 +170,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
         foreach ($activeProducts as $product) {
             $eventNames           = $this->model->getDistinctEventNamesDesc($product);
-            $eventNames           = array_combine($eventNames, $eventNames);
+            $eventNames           = array_flip($eventNames);
             $eventNamesWithoutAny = array_merge(
                 [
                     '-' => '-',
@@ -181,8 +180,8 @@ class LeadSubscriber implements EventSubscriberInterface
 
             $eventNamesWithAny = array_merge(
                 [
-                    '-'   => '-',
-                    'any' => $event->getTranslator()->trans('plugin.citrix.event.'.$product.'.any'),
+                    '-'                                                                    => '-',
+                    $event->getTranslator()->trans('plugin.citrix.event.'.$product.'.any') => 'any',
                 ],
                 $eventNames
             );
@@ -198,8 +197,8 @@ class LeadSubscriber implements EventSubscriberInterface
                             'list' => $eventNamesWithAny,
                         ],
                         'operators' => [
-                            'in'  => $event->getTranslator()->trans('mautic.core.operator.in'),
-                            '!in' => $event->getTranslator()->trans('mautic.core.operator.notin'),
+                            $event->getTranslator()->trans('mautic.core.operator.in')    => 'in',
+                            $event->getTranslator()->trans('mautic.core.operator.notin') => '!in',
                         ],
                     ]
                 );
@@ -215,8 +214,8 @@ class LeadSubscriber implements EventSubscriberInterface
                         'list' => $eventNamesWithAny,
                     ],
                     'operators' => [
-                        'in'  => $event->getTranslator()->trans('mautic.core.operator.in'),
-                        '!in' => $event->getTranslator()->trans('mautic.core.operator.notin'),
+                        $event->getTranslator()->trans('mautic.core.operator.in')    => 'in',
+                        $event->getTranslator()->trans('mautic.core.operator.notin') => '!in',
                     ],
                 ]
             );
@@ -231,7 +230,7 @@ class LeadSubscriber implements EventSubscriberInterface
                         'list' => $eventNamesWithoutAny,
                     ],
                     'operators' => [
-                        'in' => $event->getTranslator()->trans('mautic.core.operator.in'),
+                        $event->getTranslator()->trans('mautic.core.operator.in') => 'in',
                     ],
                 ]
             );
@@ -259,21 +258,31 @@ class LeadSubscriber implements EventSubscriberInterface
         $alias               = $event->getAlias();
         $func                = $event->getFunc();
         $currentFilter       = $details['field'];
+
         $citrixEventsTable   = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToEvent')->getTableName();
         $citrixProductsTable = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToProduct')->getTableName();
-        $leadTable           = $em->getClassMetadata(Lead::class)->getTableName();
 
         foreach ($activeProducts as $product) {
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
 
             if (in_array($currentFilter, $eventFilters, true)) {
-                $eventNames = $details['filter'];
-                preg_match('#^([^ ]+ +[^ ]+) +(.*)$#', $eventNames, $matches);
-                $eventNames = $this->model->getIdByNameAndDate($matches[2], $matches[1]);
-                if (!$eventNames) {
-                    break;
+                $eventNameFilter = $details['filter'];
+
+                $isAnyEvent = in_array('any', $eventNameFilter, true);
+                if (!$isAnyEvent) {
+                    $eventIds = [];
+                    foreach ($eventNameFilter as $filter) {
+                        $id = $this->model->getProductRepository()->findOneByProductKey($filter)->getId();
+                        if ($id) {
+                            $eventIds[] = $id;
+                        }
+                    }
+
+                    if (empty($eventIds)) {
+                        break;
+                    }
                 }
-                $isAnyEvent    = in_array('any', $eventNames, true);
+
                 $subQueriesSQL = [];
 
                 $eventTypes = [GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED];
@@ -287,7 +296,7 @@ class LeadSubscriber implements EventSubscriberInterface
                         $query->where(
                             $q->expr()->andX(
                                 $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
-                                $q->expr()->eq($alias.$k.'.citrix_product_id', $eventNames),
+                                $q->expr()->in($alias.$k.'.citrix_product_id', $eventIds),
                                 $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
                             )
                         );
@@ -313,21 +322,21 @@ class LeadSubscriber implements EventSubscriberInterface
                 switch ($currentFilter) {
                     case $product.'-registration':
                         $event->setSubQuery(
-                            sprintf('%s (%s)', 'including' === $func ? 'EXISTS' : 'NOT EXISTS',
+                            sprintf('%s (%s)', 'in' === $func ? 'EXISTS' : 'NOT EXISTS',
                                 $subQueriesSQL[GoToEventTypes::REGISTERED])
                         );
                         break;
 
                     case $product.'-attendance':
                         $event->setSubQuery(
-                            sprintf('%s (%s)', 'including' === $func ? 'EXISTS' : 'NOT EXISTS',
+                            sprintf('%s (%s)', 'in' === $func ? 'EXISTS' : 'NOT EXISTS',
                                 $subQueriesSQL[GoToEventTypes::ATTENDED])
                         );
                         break;
 
                     case $product.'-no-attendance':
                         $queries = [
-                            sprintf('%s (%s)', 'including' === $func ? 'NOT EXISTS' : 'EXISTS',
+                            sprintf('%s (%s)', 'in' === $func ? 'NOT EXISTS' : 'EXISTS',
                                 $subQueriesSQL[GoToEventTypes::ATTENDED]),
                         ];
 

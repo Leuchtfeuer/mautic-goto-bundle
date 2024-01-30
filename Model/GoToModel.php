@@ -1,13 +1,6 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Model;
 
@@ -85,7 +78,7 @@ class GoToModel extends FormModel
             return;
         }
 
-        $productRepository = $this->em->getRepository(GoToProduct::class);
+        $productRepository = $this->getProductRepository();
         $productKey        = explode('#', $eventName);
         $goToProduct       = $productRepository->findOneByProductKey($productKey[1]);
         if (null === $goToProduct) {
@@ -133,7 +126,7 @@ class GoToModel extends FormModel
     public function getEmailsByEvent($product, $productId, $eventType)
     {
         /** @var GoToProductRepository $productRepository */
-        $productRepository = $this->em->getRepository(GoToProduct::class);
+        $productRepository = $this->getProductRepository();
 
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return []; // is not a valid goto product
@@ -269,7 +262,7 @@ class GoToModel extends FormModel
      */
     public function syncEvent($product, $productId, $eventName, $eventDesc, &$count = 0, $output = null)
     {
-        $cpr = $this->em->getRepository(GoToProduct::class);
+        $cpr = $this->getProductRepository();
         /** @var GoToProduct $product_result */
         $product_result   = $cpr->findOneBy(['product_key' => $productId]);
         $organizerKey     = $product_result->getOrganizerKey();
@@ -349,7 +342,7 @@ class GoToModel extends FormModel
             $leads        = $this->leadModel->getRepository()->getLeadsByFieldValue('email', $searchEmails, null, true);
             // todo give as arg?
             /** @var GoToProductRepository $citrixProductRepository */
-            $citrixProductRepository = $this->em->getRepository(GoToProduct::class);
+            $citrixProductRepository = $this->getProductRepository();
             foreach ($contactsToAdd as $email => $info) {
                 if (!isset($leads[strtolower($email)])) {
                     $lead = (new Lead())
@@ -393,7 +386,7 @@ class GoToModel extends FormModel
 
         // Delete events
         if ([] !== $emailsToRemove) {
-            $citrixProductRepository = $this->em->getRepository(GoToProduct::class);
+            $citrixProductRepository = $this->getProductRepository();
             $citrixEvents            = $this->getRepository()->findAllByMailAndEvent($emailsToRemove, $productKey);
             /** @var GoToEvent $citrixEvent */
             foreach ($citrixEvents as $citrixEvent) {
@@ -458,7 +451,7 @@ class GoToModel extends FormModel
     public function syncProduct($productType, $product, $output = null)
     {
         /** @var GoToProductRepository $productRepository */
-        $productRepository = $this->em->getRepository(GoToProduct::class);
+        $productRepository = $this->getProductRepository();
 
         /** @var GoToProduct $persistedProduct */
         $persistedProduct = $productRepository->findOneBy([
@@ -511,7 +504,7 @@ class GoToModel extends FormModel
 
     public function getProducts($product_name, $from = null, $to = null, $reduceSessions = false, $withDetails = null)
     {
-        $cpr      = $this->em->getRepository(GoToProduct::class);
+        $cpr      = $this->getProductRepository();
         $products = $cpr->getCitrixChoices(true, $reduceSessions);
         uasort($products, static function ($a1, $a2) {
             $v1 = strtotime($a1['date']['date']);
@@ -530,7 +523,7 @@ class GoToModel extends FormModel
 
     public function getIdByNameAndDate($name, $date)
     {
-        $productRepository = $this->em->getRepository(GoToProduct::class);
+        $productRepository = $this->getProductRepository();
         $result            = $productRepository->findOneBy(['name' => $name, 'date' => $date]);
 
         return $result ? $result->getId() : null;
@@ -538,8 +531,13 @@ class GoToModel extends FormModel
 
     public function getProductById($id)
     {
-        $cpr = $this->em->getRepository(GoToProduct::class);
+        $cpr = $this->getProductRepository();
 
         return $cpr->findOneByProductKey($id);
+    }
+
+    public function getProductRepository(): GoToProductRepository
+    {
+        return $this->em->getRepository(GoToProduct::class);
     }
 }
