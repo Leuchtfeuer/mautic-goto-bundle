@@ -249,7 +249,7 @@ class LeadSubscriber implements EventSubscriberInterface
                 if (!$isAnyEvent) {
                     $eventIds = [];
                     foreach ($eventNameFilter as $filter) {
-                        $id = $this->model->getProductRepository()->findOneByProductKey($filter)->getId();
+                        $id = $this->model->getProductRepository()->findOneByProductKey((string) $filter)->getId();
                         if ($id) {
                             $eventIds[] = $id;
                         }

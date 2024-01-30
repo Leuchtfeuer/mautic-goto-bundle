@@ -117,7 +117,7 @@ class GoToProduct implements \JsonSerializable
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
@@ -142,7 +142,7 @@ class GoToProduct implements \JsonSerializable
         $this->date = $date;
     }
 
-    public function getAuthor(): string
+    public function getAuthor(): ?string
     {
         return $this->author;
     }
@@ -152,12 +152,12 @@ class GoToProduct implements \JsonSerializable
         $this->author = $author;
     }
 
-    public function getLanguage(): string
+    public function getLanguage(): ?string
     {
         return $this->language;
     }
 
-    public function setLanguage(string $language): void
+    public function setLanguage(?string $language): void
     {
         $this->language = $language;
     }
@@ -167,22 +167,22 @@ class GoToProduct implements \JsonSerializable
         return get_object_vars($this);
     }
 
-    public function getDuration(): string
+    public function getDuration(): ?string
     {
         return $this->duration;
     }
 
-    public function setDuration(string $duration): void
+    public function setDuration(?string $duration): void
     {
         $this->duration = $duration;
     }
 
-    public function getStatus(): string
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): void
+    public function setStatus(?string $status): void
     {
         $this->status = $status;
     }
