@@ -237,7 +237,6 @@ class LeadSubscriber implements EventSubscriberInterface
         $currentFilter       = $details['field'];
         $citrixEventsTable   = $em->getClassMetadata(GoToEvent::class)->getTableName();
         $citrixProductsTable = $em->getClassMetadata(GoToProduct::class)->getTableName();
-        $em->getClassMetadata(Lead::class)->getTableName();
 
         foreach ($activeProducts as $product) {
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
@@ -259,6 +258,7 @@ class LeadSubscriber implements EventSubscriberInterface
                         break;
                     }
                 }
+
                 $subQueriesSQL = [];
 
                 $eventTypes = [GoToEventTypes::REGISTERED, GoToEventTypes::ATTENDED];
