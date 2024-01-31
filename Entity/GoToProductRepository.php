@@ -2,6 +2,7 @@
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Mautic\CoreBundle\Entity\CommonRepository;
 
 class GoToProductRepository extends CommonRepository
@@ -81,11 +82,13 @@ class GoToProductRepository extends CommonRepository
         }
 
         $qb = $this->createQueryBuilder('e');
+        $expr = $qb->expr();
         $qb
             ->andWhere('e.date BETWEEN :from AND :to')
+            ->andWhere($expr->eq('e.status', ':status'))
             ->setParameter('from', $from)
-            ->setParameter('to', $to)
-        ;
+            ->setParameter('status', 'active', Types::STRING)
+            ->setParameter('to', $to);
 
         return $qb->getQuery()->getResult();
     }
