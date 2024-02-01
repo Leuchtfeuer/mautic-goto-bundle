@@ -510,9 +510,4 @@ class GoToModel extends FormModel
     {
         return $this->em->getRepository(GoToProduct::class);
     }
-
-    public function getProductRepository(): GoToProductRepository
-    {
-        return $this->em->getRepository(GoToProduct::class);
-    }
 }
