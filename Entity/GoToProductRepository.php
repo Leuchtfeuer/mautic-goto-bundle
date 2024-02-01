@@ -82,6 +82,7 @@ class GoToProductRepository extends CommonRepository
         }
 
         $qb = $this->createQueryBuilder('e');
+        $expr = $qb->expr();
         $qb
             ->andWhere('e.date BETWEEN :from AND :to')
             ->andWhere($qb->expr()->eq('e.status', ':status'))
