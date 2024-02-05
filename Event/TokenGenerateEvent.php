@@ -53,7 +53,7 @@ class TokenGenerateEvent extends CommonEvent
         return array_key_exists('productLink', $this->params) ? $this->params['productLink'] : '';
     }
 
-    public function setProductLink(string $productLink): void
+    public function setProductLink(?string $productLink): void
     {
         $this->params['productLink'] = $productLink;
     }

@@ -2,10 +2,8 @@
 {% set link = productLink|default('#') %}
 {% set text = productText|default('Start GoTo'~prodName|capitalize) %}
 
-<link rel="stylesheet" href="{{ getAssetUrl('plugins/LeuchtfeuerGoToBundle/Assets/css/citrix.css') }}" type="text/css"/>
+<link rel="stylesheet" href="{{ getAssetUrl('plugins/LeuchtfeuerGoToBundle/Assets/css/citrix.css', null, null, true) }}" type="text/css"/>
 <a class="citrix-start-button" href="{{ link }}" target="_blank">
     {{ text }}
 </a>
 <div style="clear:both"></div>
-
-
