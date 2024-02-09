@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Mautic\CoreBundle\DependencyInjection\MauticCoreExtension;
 use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\CampaignSubscriber;
 use MauticPlugin\LeuchtfeuerGoToBundle\EventListener\FormSubscriber;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Validator\GotoApiBlacklistValidator;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -34,4 +35,6 @@ return function (ContainerConfigurator $configurator): void {
 
     $services->set(FormSubscriber::class)
         ->call('setEmailModel', [service('mautic.email.model.email')]);
+
+    $services->get(GotoApiBlacklistValidator::class)->tag('validator.constraint_validator');
 };

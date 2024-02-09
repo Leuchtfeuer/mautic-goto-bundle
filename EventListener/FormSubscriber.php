@@ -22,6 +22,7 @@ use Mautic\PluginBundle\Event\PluginIntegrationRequestEvent;
 use Mautic\PluginBundle\PluginEvents;
 use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToActionType;
 use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Validator\GotoApiBlacklist;
 use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
@@ -29,8 +30,11 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -49,7 +53,9 @@ class FormSubscriber implements EventSubscriberInterface
         private TranslatorInterface $translator,
         private EntityManager $entityManager,
         private GoToHelper $goToHelper,
-        private Environment $twig
+        private Environment $twig,
+        private ValidatorInterface $validator,
+        private RequestStack $requestStack
     ) {
     }
 
@@ -247,6 +253,35 @@ class FormSubscriber implements EventSubscriberInterface
         $doValidation = $this->goToHelper->isAuthorized('Goto'.$eventType);
 
         if ($doValidation) {
+            // Let's validate the text fields for back values
+            $request    = $this->requestStack->getCurrentRequest();
+            $post       = $request->request->get('mauticform');
+            $formFields = $field->getForm()->getFields()->toArray();
+            foreach ($formFields as $formField) {
+                if (
+                    'contact' !== $formField->getMappedObject()
+                    || 'text' !== $formField->getType()
+                    || empty($post[$formField->getAlias()])
+                ) {
+                    continue;
+                }
+
+                $violations = $this->validator->validate($post[$formField->getAlias()], new GotoApiBlacklist());
+
+                if (count($violations)) {
+                    $errors = '';
+                    /** @var ConstraintViolation $v */
+                    foreach ($violations as $v) {
+                        $transParameters            = $v->getParameters();
+                        $transParameters['%label%'] = '&quot;'.$formField->getLabel().'&quot;';
+
+                        $errors .= $this->translator->trans($v->getMessage(), $transParameters, 'validators');
+                    }
+
+                    $event->failedValidation($errors);
+                }
+            }
+
             $list   = $this->goToModel->getProducts($eventType, new \DateTime('now'), null, false, false);
             $values = $event->getValue();
 
