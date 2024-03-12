@@ -21,6 +21,15 @@ final class GoToEvents
     public const ON_FORM_VALIDATE_ACTION = 'mautic.on_citrix_form_validate_action';
 
     /**
+     * The mautic.on_citrix_form_validate event is dispatched when a form is validated.
+     *
+     * The event listener receives a Mautic\FormBundle\Event\ValidationEvent instance.
+     *
+     * @var string
+     */
+    public const ON_FORM_VALIDATE = 'mautic.on_citrix_form_validate';
+
+    /**
      * The mautic.on_citrix_webinar_event event is dispatched when a campaign event is triggered.
      *
      * The event listener receives a Mautic\CampaignBundle\Event\CampaignExecutionEvent instance.

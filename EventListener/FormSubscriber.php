@@ -30,7 +30,6 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -54,11 +53,13 @@ class FormSubscriber implements EventSubscriberInterface
         private EntityManager $entityManager,
         private GoToHelper $goToHelper,
         private Environment $twig,
-        private ValidatorInterface $validator,
-        private RequestStack $requestStack
+        private ValidatorInterface $validator
     ) {
     }
 
+    /**
+     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
+     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -70,6 +71,7 @@ class FormSubscriber implements EventSubscriberInterface
             GoToEvents::ON_TRAINING_START_ACTION         => ['onTrainingStart', 0],
             GoToEvents::ON_ASSIST_REMOTE_ACTION          => ['onAssistRemote', 0],
             GoToEvents::ON_FORM_VALIDATE_ACTION          => ['onFormValidate', 0],
+            GoToEvents::ON_FORM_VALIDATE                 => ['onFormFieldValidate', 0],
             FormEvents::FORM_PRE_SAVE                    => ['onFormPreSave', 0],
             PluginEvents::PLUGIN_ON_INTEGRATION_REQUEST  => ['onRequest', 0],
             PluginEvents::PLUGIN_ON_INTEGRATION_RESPONSE => ['onResponse', 0],
@@ -253,35 +255,6 @@ class FormSubscriber implements EventSubscriberInterface
         $doValidation = $this->goToHelper->isAuthorized('Goto'.$eventType);
 
         if ($doValidation) {
-            // Let's validate the text fields for back values
-            $request    = $this->requestStack->getCurrentRequest();
-            $post       = $request->request->get('mauticform');
-            $formFields = $field->getForm()->getFields()->toArray();
-            foreach ($formFields as $formField) {
-                if (
-                    'contact' !== $formField->getMappedObject()
-                    || 'text' !== $formField->getType()
-                    || empty($post[$formField->getAlias()])
-                ) {
-                    continue;
-                }
-
-                $violations = $this->validator->validate($post[$formField->getAlias()], new GotoApiBlacklist());
-
-                if (count($violations)) {
-                    $errors = '';
-                    /** @var ConstraintViolation $v */
-                    foreach ($violations as $v) {
-                        $transParameters            = $v->getParameters();
-                        $transParameters['%label%'] = '&quot;'.$formField->getLabel().'&quot;';
-
-                        $errors .= $this->translator->trans($v->getMessage(), $transParameters, 'validators');
-                    }
-
-                    $event->failedValidation($errors);
-                }
-            }
-
             $list   = $this->goToModel->getProducts($eventType, new \DateTime('now'), null, false, false);
             $values = $event->getValue();
 
@@ -531,6 +504,11 @@ class FormSubscriber implements EventSubscriberInterface
                 'fieldType' => 'plugin.citrix.select.'.$product,
             ];
             $event->addValidator('plugin.citrix.validate.'.$product, $validator);
+
+            $event->addValidator('plugin.citrix.validate.goto.form', [
+                'eventName' => GoToEvents::ON_FORM_VALIDATE,
+            ]);
+
             // actions
             if (GoToProductTypes::GOTOWEBINAR === $product) {
                 $action = [
@@ -611,6 +589,41 @@ class FormSubscriber implements EventSubscriberInterface
                     ],
                 ];
                 $event->addSubmitAction('plugin.citrix.action.screensharing.assist', $action);
+            }
+        }
+    }
+
+    public function onFormFieldValidate(Events\ValidationEvent $event): void
+    {
+        $doValidation = $this->goToHelper->isAuthorized('Goto'.GoToProductTypes::GOTOWEBINAR);
+        if (!$doValidation) {
+            return;
+        }
+
+        $value = $event->getValue();
+        if (!empty($value)) {
+            $field  = $event->getField();
+            $fields = [
+                'firstname',
+                'lastname',
+                'first_name',
+                'last_name',
+                'company',
+            ];
+            if (in_array($field->getAlias(), $fields) && 'text' === $field->getType()) {
+                $violations = $this->validator->validate($value, new GotoApiBlacklist());
+                if (count($violations)) {
+                    $errors = '';
+                    /** @var ConstraintViolation $v */
+                    foreach ($violations as $v) {
+                        $transParameters            = $v->getParameters();
+                        $transParameters['%label%'] = '['.$field->getLabel().']  ';
+
+                        $errors .= $this->translator->trans('%label%'.$v->getMessage(), $transParameters, 'validators');
+                    }
+
+                    $event->failedValidation($errors);
+                }
             }
         }
     }
