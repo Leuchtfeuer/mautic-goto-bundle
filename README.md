@@ -11,8 +11,8 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 - Caching of GoTo data - thus no wait time, no more "API calls exceeded" issues
 
 ## Requirements
-* Mautic 4.x
-* PHP 7.4, 8.0
+* Mautic 5.x
+* PHP 8.1
 * Command line access
 
 ## Preparations
@@ -24,10 +24,6 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       sudo -u www-data php bin/console doctrine:schema:update --force
   This should give you "Nothing to update".
 
-* Remove the existing plugin files and clear cache
-
-      sudo -u www-data php bin/console cache:clear
-      mv plugins/MauticCitrixBundle ~/MauticCitrixBundle.`date +%Y%m%d_%H%M%S`
 
 ## Installation
 * Download the plugin, say to you home directory, e.g. using wget, and prepare it
@@ -43,12 +39,6 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       cp -rp ~/LeuchtfeuerGoToBundle plugins/LeuchtfeuerGoToBundle
       chown -R www-data:www-data plugins/LeuchtfeuerGoToBundle   [assuming that your web server uses the "www-data" account]
 
-* Create symlink (needed due to hard reference in core)
-
-      mkdir -p plugins/MauticCitrixBundle/Helper/
-      cd plugins/MauticCitrixBundle/Helper/
-      ln -s ../../LeuchtfeuerGoToBundle/Helper/CitrixHelper.php .
-      cd -
 
 * Cleanup (the hard way :)
 
