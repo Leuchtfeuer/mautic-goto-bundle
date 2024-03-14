@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -10,73 +12,20 @@ const STATUS_HIDDEN = 'hidden';
 
 class GoToProduct implements \JsonSerializable
 {
-    /**
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    protected $id;
+    protected int $id;
+    protected string $product_key;
+    protected ?string $recurrence_key;
+    protected ?string $organizer_key;
+    protected string $product;
+    protected string $name;
+    protected ?string $description;
+    protected \DateTime $date;
+    protected ?string $author;
+    protected ?string $language;
+    protected ?string $duration;
+    protected ?string $status;
 
-    /**
-     * @ORM\Column(name="product_key", type="string")
-     */
-    protected $product_key;
-
-    /**
-     * @ORM\Column(name="recurrence_key", type="string")
-     */
-    protected $recurrence_key;
-
-    /**
-     * @ORM\Column(name="organizer_key", type="string")
-     */
-    protected $organizer_key;
-
-    /**
-     * @ORM\Column(name="product", type="string", length=20)
-     */
-    protected $product;
-
-    /**
-     * @ORM\Column(name="name", type="string", length=255)
-     */
-    protected $name;
-
-    /**
-     * @ORM\Column(name="description", type="text")
-     */
-    protected $description;
-
-    /**
-     * @ORM\Column(name = "date", type ="datetime")
-     */
-    protected $date;
-
-    /**
-     * @param ClassMetadata $metadata
-     */
-
-    /**
-     * @ORM\Column(name="author", type="text")
-     */
-    protected $author;
-
-    /**
-     * @ORM\Column(name="language", type="text")
-     */
-    protected $language;
-
-    /**
-     * @ORM\Column(name="duration", type="text")
-     */
-    protected $duration;
-
-    /**
-     * @ORM\Column(name="status", type="text")
-     */
-    protected $status;
-
-    public static function loadMetadata(ClassMetadata $metadata)
+    public static function loadMetadata(ClassMetadata $metadata): void
     {
         $builder = new ClassMetadataBuilder($metadata);
         $builder->setTable('plugin_goto_products')
@@ -122,7 +71,7 @@ class GoToProduct implements \JsonSerializable
     /**
      * @param mixed $product_key
      */
-    public function setProductKey($product_key)
+    public function setProductKey($product_key): void
     {
         $this->product_key = $product_key;
     }
@@ -138,159 +87,102 @@ class GoToProduct implements \JsonSerializable
     /**
      * @param mixed $organizer_key
      */
-    public function setOrganizerKey($organizer_key)
+    public function setOrganizerKey($organizer_key): void
     {
         $this->organizer_key = $organizer_key;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getProduct()
+    public function getProduct(): string
     {
         return $this->product;
     }
 
-    /**
-     * @param mixed $product
-     */
-    public function setProduct($product)
+    public function setProduct(string $product): void
     {
         $this->product = $product;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param mixed $name
-     */
-    public function setName($name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @param mixed $description
-     */
-    public function setDescription($description)
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getRecurrenceKey()
+    public function getRecurrenceKey(): ?string
     {
         return $this->recurrence_key;
     }
 
-    /**
-     * @param mixed $recurrence_key
-     */
-    public function setRecurrenceKey($recurrence_key)
+    public function setRecurrenceKey(?string $recurrence_key): void
     {
         $this->recurrence_key = $recurrence_key;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function getDate()
+    public function getDate(): \DateTime
     {
         return $this->date;
     }
 
-    /**
-     * @param mixed $date
-     */
-    public function setDate($date)
+    public function setDate(\DateTime $date): void
     {
         $this->date = $date;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getAuthor()
+    public function getAuthor(): ?string
     {
         return $this->author;
     }
 
-    /**
-     * @param mixed $author
-     */
-    public function setAuthor($author)
+    public function setAuthor(?string $author): void
     {
         $this->author = $author;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getLanguage()
+    public function getLanguage(): ?string
     {
         return $this->language;
     }
 
-    /**
-     * @param mixed $language
-     */
-    public function setLanguage($language)
+    public function setLanguage(?string $language): void
     {
         $this->language = $language;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function jsonSerialize()
     {
         return get_object_vars($this);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDuration()
+    public function getDuration(): ?string
     {
         return $this->duration;
     }
 
-    /**
-     * @param mixed $duration
-     */
-    public function setDuration($duration)
+    public function setDuration(?string $duration): void
     {
         $this->duration = $duration;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    /**
-     * @param mixed $status
-     */
-    public function setStatus($status)
+    public function setStatus(?string $status): void
     {
         $this->status = $status;
     }

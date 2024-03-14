@@ -3,18 +3,23 @@
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotoassistIntegration;
 
-class GotoassistApi extends GoToApi
+class GotoassistApi
 {
+    use GoToApi;
+
+    public function __construct(
+        private GotoassistIntegration $integration
+    ) {
+    }
+
     /**
-     * @param string $operation
-     * @param string $method
-     *
-     * @return mixed|string
+     * @param mixed[] $parameters
      *
      * @throws ApiErrorException
      */
-    public function request($operation, array $parameters = [], $method = 'GET')
+    public function request(string $operation, array $parameters = [], string $method = 'GET'): mixed
     {
         $settings = [
             'module'          => 'G2A',
@@ -28,6 +33,6 @@ class GotoassistApi extends GoToApi
             ],
         ];
 
-        return parent::_request($operation, $settings, 'rest/v1');
+        return $this->_request($operation, $settings, 'rest/v1');
     }
 }

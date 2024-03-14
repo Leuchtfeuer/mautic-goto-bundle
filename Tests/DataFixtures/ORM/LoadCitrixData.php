@@ -1,21 +1,15 @@
 <?php
 
-/*
- * @copyright   2014 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEvent;
+use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProduct;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -24,20 +18,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface, ContainerAwareInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    private ContainerInterface $container;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setContainer(ContainerInterface $container = null)
+    public function setContainer(ContainerInterface $container = null): void
     {
         $this->container = $container;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $em    = $this->container->get('doctrine')->getManager();
         $today = new \DateTime();
@@ -54,15 +42,32 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
 
         $this->setReference('lead-citrix', $lead);
 
+        // create a product
+
+        $product = new GoToProduct();
+        $product->setProductKey('product-key-1');
+        $product->setRecurrenceKey('recurrence-key-1');
+        $product->setOrganizerKey('org-key');
+        $product->setProduct('webinar');
+        $product->setName('Webinar 01');
+        $product->setDate(new \DateTime());
+        $product->setDescription('Description');
+        $product->setAuthor('Org');
+        $product->setLanguage('en_US');
+        $product->setDuration('3600');
+        $product->setStatus('active');
+
+        $em->persist($product);
+        $em->flush();
+
+        $this->setReference('citrix-product-1', $product);
+
         // create event
         $event = new GoToEvent();
-        $event->setLead($lead);
+        $event->setContact($lead);
         $event->setEventDate($today);
-        $event->setProduct('webinar');
-        $event->setEmail($email);
+        $event->setGoToProduct($product);
         $event->setEventType('registered');
-        $event->setEventName('sample-webinar_#0000');
-        $event->setEventDesc('Sample Webinar');
 
         $em->persist($event);
         $em->flush();
@@ -70,10 +75,7 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
         $this->setReference('citrix-event', $event);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrder()
+    public function getOrder(): int
     {
         return 10;
     }

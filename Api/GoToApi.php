@@ -1,32 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Exception\ApiErrorException;
-use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GoToAbstractIntegration;
 
-class GoToApi
+trait GoToApi
 {
     /**
-     * @var GoToAbstractIntegration
-     */
-    protected $integration;
-
-    /**
-     * GoToApi constructor.
-     */
-    public function __construct(GoToAbstractIntegration $integration)
-    {
-        $this->integration = $integration;
-    }
-
-    /**
-     * @return mixed|string
+     * @param mixed[] $settings
      *
      * @throws ApiErrorException
      */
-    protected function _request(string $operation, array $settings, string $route = 'rest', bool $refreshToken = true)
+    protected function _request(string $operation, array $settings, string $route = 'rest', bool $refreshToken = true): mixed
     {
         $requestSettings = [
             'encode_parameters'   => 'json',
@@ -46,7 +34,6 @@ class GoToApi
             $operation
         );
 
-        /** @var Response|array $request */
         $request = $this->integration->makeRequest(
             $url,
             $settings['parameters'],
@@ -75,11 +62,7 @@ class GoToApi
 
         switch ($status) {
             case 200:
-                // request ok
-                break;
             case 201:
-                // POST ok
-                break;
             case 204:
                 // PUT/DELETE ok
                 break;

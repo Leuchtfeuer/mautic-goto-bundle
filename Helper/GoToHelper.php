@@ -1,13 +1,6 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Helper;
 
@@ -22,117 +15,44 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class GoToHelper
 {
-    private static ?\Psr\Log\LoggerInterface $logger = null;
-
-    /**
-     * @var IntegrationHelper
-     */
-    private static $integrationHelper;
-
-    public static function init(IntegrationHelper $helper, LoggerInterface $logger)
-    {
-        self::$logger            = $logger;
-        self::$integrationHelper = $helper;
+    public function __construct(
+        private IntegrationHelper $integrationHelper,
+        private LoggerInterface $logger,
+        private GotoassistApi $assistClient,
+        private GotomeetingApi $meetingClient,
+        private GotowebinarApi $webinarClient,
+        private GototrainingApi $trainingClient,
+        private RouterInterface $router
+    ) {
     }
 
-    /**
-     * Get the API helper.
-     *
-     * @return GotomeetingApi
-     */
-    public static function getG2mApi()
-    {
-        static $g2mapi;
-        if (null === $g2mapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotomeetingApi';
-            $g2mapi = new $class(self::getIntegration('Gotomeeting'));
-        }
-
-        return $g2mapi;
-    }
-
-    /**
-     * Get the API helper.
-     *
-     * @return GotowebinarApi
-     */
-    public static function getG2wApi()
-    {
-        static $g2wapi;
-        if (null === $g2wapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotowebinarApi';
-            $g2wapi = new $class(self::getIntegration('Gotowebinar'));
-        }
-
-        return $g2wapi;
-    }
-
-    /**
-     * Get the API helper.
-     *
-     * @return GototrainingApi
-     */
-    public static function getG2tApi()
-    {
-        static $g2tapi;
-        if (null === $g2tapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GototrainingApi';
-            $g2tapi = new $class(self::getIntegration('Gototraining'));
-        }
-
-        return $g2tapi;
-    }
-
-    /**
-     * Get the API helper.
-     *
-     * @return GotoassistApi
-     */
-    public static function getG2aApi()
-    {
-        static $g2aapi;
-        if (null === $g2aapi) {
-            $class  = '\\MauticPlugin\\LeuchtfeuerGoToBundle\\Api\\GotoassistApi';
-            $g2aapi = new $class(self::getIntegration('Gotoassist'));
-        }
-
-        return $g2aapi;
-    }
-
-    /**
-     * @param        $msg
-     * @param string $level
-     */
-    public static function log($msg, $level = 'error')
+    public function log(string $msg, string $level = 'error'): void
     {
         //  Make sure the logs are in the same timezone
         Logger::setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
         try {
-            self::$logger->log($level, $msg);
-        } catch (\Exception $exception) {
+            $this->logger->log($level, $msg);
+        } catch (\Exception) {
             // do nothing
         }
     }
 
     /**
-     * @param array $results
-     * @param       $key
-     * @param       $value
+     * @param mixed[] $results
      *
-     * @return mixed
+     * @return mixed[]
      *
      * todo: bring back static / disabled it because of xdebug issues
      */
-    public static function getKeyPairsWithDetails($results, $key, $values = null)
+    public function getKeyPairsWithDetails(array $results, mixed $key, mixed $values = null): array
     {
         $return_results = [];
-        /** @var array $results */
         foreach ($results as $result) {
             $temp = [];
             if (null === $values) {
@@ -154,15 +74,10 @@ class GoToHelper
     }
 
     /**
-     * @param array $results
-     * @param       $key
-     * @param       $value
-     *
-     * @return \Generator
+     * @param mixed[] $results
      */
-    public static function getKeyPairs($results, $key, $value)
+    public function getKeyPairs(array $results, mixed $key, mixed $value): \Generator
     {
-        /** @var array $results */
         foreach ($results as $result) {
             if (array_key_exists($key, $result) && array_key_exists($value, $result)) {
                 yield $result[$key] => $result[$value];
@@ -171,14 +86,10 @@ class GoToHelper
     }
 
     /**
-     * @param array $sessions
-     * @param bool  $showAll  Whether or not to show only active sessions
-     *
-     * @return \Generator
+     * @param mixed[] $sessions
      */
-    public static function getAssistPairs($sessions, $showAll = false)
+    public function getAssistPairs(array $sessions, bool $showAll = false): \Generator
     {
-        /** @var array $sessions */
         foreach ($sessions as $session) {
             if ($showAll || !in_array($session['status'], ['notStarted', 'abandoned'], true)) {
                 yield $session['sessionId'] => sprintf('%s (%s)', $session['sessionId'], $session['status']);
@@ -187,16 +98,15 @@ class GoToHelper
     }
 
     /**
-     * @param      $listType    string Can be one of 'webinar', 'meeting', 'training' or 'assist'
-     * @param bool $onlyFutures
+     * @param string $listType Can be one of 'webinar', 'meeting', 'training' or 'assist'
      *
-     * @return array
+     * @return mixed[]
      */
-    public static function getGoToChoices($listType, $onlyFutures = true, $withDetails = false)
+    public function getGoToChoices(string $listType, bool $onlyFutures = true, bool $withDetails = false): array
     {
         try {
             // Check if integration is enabled
-            if (!self::isAuthorized(self::listToIntegration($listType))) {
+            if (!$this->isAuthorized($this->listToIntegration($listType))) {
                 throw new AuthenticationException('You are not authorized to view '.$listType);
             }
 
@@ -216,13 +126,13 @@ class GoToHelper
                     $params['toTime']   = $toTime;
                     $params['size']     = 200;
 
-                    $results = self::getG2wApi()->requestAllWebinars($url, $params);
+                    $results = $this->webinarClient->requestAllWebinars($url, $params);
 
                     if ($withDetails) {
-                        return self::getKeyPairsWithDetails($results['_embedded']['webinars'], 'webinarKey');
+                        return $this->getKeyPairsWithDetails($results['_embedded']['webinars'], 'webinarKey');
                     }
 
-                    return iterator_to_array(self::getKeyPairs($results['_embedded']['webinars'], 'webinarKey', 'subject'));
+                    return iterator_to_array($this->getKeyPairs($results['_embedded']['webinars'], 'webinarKey', 'subject'));
 
                 case GoToProductTypes::GOTOMEETING:
                     $url    = 'upcomingMeetings';
@@ -233,14 +143,14 @@ class GoToHelper
                         $params['endDate']   = $toTime;
                     }
 
-                    $results = self::getG2mApi()->request($url, $params);
+                    $results = $this->meetingClient->request($url, $params);
 
-                    return iterator_to_array(self::getKeyPairs($results, 'meetingId', 'subject'));
+                    return iterator_to_array($this->getKeyPairs($results, 'meetingId', 'subject'));
 
                 case GoToProductTypes::GOTOTRAINING:
-                    $results = self::getG2tApi()->request('trainings');
+                    $results = $this->trainingClient->request('trainings');
 
-                    return iterator_to_array(self::getKeyPairs($results, 'trainingKey', 'name'));
+                    return iterator_to_array($this->getKeyPairs($results, 'trainingKey', 'name'));
 
                 case GoToProductTypes::GOTOASSIST:
                     // show sessions in the last month
@@ -254,52 +164,42 @@ class GoToHelper
                         'toTime'      => preg_filter('/^(.+)[\+\-].+$/', '$1Z', date('c')),
                         'sessionType' => 'screen_sharing',
                     ];
-                    $results = self::getG2aApi()->request('sessions', $params);
+                    $results = $this->assistClient->request('sessions', $params);
                     if ((array) $results && array_key_exists('sessions', $results)) {
-                        return iterator_to_array(self::getAssistPairs($results['sessions']));
+                        return iterator_to_array($this->getAssistPairs($results['sessions']));
                     }
             }
         } catch (\Exception $exception) {
-            self::log($exception->getMessage());
+            $this->log($exception->getMessage());
         }
 
         return [];
     }
 
-    /**
-     * @param $integration string
-     *
-     * @return bool
-     */
-    public static function isAuthorized($integration)
+    public function isAuthorized(string $integration): bool
     {
-        $myIntegration = self::getIntegration($integration);
+        $myIntegration = $this->getIntegration($integration);
 
-        return $myIntegration && $myIntegration->getIntegrationSettings() && $myIntegration->getIntegrationSettings()->getIsPublished();
+        return $myIntegration && $myIntegration->getIntegrationSettings()->getIsPublished() && !empty($myIntegration->getKeys()[$myIntegration->getAuthTokenKey()]);
     }
 
     /**
-     * @param $integration
+     * @phpstan-ignore-next-line
      *
-     * @return AbstractIntegration
+     * @return AbstractIntegration|bool
      */
-    private static function getIntegration($integration)
+    private function getIntegration(string $integration)
     {
         try {
-            return self::$integrationHelper->getIntegrationObject($integration);
-        } catch (\Exception $exception) {
+            return $this->integrationHelper->getIntegrationObject($integration);
+        } catch (\Exception) {
             // do nothing
         }
 
-        return null;
+        return false;
     }
 
-    /**
-     * @param $listType
-     *
-     * @return mixed
-     */
-    private static function listToIntegration($listType)
+    private function listToIntegration(string $listType): string
     {
         if (GoToProductTypes::isValidValue($listType)) {
             return 'Goto'.$listType;
@@ -308,18 +208,12 @@ class GoToHelper
         return '';
     }
 
-    public static function getWebinarDetails($webinarKey)
+    public function getWebinarDetails(string $webinarKey): mixed
     {
-        return self::getG2wApi()->request('webinars/'.$webinarKey);
+        return $this->webinarClient->request('webinars/'.$webinarKey);
     }
 
-    /**
-     * @param string $str
-     * @param int    $limit
-     *
-     * @return string
-     */
-    public static function getCleanString($str, $limit = 20)
+    public function getCleanString(string $str, int $limit = 20): string
     {
         $str = htmlentities(strtolower($str), ENT_NOQUOTES, 'utf-8');
         $str = preg_replace('#&([A-za-z])(?:acute|cedil|caron|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
@@ -329,8 +223,7 @@ class GoToHelper
         $availableChars = explode(' ', '0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z');
         $safeStr        = '';
         $safeChar       = '';
-        /** @var array $chars */
-        $chars = str_split($str);
+        $chars          = str_split($str);
         foreach ($chars as $char) {
             if (!in_array($char, $availableChars, true)) {
                 if ('-' !== $safeChar) {
@@ -349,18 +242,15 @@ class GoToHelper
     }
 
     /**
-     * @param $product
-     * @param $productId
-     * @param $email
-     * @param $firstname
-     * @param $lastname
-     * @param $company
-     *
-     * @return bool
+     * @param mixed $productId
+     * @param mixed $email
+     * @param mixed $firstname
+     * @param mixed $lastname
+     * @param mixed $company
      *
      * @throws BadRequestHttpException
      */
-    public static function registerToProduct($product, $productId, $email, $firstname, $lastname, $company)
+    public function registerToProduct(string $product, $productId, $email, $firstname, $lastname, $company): bool
     {
         try {
             $response = [];
@@ -371,7 +261,7 @@ class GoToHelper
                     'lastName'     => $lastname,
                     'organization' => $company,
                 ];
-                $response = self::getG2wApi()->request(
+                $response = $this->webinarClient->request(
                     'webinars/'.$productId.'/registrants?resendConfirmation=true',
                     $params,
                     'POST'
@@ -382,7 +272,7 @@ class GoToHelper
                     'givenName' => $firstname,
                     'surname'   => $lastname,
                 ];
-                $response = self::getG2tApi()->request(
+                $response = $this->trainingClient->request(
                     'trainings/'.$productId.'/registrants',
                     $params,
                     'POST'
@@ -391,35 +281,32 @@ class GoToHelper
 
             return is_array($response) && array_key_exists('joinUrl', $response);
         } catch (\Exception $exception) {
-            self::log('registerToProduct: '.$exception->getMessage());
+            $this->log('registerToProduct: '.$exception->getMessage());
             throw new BadRequestHttpException($exception->getMessage(), $exception, $exception->getCode());
         }
     }
 
     /**
-     * @param $product
-     * @param $productId
-     * @param $email
-     * @param $firstname
-     * @param $lastname
+     * @param mixed $productId
+     * @param mixed $email
+     * @param mixed $firstname
+     * @param mixed $lastname
      *
-     * @return bool
-     *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
-    public static function startToProduct($product, $productId, $email, $firstname, $lastname)
+    public function startToProduct(string $product, $productId, $email, $firstname, $lastname): bool|string
     {
         try {
             switch ($product) {
                 case GoToProductTypes::GOTOMEETING:
-                    $response = self::getG2mApi()->request(
+                    $response = $this->meetingClient->request(
                         'meetings/'.$productId.'/start'
                     );
 
                     return (is_array($response) && array_key_exists('hostURL', $response)) ? $response['hostURL'] : '';
 
                 case GoToProductTypes::GOTOTRAINING:
-                    $response = self::getG2tApi()->request(
+                    $response = $this->trainingClient->request(
                         'trainings/'.$productId.'/start'
                     );
 
@@ -427,10 +314,8 @@ class GoToHelper
 
                 case GoToProductTypes::GOTOASSIST:
                     // TODO: use the sessioncallback to update attendance status
-                    /** @var Router $router */
-                    $router = self::getContainer()->get('router');
                     $params = [
-                        'sessionStatusCallbackUrl' => $router
+                        'sessionStatusCallbackUrl' => $this->router
                             ->generate(
                                 'mautic_citrix_sessionchanged',
                                 [],
@@ -444,7 +329,7 @@ class GoToHelper
                         'machineUuid'      => '',
                     ];
 
-                    $response = self::getG2aApi()->request(
+                    $response = $this->assistClient->request(
                         'sessions',
                         $params,
                         'POST'
@@ -461,36 +346,31 @@ class GoToHelper
                         )) ? $response['startScreenSharing']['launchUrl'] : '';
             }
         } catch (\Exception $exception) {
-            self::log('startProduct: '.$exception->getMessage());
-            throw new BadRequestHttpException($exception->getMessage(), $exception->getCode(), $exception);
+            $this->log('startProduct: '.$exception->getMessage());
+            throw new BadRequestHttpException($exception->getMessage(), $exception, $exception->getCode());
         }
 
         return '';
     }
 
     /**
-     * @param string $product
-     * @param string $productId
-     *
-     * @return string
-     *
-     * @throws \Mautic\PluginBundle\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public static function getEventName($product, $productId)
+    public function getEventName(string $product, string $productId): string
     {
         switch ($product) {
             case GoToProductTypes::GOTOWEBINAR:
-                $result = self::getG2wApi()->request($product.'s/'.$productId);
+                $result = $this->webinarClient->request($product.'s/'.$productId);
 
                 return $result['subject'];
 
             case GoToProductTypes::GOTOMEETING:
-                $result = self::getG2mApi()->request($product.'s/'.$productId);
+                $result = $this->meetingClient->request($product.'s/'.$productId);
 
                 return $result[0]['subject'];
 
             case GoToProductTypes::GOTOTRAINING:
-                $result = self::getG2tApi()->request($product.'s/'.$productId);
+                $result = $this->trainingClient->request($product.'s/'.$productId);
 
                 return $result['name'];
         }
@@ -499,50 +379,44 @@ class GoToHelper
     }
 
     /**
-     * @param string $product
-     * @param string $productId
+     * @return mixed[]
      *
-     * @return array
-     *
-     * @throws \Mautic\PluginBundle\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public static function getRegistrants($product, $productId, $organizerKey)
+    public function getRegistrants(string $product, string $productId, string $organizerKey): array
     {
         $result = [];
         if (GoToProductTypes::GOTOWEBINAR == $product) {
-            $result = self::getG2wApi()->request($product.'s/'.$productId.'/registrants', [], 'GET', $organizerKey);
+            $result = $this->webinarClient->request($product.'s/'.$productId.'/registrants', [], 'GET', $organizerKey);
         } elseif (GoToProductTypes::GOTOTRAINING == $product) {
-            $result = self::getG2tApi()->request($product.'s/'.$productId.'/registrants', [], 'GET');
+            $result = $this->trainingClient->request($product.'s/'.$productId.'/registrants', [], 'GET');
         }
 
-        return self::extractContacts($result);
+        return $this->extractContacts($result);
     }
 
     /**
-     * @param string $product
-     * @param string $productId
+     * @return mixed[]
      *
-     * @return array
-     *
-     * @throws \Mautic\PluginBundle\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public static function getAttendees($product, $productId, $organizerKey)
+    public function getAttendees(string $product, string $productId, string $organizerKey): array
     {
         $result = [];
         switch ($product) {
             case GoToProductTypes::GOTOWEBINAR:
-                $result = self::getG2wApi()->request($product.'s/'.$productId.'/attendees', [], 'GET', $organizerKey);
+                $result = $this->webinarClient->request($product.'s/'.$productId.'/attendees', [], 'GET', $organizerKey);
                 break;
 
             case GoToProductTypes::GOTOMEETING:
-                $result = self::getG2mApi()->request($product.'s/'.$productId.'/attendees', [], 'GET');
+                $result = $this->meetingClient->request($product.'s/'.$productId.'/attendees', [], 'GET');
                 break;
 
             case GoToProductTypes::GOTOTRAINING:
-                $reports  = self::getG2tApi()->request($product.'s/'.$productId, [], 'GET', 'rest/reports');
+                $reports  = $this->trainingClient->request($product.'s/'.$productId, [], 'GET', 'rest/reports');
                 $sessions = array_column($reports, 'sessionKey');
                 foreach ($sessions as $session) {
-                    $result = self::getG2tApi()->request(
+                    $result = $this->trainingClient->request(
                         'sessions/'.$session.'/attendees',
                         [],
                         'GET',
@@ -555,15 +429,15 @@ class GoToHelper
                 break;
         }
 
-        return self::extractContacts($result);
+        return $this->extractContacts($result);
     }
 
     /**
-     * @param $results
+     * @param mixed[] $results
      *
-     * @return array
+     * @return mixed[]
      */
-    protected static function extractContacts($results)
+    protected function extractContacts(array $results): array
     {
         $contacts = [];
 
@@ -628,11 +502,11 @@ class GoToHelper
         return $contacts;
     }
 
-    public static function getPanelists($product, $organizerKey, $productId)
+    public function getPanelists(string $product, string $organizerKey, string $productId): mixed
     {
         try {
-            return self::getG2wApi()->request($product.'s/'.$productId.'/panelists', [], 'GET', $organizerKey);
-        } catch (ApiErrorException $apiErrorException) {
+            return $this->webinarClient->request($product.'s/'.$productId.'/panelists', [], 'GET', $organizerKey);
+        } catch (ApiErrorException) {
             return false;
         }
     }

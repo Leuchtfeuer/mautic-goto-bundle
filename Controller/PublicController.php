@@ -1,34 +1,60 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Controller;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Mautic\CoreBundle\Controller\CommonController;
+use Mautic\CoreBundle\Factory\MauticFactory;
+use Mautic\CoreBundle\Factory\ModelFactory;
+use Mautic\CoreBundle\Helper\CoreParametersHelper;
+use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
+use Mautic\CoreBundle\Service\FlashBag;
+use Mautic\CoreBundle\Translation\Translator;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PublicController extends CommonController
 {
-    public $coreParametersHelper;
+    public CoreParametersHelper $coreParametersHelper;
+
+    /** @phpstan-ignore-next-line  */
+    public function __construct(
+        ManagerRegistry $doctrine,
+        MauticFactory $factory,
+        ModelFactory $modelFactory,
+        UserHelper $userHelper,
+        CoreParametersHelper $coreParametersHelper,
+        EventDispatcherInterface $dispatcher,
+        Translator $translator,
+        FlashBag $flashBag,
+        ?RequestStack $requestStack,
+        ?CorePermissions $security,
+
+        private GoToHelper $goToHelper,
+        private GoToModel $goToModel,
+        private IntegrationHelper $integrationHelper
+    ) {
+        parent::__construct($doctrine, $factory, $modelFactory, $userHelper, $coreParametersHelper, $dispatcher, $translator, $flashBag, $requestStack, $security);
+    }
 
     /**
      * This proxy is used for the GoToTraining API requests in order to bypass the CORS restrictions in AJAX.
      *
-     * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return mixed[]|JsonResponse|RedirectResponse|Response
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws AccessDeniedHttpException
      * @throws \InvalidArgumentException
      */
     public function proxyAction(Request $request)
@@ -37,9 +63,7 @@ class PublicController extends CommonController
         if (!$url) {
             return $this->accessDenied(false, 'ERROR: url not specified');
         } else {
-            /** @var IntegrationHelper $integrationHelper */
-            $integrationHelper = $this->get('mautic.helper.integration');
-            $myIntegration     = $integrationHelper->getIntegrationObject('Gototraining');
+            $myIntegration     = $this->integrationHelper->getIntegrationObject('Gototraining');
 
             if (!$myIntegration || !$myIntegration->getIntegrationSettings()->getIsPublished()) {
                 return $this->accessDenied(false, 'ERROR: GoToTraining is not enabled');
@@ -78,7 +102,7 @@ class PublicController extends CommonController
         $response->headers->set('Content-type', 'application/'.($is_xhr ? 'json' : 'x-javascript'));
 
         // Allow CORS requests only from dev machines
-        $allowedIps = $this->coreParametersHelper->getParameter('dev_hosts') ?: [];
+        $allowedIps = $this->coreParametersHelper->get('dev_hosts', []);
         if (in_array($request->getClientIp(), $allowedIps, true)) {
             $response->headers->set('Access-Control-Allow-Origin', '*');
         }
@@ -91,17 +115,15 @@ class PublicController extends CommonController
      * A POST will also be made when a customer joins the session and when the session ends
      * (whether or not a customer joined).
      *
-     * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return mixed[]|JsonResponse|RedirectResponse|Response
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws AccessDeniedHttpException
      * @throws \InvalidArgumentException
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function sessionChangedAction(Request $request)
     {
-        /** @var IntegrationHelper $integrationHelper */
-        $integrationHelper = $this->get('mautic.helper.integration');
-        $myIntegration     = $integrationHelper->getIntegrationObject('Gototraining');
+        $myIntegration     = $this->integrationHelper->getIntegrationObject('Gototraining');
 
         if (!$myIntegration || !$myIntegration->getIntegrationSettings()->getIsPublished()) {
             return $this->accessDenied(false, 'ERROR: GoToTraining is not enabled');
@@ -110,17 +132,15 @@ class PublicController extends CommonController
         $post = $request->request->all();
 
         try {
-            /** @var GoToModel $goToModel */
-            $goToModel   = $this->get('mautic.model.factory')->getModel('citrix.citrix');
             $productId   = $post['sessionId'];
             $eventDesc   = sprintf('%s (%s)', $productId, $post['status']);
-            $eventName   = GoToHelper::getCleanString(
+            $eventName   = $this->goToHelper->getCleanString(
                 $eventDesc
             ).'_#'.$productId;
             $product = 'assist';
-            $goToModel->syncEvent($product, $productId, $eventName, $eventDesc);
+            $this->goToModel->syncEvent($product, (string) $productId, $eventName, $eventDesc);
         } catch (\Exception $exception) {
-            throw new BadRequestHttpException($exception->getMessage(), $exception->getCode(), $exception);
+            throw new BadRequestHttpException($exception->getMessage(), $exception, $exception->getCode());
         }
 
         return new Response('OK');

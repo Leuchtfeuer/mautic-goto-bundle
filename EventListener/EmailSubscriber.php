@@ -1,17 +1,9 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
-use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
@@ -23,7 +15,8 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 /**
  * Class EmailSubscriber.
@@ -31,41 +24,18 @@ use Symfony\Component\Translation\TranslatorInterface;
 class EmailSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var GoToModel
-     */
-    protected $goToModel;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var TemplatingHelper
-     */
-    private $templating;
-
-    private EventDispatcherInterface $dispatcher;
-
-    /**
      * FormSubscriber constructor.
      */
     public function __construct(
-        GoToModel $goToModel,
-        TranslatorInterface $translator,
-        TemplatingHelper $templating,
-        EventDispatcherInterface $dispatcher
+        private GoToModel $goToModel,
+        private TranslatorInterface $translator,
+        private Environment $twig,
+        private EventDispatcherInterface $dispatcher,
+        private GoToHelper $goToHelper
     ) {
-        $this->goToModel   = $goToModel;
-        $this->translator  = $translator;
-        $this->templating  = $templating;
-        $this->dispatcher  = $dispatcher;
     }
 
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             GoToEvents::ON_GOTO_TOKEN_GENERATE     => ['onTokenGenerate', 254],
@@ -79,7 +49,7 @@ class EmailSubscriber implements EventSubscriberInterface
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function onTokenGenerate(TokenGenerateEvent $event)
+    public function onTokenGenerate(TokenGenerateEvent $event): void
     {
         // inject product details in $event->params on email send
         if ('webinar' == $event->getProduct()) {
@@ -96,7 +66,7 @@ class EmailSubscriber implements EventSubscriberInterface
                     $event->setProductLink($ce->getJoinUrl());
                 }
             } else {
-                GoToHelper::log('Updating webinar token failed! Email not found '.implode(', ', $event->getParams()));
+                $this->goToHelper->log('Updating webinar token failed! Email not found '.implode(', ', $event->getParams()));
             }
 
             $event->setProductText($this->translator->trans('plugin.citrix.token.join_webinar'));
@@ -107,13 +77,13 @@ class EmailSubscriber implements EventSubscriberInterface
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function onEmailBuild(EmailBuilderEvent $event)
+    public function onEmailBuild(EmailBuilderEvent $event): void
     {
         // register tokens only if the plugins are enabled
         $tokens         = [];
         $activeProducts = [];
         foreach (['meeting', 'training', 'assist', 'webinar'] as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[]          = $p;
                 $tokens['{'.$p.'_button}'] = $this->translator->trans('plugin.citrix.token.'.$p.'_button');
                 if ('webinar' === $p) {
@@ -139,7 +109,7 @@ class EmailSubscriber implements EventSubscriberInterface
      *
      * @throws \RuntimeException
      */
-    public function decodeTokensDisplay(EmailSendEvent $event)
+    public function decodeTokensDisplay(EmailSendEvent $event): void
     {
         $this->decodeTokens($event, false);
     }
@@ -149,7 +119,7 @@ class EmailSubscriber implements EventSubscriberInterface
      *
      * @throws \RuntimeException
      */
-    public function decodeTokensSend(EmailSendEvent $event)
+    public function decodeTokensSend(EmailSendEvent $event): void
     {
         $this->decodeTokens($event, true);
     }
@@ -157,11 +127,9 @@ class EmailSubscriber implements EventSubscriberInterface
     /**
      * Search and replace tokens with content.
      *
-     * @param bool $triggerEvent
-     *
      * @throws \RuntimeException
      */
-    public function decodeTokens(EmailSendEvent $event, $triggerEvent = false)
+    public function decodeTokens(EmailSendEvent $event, bool $triggerEvent = false): void
     {
         $products = [
             GoToProductTypes::GOTOMEETING,
@@ -172,7 +140,7 @@ class EmailSubscriber implements EventSubscriberInterface
 
         $tokens = [];
         foreach ($products as $product) {
-            if (GoToHelper::isAuthorized('Goto'.$product)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$product)) {
                 $params = [
                     'product'     => $product,
                     'productText' => '',
@@ -188,13 +156,13 @@ class EmailSubscriber implements EventSubscriberInterface
                 if ($triggerEvent && $this->dispatcher->hasListeners(GoToEvents::ON_GOTO_TOKEN_GENERATE)) {
                     $params['lead'] = $event->getLead();
                     $tokenEvent     = new TokenGenerateEvent($params);
-                    $this->dispatcher->dispatch(GoToEvents::ON_GOTO_TOKEN_GENERATE, $tokenEvent);
+                    $this->dispatcher->dispatch($tokenEvent, GoToEvents::ON_GOTO_TOKEN_GENERATE);
                     $params = $tokenEvent->getParams();
                     unset($tokenEvent);
                 }
 
-                $button = $this->templating->getTemplating()->render(
-                    'LeuchtfeuerGoToBundle:SubscribedEvents\EmailToken:token.html.php',
+                $button = $this->twig->render(
+                    '@LeuchtfeuerGoTo\SubscribedEvents\EmailToken\token.html.twig',
                     $params
                 );
 

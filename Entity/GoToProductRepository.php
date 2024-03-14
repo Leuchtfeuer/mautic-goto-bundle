@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
@@ -7,39 +9,37 @@ use Mautic\CoreBundle\Entity\CommonRepository;
 
 class GoToProductRepository extends CommonRepository
 {
-    /**
-     * @param $key
-     *
-     * @return GoToProduct|null
-     */
-    public function findOneByProductKey($key)
+    public function findOneByProductKey(string $key): ?GoToProduct
     {
         return $this->findOneBy(['product_key' => $key]);
     }
 
-    public function findSessionsByRecurrenceKey()
+    public function findSessionsByRecurrenceKey(): void
     {
     }
 
-    public function getById($id)
+    public function getById(int $id): ?GoToProduct
     {
         return $this->find($id);
     }
 
-    public function getAllNonRecurringProducts()
+    /**
+     * @return mixed[]
+     */
+    public function getAllNonRecurringProducts(): array
     {
         return $this->findBy(['recurrence_key' => null]);
     }
 
-    public function getCitrixChoices($onlyFutures = true, $reduceSessions = true)
+    /**
+     * @return mixed[]
+     *
+     * @throws \Exception
+     */
+    public function getCitrixChoices(bool $onlyFutures = true, bool $reduceSessions = true): array
     {
         $results        = $onlyFutures ? $this->getFutureProducts() : $this->getProductsBetweenSpecificDates();
-        $key            = 'product_key';
         $return_results = [];
-        /**
-         * @var array       $results
-         * @var GoToProduct $result
-         */
         if ($reduceSessions) {
             $recurrenceKeyTemp = '';
             foreach ($results as $result) {
@@ -60,18 +60,18 @@ class GoToProductRepository extends CommonRepository
         return $return_results;
     }
 
-    public function getFutureProducts()
+    /**
+     * @throws \Exception
+     */
+    public function getFutureProducts(): mixed
     {
         return $this->getProductsBetweenSpecificDates(new \DateTime('now'));
     }
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     *
      * @throws \Exception
      */
-    public function getProductsBetweenSpecificDates($from = null, $to = null)
+    public function getProductsBetweenSpecificDates(\DateTime $from = null, \DateTime $to = null): mixed
     {
         if (null === $to) {
             $to = new \DateTime('now + 50 years');
@@ -85,15 +85,20 @@ class GoToProductRepository extends CommonRepository
         $expr = $qb->expr();
         $qb
             ->andWhere('e.date BETWEEN :from AND :to')
-            ->andWhere($expr->eq('e.status', ':status'))
-            ->setParameter('from', $from)
+            ->andWhere($qb->expr()->eq('e.status', ':status'))
             ->setParameter('status', 'active', Types::STRING)
+            ->setParameter('from', $from)
             ->setParameter('to', $to);
 
         return $qb->getQuery()->getResult();
     }
 
-    public function reduceSessionsToWebinar($sessions)
+    /**
+     * @param mixed[] $sessions
+     *
+     * @return mixed[]
+     */
+    public function reduceSessionsToWebinar(array $sessions): array
     {
         $key        = '';
         $temp_array = [];

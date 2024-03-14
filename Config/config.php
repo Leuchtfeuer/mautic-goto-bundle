@@ -1,138 +1,43 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
+
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotoassistIntegration;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotomeetingIntegration;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GototrainingIntegration;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotowebinarIntegration;
 
 return [
     'name'        => 'GoTo Integration by Leuchtfeuer',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '3.0.1',
+    'version'     => '4.0.0',
     'author'      => 'Leuchtfeuer Digital Marketing GmbH',
     'routes'      => [
         'public' => [
             'mautic_citrix_proxy' => [
                 'path'       => '/citrix/proxy',
-                'controller' => 'LeuchtfeuerGoToBundle:Public:proxy',
+                'controller' => 'MauticPlugin\LeuchtfeuerGoToBundle\Controller\PublicController::proxyAction',
             ],
             'mautic_citrix_sessionchanged' => [
                 'path'       => '/citrix/sessionChanged',
-                'controller' => 'LeuchtfeuerGoToBundle:Public:sessionChanged',
+                'controller' => 'MauticPlugin\LeuchtfeuerGoToBundle\Controller\PublicController::sessionChangedAction',
             ],
         ],
     ],
     'services' => [
-        'events' => [
-            'mautic.citrix.formbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\FormSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'mautic.form.model.form',
-                    'mautic.form.model.submission',
-                    'translator',
-                    'doctrine.orm.entity_manager',
-                    'mautic.helper.templating',
-                ],
-                'methodCalls' => [
-                    'setEmailModel' => ['mautic.email.model.email'],
-                ],
-            ],
-            'mautic.citrix.leadbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\LeadSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'doctrine.orm.entity_manager',
-                    'translator',
-                ],
-            ],
-            'mautic.citrix.campaignbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\CampaignSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'doctrine.orm.entity_manager',
-                    'translator',
-                ],
-                'methodCalls' => [
-                    'setEmailModel' => ['mautic.email.model.email'],
-                ],
-            ],
-            'mautic.citrix.emailbundle.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\EmailSubscriber::class,
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'translator',
-                    'mautic.helper.templating',
-                    'event_dispatcher',
-                ],
-            ],
-            'mautic.citrix.stats.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\StatsSubscriber::class,
-                'arguments' => [
-                    'doctrine.orm.entity_manager',
-                ],
-            ],
-            'mautic.citrix.integration.request' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\IntegrationRequestSubscriber::class,
-                'arguments' => [],
-            ],
-            'mautic.citrix.plugin.event.subscriber' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\EventListener\PluginEventSubscriber::class,
-                'arguments' => [
-                    'database_connection',
-                    'monolog.logger.mautic',
-                ],
-            ],
-        ],
         'forms' => [
             'mautic.form.type.fieldslist.citrixlist' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType::class,
+                'class'     => GoToListType::class,
                 'alias'     => 'citrix_list',
                 'arguments' => [
                     'mautic.citrix.model.citrix',
                 ],
             ],
-            'mautic.form.type.citrix.submitaction' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToActionType::class,
-                'alias'     => 'citrix_submit_action',
-                'arguments' => [
-                    'mautic.form.model.field',
-                    'mautic.citrix.model.citrix',
-                ],
-            ],
-            'mautic.form.type.citrix.campaignevent' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignEventType::class,
-                'alias'     => 'citrix_campaign_event',
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'translator',
-                ],
-            ],
-            'mautic.form.type.citrix.campaignaction' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToCampaignActionType::class,
-                'alias'     => 'citrix_campaign_action',
-                'arguments' => [
-                    'mautic.citrix.model.citrix',
-                    'translator',
-                ],
-            ],
-        ],
-        'models' => [
-            'mautic.citrix.model.citrix' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel::class,
-                'arguments' => [
-                    'mautic.lead.model.lead',
-                    'mautic.campaign.model.event',
-                ],
-            ],
         ],
         'integrations' => [
             'mautic.integration.gotoassist' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotoassistIntegration::class,
+                'class'     => GotoassistIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -153,7 +58,7 @@ return [
                 ],
             ],
             'mautic.integration.gotomeeting' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotomeetingIntegration::class,
+                'class'     => GotomeetingIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -174,7 +79,7 @@ return [
                 ],
             ],
             'mautic.integration.gototraining' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GototrainingIntegration::class,
+                'class'     => GototrainingIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -195,7 +100,7 @@ return [
                 ],
             ],
             'mautic.integration.gotowebinar' => [
-                'class'     => \MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotowebinarIntegration::class,
+                'class'     => GotowebinarIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -215,6 +120,22 @@ return [
                     'mautic.lead.model.dnc',
                 ],
             ],
+        ],
+    ],
+
+    'parameters' => [
+        'goto_api_blacklist_patterns' => [
+            '/[<>]/',                    // Matches any occurrence of < or >
+            '/\\\\\d+/',                 // Matches one or more digits after a backslash
+            '/&#x?.*;/',                 // Matches strings starting with "&#x" and ending with ";"
+            '/0x\d/',                    // Matches strings starting with "0x" followed by a digit
+            '/d0x\d/',                   // Matches strings starting with "d0x" followed by a digit
+            '/javascript:/i',            // Matches "javascript:" case-insensitively
+            '/\|/',                      // Matches the pipe character
+            '/`/',                       // Matches the backtick character
+            '/&lt;|<|%3C|&#60;/',        // Matches various representations of the less-than sign
+            '/\\\x3c|\\\x3C|\\\u003c|\\\u003C/',  // Matches different representations of < with backslashes and unicode
+            '/\b(?:FSCommand|onAbort|onActivate|onAfterPrint|onAfterUpdate|onBeforeActivate|onBeforeCopy|onBeforeCut|onBeforeDeactivate|onBeforeEditFocus|onBeforePaste|onBeforePrint|onBeforeUnload|onBeforeUpdate|onBegin|onBlur|onBounce|onCellChange|onChange|onClick|onContextMenu|onControlSelect|onCopy|onCut|onDataAvailable|onDataSetChanged|onDataSetComplete|onDblClick|onDeactivate|onDrag|onDragEnd|onDragLeave|onDragEnter|onDragOver|onDragDrop|onDragStart|onDrop|onEnd|onError|onErrorUpdate|onFilterChange|onFinish|onFocus|onFocusIn|onFocusOut|onHashChange|onHelp|onInput|onKeyDown|onKeyPress|onKeyUp|onLayoutComplete|onLoad|onLoseCapture|onMediaComplete|onMediaError|onMessage|onMouseDown|onMouseEnter|onMouseLeave|onMouseMove|onMouseOut|onMouseOver|onMouseUp|onMouseWheel|onMove|onMoveEnd|onMoveStart|onOffline|onOnline|onOutOfSync|onPaste|onPause|onPopState|onProgress|onPropertyChange|onReadyStateChange|onRedo|onRepeat|onReset|onResize|onResizeEnd|onResizeStart|onResume|onReverse|onRowsEnter|onRowExit|onRowDelete|onRowInserted|onScroll|onSeek|onSelect|onSelectChange|onSelectStart|onStart|onStop|onStorage|onSyncRestored|onSubmit|onTimeError|onTrackChange|onUndo|onUnload|onURLFlip|seekSegmentTime)\b/',  // Matches specific event names
         ],
     ],
 ];

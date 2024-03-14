@@ -1,49 +1,40 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc.
- *
- * @link        https://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use Mautic\EmailBundle\Model\EmailModel;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventTypes;
-use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait GoToStartTrait
 {
-    /**
-     * @var EmailModel
-     */
-    protected $emailModel;
+    protected EmailModel $emailModel;
 
-    public function setEmailModel(EmailModel $emailModel)
+    public function setEmailModel(EmailModel $emailModel): void
     {
         $this->emailModel = $emailModel;
     }
 
     /**
-     * @param string $product
-     * @param Lead   $lead
-     * @param        $emailId
-     * @param        $actionId
+     * @param mixed[] $productsToStart
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @throws \Doctrine\ORM\ORMInvalidArgumentException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws BadRequestHttpException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @throws ORMInvalidArgumentException
+     * @throws OptimisticLockException
      * @throws \InvalidArgumentException
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
-    public function startProduct($product, $lead, array $productsToStart, $emailId = null, $actionId = null)
+    public function startProduct(string $product, Lead $lead, array $productsToStart, mixed $emailId = null, mixed $actionId = null): void
     {
         $leadFields                         = $lead->getProfileFields();
         $email                              = $leadFields['email'] ?? '';
@@ -54,7 +45,7 @@ trait GoToStartTrait
             foreach ($productsToStart as $productToStart) {
                 $productId = $productToStart['productId'];
 
-                $hostUrl = GoToHelper::startToProduct(
+                $hostUrl = $this->goToHelper->startToProduct(
                     $product,
                     $productId,
                     $email,
@@ -72,15 +63,15 @@ trait GoToStartTrait
                     if (null !== $emailEntity && $emailEntity->isPublished()) {
                         $content = $emailEntity->getCustomHtml();
                         // replace tokens
-                        if (GoToHelper::isAuthorized('Goto'.$product)) {
+                        if ($this->goToHelper->isAuthorized('Goto'.$product)) {
                             $params = [
                                 'product'     => $product,
                                 'productLink' => $hostUrl,
-                                'productText' => sprintf($this->translator->trans('plugin.citrix.start.producttext'), ucfirst($product)),
+                                'productText' => $this->translator->trans('plugin.citrix.start.producttext', ['%product%' => ucfirst($product)]),
                             ];
 
-                            $button = $this->templating->render(
-                                'LeuchtfeuerGoToBundle:SubscribedEvents\EmailToken:token.html.php',
+                            $button = $this->twig->render(
+                                '@LeuchtfeuerGoTo\SubscribedEvents\EmailToken\token.html.twig',
                                 $params
                             );
                             $content = str_replace('{'.$product.'_button}', $button, $content);
@@ -99,7 +90,7 @@ trait GoToStartTrait
                     }
 
                     // add event to DB
-                    $eventName = GoToHelper::getCleanString(
+                    $eventName = $this->goToHelper->getCleanString(
                         $productToStart['productTitle']
                     ).'_#'.$productToStart['productId'];
 

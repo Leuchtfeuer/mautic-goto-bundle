@@ -1,20 +1,12 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
 use Mautic\CoreBundle\Exception\BadConfigurationException;
-use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\FormBundle\Entity\Action;
 use Mautic\FormBundle\Entity\Field;
 use Mautic\FormBundle\Entity\Form;
@@ -30,14 +22,20 @@ use Mautic\PluginBundle\Event\PluginIntegrationRequestEvent;
 use Mautic\PluginBundle\PluginEvents;
 use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToActionType;
 use MauticPlugin\LeuchtfeuerGoToBundle\Form\Type\GoToListType;
+use MauticPlugin\LeuchtfeuerGoToBundle\Form\Validator\GotoApiBlacklist;
 use MauticPlugin\LeuchtfeuerGoToBundle\GoToEvents;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 /**
  * Class FormSubscriber.
@@ -47,56 +45,22 @@ class FormSubscriber implements EventSubscriberInterface
     use GoToRegistrationTrait;
     use GoToStartTrait;
 
-    /**
-     * @var FormModel
-     */
-    private $formModel;
-
-    /**
-     * @var SubmissionModel
-     */
-    private $submissionModel;
-
-    /**
-     * @var GoToModel
-     */
-    private $goToModel;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
-    /**
-     * @var TemplatingHelper
-     */
-    private $templating;
-
     public function __construct(
-        GoToModel $goToModel,
-        FormModel $formModel,
-        SubmissionModel $submissionModel,
-        TranslatorInterface $translator,
-        EntityManager $entityManager,
-        TemplatingHelper $templating
+        private GoToModel $goToModel,
+        private FormModel $formModel,
+        private SubmissionModel $submissionModel,
+        private TranslatorInterface $translator,
+        private EntityManager $entityManager,
+        private GoToHelper $goToHelper,
+        private Environment $twig,
+        private ValidatorInterface $validator
     ) {
-        $this->goToModel       = $goToModel;
-        $this->formModel       = $formModel;
-        $this->submissionModel = $submissionModel;
-        $this->translator      = $translator;
-        $this->entityManager   = $entityManager;
-        $this->templating      = $templating;
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::FORM_ON_BUILD                    => ['onFormBuilder', 0],
@@ -107,6 +71,7 @@ class FormSubscriber implements EventSubscriberInterface
             GoToEvents::ON_TRAINING_START_ACTION         => ['onTrainingStart', 0],
             GoToEvents::ON_ASSIST_REMOTE_ACTION          => ['onAssistRemote', 0],
             GoToEvents::ON_FORM_VALIDATE_ACTION          => ['onFormValidate', 0],
+            GoToEvents::ON_FORM_VALIDATE                 => ['onFormFieldValidate', 0],
             FormEvents::FORM_PRE_SAVE                    => ['onFormPreSave', 0],
             PluginEvents::PLUGIN_ON_INTEGRATION_REQUEST  => ['onRequest', 0],
             PluginEvents::PLUGIN_ON_INTEGRATION_RESPONSE => ['onResponse', 0],
@@ -114,12 +79,9 @@ class FormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param string $product
-     * @param string $startType indicates that this is a start product, not registration
-     *
      * @throws ValidationException
      */
-    private function _doRegistration(SubmissionEvent $event, $product, $startType = null)
+    private function _doRegistration(SubmissionEvent $event, string $product, string $startType = null): void
     {
         $submission = $event->getSubmission();
         $form       = $submission->getForm();
@@ -133,7 +95,7 @@ class FormSubscriber implements EventSubscriberInterface
                 // check if there are products in the actions
                 /** @var Action $action */
                 foreach ($actions as $action) {
-                    if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
+                    if (str_starts_with($action->getType(), 'plugin.citrix.action')) {
                         $actionAction = preg_filter('/^.+\.([^\.]+\.[^\.]+)$/', '$1', $action->getType());
                         $actionAction = str_replace('.', '_', $actionAction);
 
@@ -186,7 +148,6 @@ class FormSubscriber implements EventSubscriberInterface
                         ];
                 }
 
-                /** @var Lead $currentLead */
                 $currentLead = $event->getLead();
 
                 // execute action
@@ -221,7 +182,7 @@ class FormSubscriber implements EventSubscriberInterface
             }
             // end-block
         } catch (\Exception $exception) {
-            GoToHelper::log('onProductRegistration - '.$product.': '.$exception->getMessage());
+            $this->goToHelper->log('onProductRegistration - '.$product.': '.$exception->getMessage());
             $validationException = new ValidationException($exception->getMessage());
             $validationException->setViolations(
                 [
@@ -232,27 +193,27 @@ class FormSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onWebinarRegister(SubmissionEvent $event)
+    public function onWebinarRegister(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOWEBINAR);
     }
 
-    public function onMeetingStart(SubmissionEvent $event)
+    public function onMeetingStart(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOMEETING, 'start.meeting');
     }
 
-    public function onTrainingRegister(SubmissionEvent $event)
+    public function onTrainingRegister(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOTRAINING);
     }
 
-    public function onTrainingStart(SubmissionEvent $event)
+    public function onTrainingStart(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOTRAINING, 'start.training');
     }
 
-    public function onAssistRemote(SubmissionEvent $event)
+    public function onAssistRemote(SubmissionEvent $event): void
     {
         $this->_doRegistration($event, GoToProductTypes::GOTOASSIST, 'screensharing.assist');
     }
@@ -260,11 +221,11 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * Helper function to debug REST responses.
      */
-    public function onResponse(PluginIntegrationRequestEvent $event)
+    public function onResponse(PluginIntegrationRequestEvent $event): void
     {
         //        /** @var Response $response */
 //        $response = $event->getResponse();
-//        GoToHelper::log(
+//        $this->goToHelper->log(
 //            PHP_EOL. //$response->getStatusCode() . ' ' .
 //            print_r($response, true)
 //        );
@@ -273,14 +234,8 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * Helper function to debug REST requests.
      */
-    public function onRequest(PluginIntegrationRequestEvent $event)
+    public function onRequest(PluginIntegrationRequestEvent $event): void
     {
-        //        GoToHelper::log(
-//            PHP_EOL.$event->getMethod().' '.$event->getUrl().' '.
-//            var_export($event->getHeaders(), true).
-//            var_export($event->getParameters(), true)
-//        );
-
         // clean parameter that was breaking the call
         if (preg_match('#\/G2W\/rest\/#', $event->getUrl())) {
             $params = $event->getParameters();
@@ -290,25 +245,24 @@ class FormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
-    public function onFormValidate(Events\ValidationEvent $event)
+    public function onFormValidate(Events\ValidationEvent $event): void
     {
         $field        = $event->getField();
         $eventType    = preg_filter('/^plugin\.citrix\.select\.(.*)$/', '$1', $field->getType());
-        $doValidation = GoToHelper::isAuthorized('Goto'.$eventType);
+        $doValidation = $this->goToHelper->isAuthorized('Goto'.$eventType);
 
         if ($doValidation) {
-            $list = $this->goToModel->getProducts($eventType, new \DateTime('now'), false, false, false);
-
-            /** @var array $values */
+            $list   = $this->goToModel->getProducts($eventType, new \DateTime('now'), null, false, false);
             $values = $event->getValue();
 
             if (!is_array($values) && !is_object($values)) {
                 $values = [$values];
             }
 
+            /** @phpstan-ignore-next-line */
             if (is_array($values) || is_object($values)) {
                 foreach ($values as $value) {
                     if (!array_key_exists($value, $list) && !empty($value)) {
@@ -322,35 +276,32 @@ class FormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param Collection $actions
-     * @param Collection $fields
-     * @param array      $post
-     * @param string     $product
+     * @param mixed[] $post
      *
-     * @return array
+     * @return mixed[]
      */
-    private function getProductsFromPost($actions, $fields, $post, $product)
+    private function getProductsFromPost(Collection $actions, Collection $fields, array $post, string $product): array
     {
-        /** @var array $productlist */
-        $productlist = [];
+        $productList = [];
 
         $products = [];
 
-        /** @var \Mautic\FormBundle\Entity\Field $field */
+        /** @var Field $field */
         foreach ($fields as $field) {
             if ('plugin.citrix.select.'.$product === $field->getType()) {
-                if (0 === (is_countable($productlist) ? count($productlist) : 0)) {
-                    $productlist = $this->goToModel->getProducts($product);
+                if (0 === (!is_countable($productList) ? 0 : count($productList))) {
+                    $productList = $this->goToModel->getProducts($product);
                 }
 
-                $alias = $field->getAlias();
-                /** @var array $productIds */
+                $alias      = $field->getAlias();
                 $productIds = $post[$alias];
 
+                /** @phpstan-ignore-next-line */
                 if (!is_array($productIds) && !is_object($productIds)) {
                     $productIds = [$productIds];
                 }
 
+                /** @phpstan-ignore-next-line */
                 if (is_array($productIds) || is_object($productIds)) {
                     foreach ($productIds as $productId) {
                         if (null === $productId) { // We do have to ignore optional fields
@@ -361,8 +312,8 @@ class FormSubscriber implements EventSubscriberInterface
                             'productId'    => $productId,
                             'productTitle' => array_key_exists(
                                 $productId,
-                                $productlist
-                            ) ? $productlist[$productId] : 'untitled',
+                                $productList
+                            ) ? $productList[$productId] : 'untitled',
                         ];
                     }
                 }
@@ -374,13 +325,13 @@ class FormSubscriber implements EventSubscriberInterface
             // check if there are products in the actions
             /** @var Action $action */
             foreach ($actions as $action) {
-                if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
-                    if (0 === (is_countable($productlist) ? count($productlist) : 0)) {
-                        $productlist = $this->goToModel->getProducts($product);
+                if (str_starts_with($action->getType(), 'plugin.citrix.action')) {
+                    if (0 === (!is_countable($productList) ? 0 : count($productList))) {
+                        $productList = $this->goToModel->getProducts($product);
                     }
 
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
-                    if (!GoToHelper::isAuthorized('Goto'.$actionProduct)) {
+                    if (!$this->goToHelper->isAuthorized('Goto'.$actionProduct)) {
                         continue;
                     }
 
@@ -388,12 +339,12 @@ class FormSubscriber implements EventSubscriberInterface
                     $productId    = $action->getProperties()['product'];
                     if (array_key_exists(
                         $productId,
-                        $productlist
+                        $productList
                     )) {
                         $products[] = [
                             'fieldName'    => str_replace('.', '_', $actionAction),
                             'productId'    => $productId,
-                            'productTitle' => $productlist[$productId],
+                            'productTitle' => $productList[$productId],
                         ];
                     }
                 }
@@ -406,13 +357,13 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * @throws ValidationException
      */
-    public function onFormPreSave(Events\FormEvent $event)
+    public function onFormPreSave(Events\FormEvent $event): void
     {
         $form   = $event->getForm();
         $fields = $form->getFields()->getValues();
 
         // Verify if the form is well configured
-        if (0 !== (is_countable($fields) ? count($fields) : 0)) {
+        if (0 !== (!is_countable($fields) ? 0 : count($fields))) {
             $violations = $this->_checkFormValidity($form);
             if ([] !== $violations) {
                 $event->stopPropagation();
@@ -422,22 +373,22 @@ class FormSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onFormSubmit(SubmissionEvent $event)
+    public function onFormSubmit(SubmissionEvent $event): void
     {
     }
 
     /**
-     * @return array
+     * @return mixed[]
      *
      * @throws \InvalidArgumentException
      */
-    private function _checkFormValidity(Form $form)
+    private function _checkFormValidity(Form $form): array
     {
         $errors  = [];
         $actions = $form->getActions();
         $fields  = $form->getFields();
 
-        if (null !== $actions && null !== $fields) {
+        if ($actions->count() && $fields->count()) {
             $actionFields = [
                 'register.webinar'     => ['email', 'firstname', 'lastname'],
                 'register.training'    => ['email', 'firstname', 'lastname'],
@@ -458,9 +409,9 @@ class FormSubscriber implements EventSubscriberInterface
 
             /** @var Action $action */
             foreach ($actions as $action) {
-                if (0 === strpos($action->getType(), 'plugin.citrix.action')) {
+                if (str_starts_with($action->getType(), 'plugin.citrix.action')) {
                     $actionProduct = preg_filter('/^.+\.([^\.]+)$/', '$1', $action->getType());
-                    if (!GoToHelper::isAuthorized('Goto'.$actionProduct)) {
+                    if (!$this->goToHelper->isAuthorized('Goto'.$actionProduct)) {
                         continue;
                     }
 
@@ -469,7 +420,7 @@ class FormSubscriber implements EventSubscriberInterface
                     // get lead fields
                     $currentLeadFields = [];
                     foreach ($fields as $field) {
-                        $leadField = $field->getLeadField();
+                        $leadField = $field->getLeadField(); // @phpstan-ignore-line
                         if (null !== $leadField && '' !== $leadField) {
                             $currentLeadFields[$leadField] = $field->getIsRequired();
                         }
@@ -488,10 +439,11 @@ class FormSubscriber implements EventSubscriberInterface
 
                             if ($fieldProduct === $actionProduct) {
                                 $hasCitrixListField = true;
-                            } elseif (in_array($field->getLeadField(), $actionFields[$actionAction]) && !$field->getIsRequired()) { // Mandatory fields
+                            } elseif (in_array($field->getLeadField(), $actionFields[$actionAction]) && !$field->getIsRequired()) { // Mandatory fields @phpstan-ignore-line
+                                /** @phpstan-ignore-next-line */
                                 $errors[$field->getLeadField().'required'] = sprintf(
                                     $errorMessages['field_should_be_required'],
-                                    $this->translator->trans('plugin.citrix.'.$field->getLeadField().'.listfield')
+                                    $this->translator->trans('plugin.citrix.'.$field->getLeadField().'.listfield') // @phpstan-ignore-line
                                 );
                             }
                         }
@@ -505,7 +457,6 @@ class FormSubscriber implements EventSubscriberInterface
                     }
 
                     // check for lead fields
-                    /** @var array $mandatoryFields */
                     $mandatoryFields = $actionFields[$actionAction];
                     foreach ($mandatoryFields as $mandatoryField) {
                         if (!array_key_exists($mandatoryField, $currentLeadFields)) {
@@ -524,11 +475,11 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * @throws InvalidArgumentException|BadConfigurationException
      */
-    public function onFormBuilder(Events\FormBuilderEvent $event)
+    public function onFormBuilder(Events\FormBuilderEvent $event): void
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -542,9 +493,9 @@ class FormSubscriber implements EventSubscriberInterface
             $field = [
                 'label'           => 'plugin.citrix.'.$product.'.listfield',
                 'formType'        => GoToListType::class,
-                'template'        => 'LeuchtfeuerGoToBundle:Field:citrixlist.html.php',
+                'template'        => '@LeuchtfeuerGoTo/Field/citrixlist.html.twig',
                 'listType'        => $product,
-                'product_choices' => $this->goToModel->getProducts($product, null, null, null, true),
+                'product_choices' => $this->goToModel->getProducts($product, null, null, false, true),
             ];
             $event->addFormField('plugin.citrix.select.'.$product, $field);
 
@@ -553,6 +504,11 @@ class FormSubscriber implements EventSubscriberInterface
                 'fieldType' => 'plugin.citrix.select.'.$product,
             ];
             $event->addValidator('plugin.citrix.validate.'.$product, $validator);
+
+            $event->addValidator('plugin.citrix.validate.goto.form', [
+                'eventName' => GoToEvents::ON_FORM_VALIDATE,
+            ]);
+
             // actions
             if (GoToProductTypes::GOTOWEBINAR === $product) {
                 $action = [
@@ -566,7 +522,7 @@ class FormSubscriber implements EventSubscriberInterface
                             'data-product-action' => 'register',
                         ],
                     ],
-                    'template'  => 'MauticFormBundle:Action:generic.html.php',
+                    'template'  => '@MauticForm/Action/_generic.html.twig',
                     'eventName' => GoToEvents::ON_GOTO_REGISTER_ACTION,
                 ];
                 $event->addSubmitAction('plugin.citrix.action.register.webinar', $action);
@@ -576,7 +532,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.meeting',
                     'label'           => 'plugin.citrix.action.start.meeting',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_MEETING_START_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
@@ -592,7 +548,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.training',
                     'label'           => 'plugin.citrix.action.register.training',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_TRAINING_REGISTER_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
@@ -607,7 +563,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.start.training',
                     'label'           => 'plugin.citrix.action.start.training',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_TRAINING_START_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
@@ -623,7 +579,7 @@ class FormSubscriber implements EventSubscriberInterface
                     'description'     => 'plugin.citrix.form.header.assist',
                     'label'           => 'plugin.citrix.action.screensharing.assist',
                     'formType'        => GoToActionType::class,
-                    'template'        => 'MauticFormBundle:Action:generic.html.php',
+                    'template'        => '@MauticForm/Action/_generic.html.twig',
                     'eventName'       => GoToEvents::ON_ASSIST_REMOTE_ACTION,
                     'formTypeOptions' => [
                         'attr' => [
@@ -633,6 +589,41 @@ class FormSubscriber implements EventSubscriberInterface
                     ],
                 ];
                 $event->addSubmitAction('plugin.citrix.action.screensharing.assist', $action);
+            }
+        }
+    }
+
+    public function onFormFieldValidate(Events\ValidationEvent $event): void
+    {
+        $doValidation = $this->goToHelper->isAuthorized('Goto'.GoToProductTypes::GOTOWEBINAR);
+        if (!$doValidation) {
+            return;
+        }
+
+        $value = $event->getValue();
+        if (!empty($value)) {
+            $field  = $event->getField();
+            $fields = [
+                'firstname',
+                'lastname',
+                'first_name',
+                'last_name',
+                'company',
+            ];
+            if (in_array($field->getAlias(), $fields) && 'text' === $field->getType()) {
+                $violations = $this->validator->validate($value, new GotoApiBlacklist());
+                if (count($violations)) {
+                    $errors = '';
+                    /** @var ConstraintViolation $v */
+                    foreach ($violations as $v) {
+                        $transParameters            = $v->getParameters();
+                        $transParameters['%label%'] = '['.$field->getLabel().']  ';
+
+                        $errors .= $this->translator->trans('%label%'.$v->getMessage(), $transParameters, 'validators');
+                    }
+
+                    $event->failedValidation($errors);
+                }
             }
         }
     }

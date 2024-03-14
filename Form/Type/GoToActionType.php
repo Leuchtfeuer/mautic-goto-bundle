@@ -1,13 +1,6 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Form\Type;
 
@@ -15,10 +8,15 @@ use Mautic\FormBundle\Model\FieldModel;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
+use Symfony\Component\Validator\Exception\InvalidOptionsException;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * Class FormFieldSelectType.
@@ -26,38 +24,29 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class GoToActionType extends AbstractType
 {
     /**
-     * @var FieldModel
-     */
-    protected $model;
-
-    /**
-     * @var GoToModel
-     */
-    protected $goToModel;
-
-    /**
      * GoToActionType constructor.
      */
-    public function __construct(FieldModel $fieldModel, GoToModel $goToModel)
-    {
-        $this->model     = $fieldModel;
-        $this->goToModel = $goToModel;
+    public function __construct(
+        private FieldModel $model,
+        private GoToModel $goToModel,
+        private GoToHelper $goToHelper
+    ) {
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @throws \Symfony\Component\Validator\Exception\ConstraintDefinitionException
-     * @throws \Symfony\Component\Validator\Exception\InvalidOptionsException
-     * @throws \Symfony\Component\Validator\Exception\MissingOptionsException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @throws ConstraintDefinitionException
+     * @throws InvalidOptionsException
+     * @throws MissingOptionsException
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr'])) ||
             !GoToProductTypes::isValidValue($options['attr']['data-product']) ||
-            !GoToHelper::isAuthorized('Goto'.$options['attr']['data-product'])
+            !$this->goToHelper->isAuthorized('Goto'.$options['attr']['data-product'])
         ) {
             return;
         }
@@ -94,7 +83,7 @@ class GoToActionType extends AbstractType
             $products = [
                 'form' => 'User selection from form',
             ];
-            $products = array_replace($products, $this->goToModel->getProducts($product, new \DateTime('now'), false, false, false));
+            $products = array_replace($products, $this->goToModel->getProducts($product, new \DateTime('now'), null, false, false));
 
             $builder->add(
                 'product',
@@ -235,10 +224,7 @@ class GoToActionType extends AbstractType
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'citrix_submit_action';
     }

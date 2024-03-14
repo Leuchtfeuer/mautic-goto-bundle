@@ -1,13 +1,6 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Integration;
 
@@ -17,34 +10,37 @@ use Mautic\PluginBundle\Integration\AbstractIntegration;
 /**
  * Class GoToAbstractIntegration.
  */
+/** @phpstan-ignore-next-line */
 abstract class GoToAbstractIntegration extends AbstractIntegration
 {
-    protected $auth;
-
     /**
-     * @return array
+     * @return mixed[]
      */
-    public function getSupportedFeatures()
+    public function getSupportedFeatures(): array
     {
         return [];
     }
 
-    public function setIntegrationSettings(Integration $settings)
+    public function setIntegrationSettings(Integration $settings): void
     {
         // make sure URL does not have ending /
+        /** @phpstan-ignore-next-line */
         $keys = $this->getDecryptedApiKeys($settings);
-        if (array_key_exists('url', $keys) && '/' === substr($keys['url'], -1)) {
+        if (array_key_exists('url', $keys) && str_ends_with($keys['url'], '/')) {
             $keys['url'] = substr($keys['url'], 0, -1);
             $this->encryptAndSetApiKeys($keys, $settings);
         }
 
+        /** @phpstan-ignore-next-line  */
         parent::setIntegrationSettings($settings);
     }
 
     /**
      * Refresh tokens.
+     *
+     * @return string[]
      */
-    public function getRefreshTokenKeys()
+    public function getRefreshTokenKeys(): array
     {
         return [
             'refresh_token',
@@ -54,20 +50,16 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
-    public function getAuthenticationType()
+    public function getAuthenticationType(): string
     {
         return 'oauth2';
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return array
+     * @return array|string[]
      */
-    public function getRequiredKeyFields()
+    public function getRequiredKeyFields(): array
     {
         return [
             'app_name'      => 'mautic.citrix.form.appname',
@@ -79,7 +71,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
     /**
      * {@inheritdoc}
      */
-    public function sortFieldsAlphabetically()
+    public function sortFieldsAlphabetically(): bool
     {
         return false;
     }
@@ -100,10 +92,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $helper;
     }
 
-    /**
-     * @return array
-     */
-    public function getFormSettings()
+    public function getFormSettings(): array
     {
         return [
             'requires_callback'      => true,
@@ -111,67 +100,52 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         ];
     }
 
-    /**
-     * @return string
-     */
-    public function getApiUrl()
+    public function getApiUrl(): string
     {
         return 'https://api.getgo.com';
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
-    public function getAccessTokenUrl()
+    public function getAccessTokenUrl(): string
     {
         return $this->getApiUrl().'/oauth/v2/token';
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
-    public function getAuthenticationUrl()
+    public function getAuthenticationUrl(): string
     {
         return $this->getApiUrl().'/oauth/v2/authorize';
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return bool
      */
-    public function isAuthorized()
+    public function isAuthorized(): bool
     {
         $keys = $this->getKeys();
 
         return isset($keys[$this->getAuthTokenKey()]);
     }
 
-    /**
-     * @return string
-     */
-    public function getApiKey()
+    public function getApiKey(): string
     {
         $keys = $this->getKeys();
 
         return $keys[$this->getAuthTokenKey()];
     }
 
-    /**
-     * @return string
-     */
-    public function getOrganizerKey()
+    public function getOrganizerKey(): string
     {
         $keys = $this->getKeys();
 
         return $keys['organizer_key'];
     }
 
-    public function getAccountKey()
+    public function getAccountKey(): string
     {
         $keys = $this->getKeys();
 

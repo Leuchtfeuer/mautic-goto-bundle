@@ -3,19 +3,23 @@
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Api;
 
 use Mautic\PluginBundle\Exception\ApiErrorException;
+use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GototrainingIntegration;
 
-class GototrainingApi extends GoToApi
+class GototrainingApi
 {
+    use GoToApi;
+
+    public function __construct(
+      private GototrainingIntegration $integration
+    ) {
+    }
+
     /**
-     * @param string $operation
-     * @param string $method
-     * @param string $route
-     *
-     * @return mixed|string
+     * @param mixed[] $parameters
      *
      * @throws ApiErrorException
      */
-    public function request($operation, array $parameters = [], $method = 'GET', $route = 'rest')
+    public function request(string $operation, array $parameters = [], string $method = 'GET', string $route = 'rest'): mixed
     {
         $settings = [
             'module'     => 'G2T',
@@ -31,10 +35,10 @@ class GototrainingApi extends GoToApi
                 ],
             ];
 
-            return parent::_request($operation, $settings, $route);
+            return $this->_request($operation, $settings, $route);
         }
 
-        return parent::_request($operation, $settings,
+        return $this->_request($operation, $settings,
             sprintf('%s/organizers/%s', $route, $this->integration->getOrganizerKey()));
     }
 }

@@ -1,13 +1,6 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Event;
 
@@ -20,97 +13,43 @@ use Mautic\LeadBundle\Entity\Lead;
 class GoToEventUpdateEvent extends CommonEvent
 {
     /**
-     * @var
-     */
-    private $product;
-
-    /**
-     * @var
-     */
-    private $eventName;
-
-    /**
-     * @var
-     */
-    private $eventType;
-
-    /**
-     * @var
-     */
-    private $email;
-
-    /**
-     * @var
-     */
-    private $eventDesc;
-
-    /**
-     * @var Lead
-     */
-    private $lead;
-
-    /**
      * GoToEventUpdateEvent constructor.
-     *
-     * @param $product
-     * @param $eventName
-     * @param $eventDesc
-     * @param $eventType
      */
-    public function __construct($product, $eventName, $eventDesc, $eventType, Lead $lead)
-    {
-        $this->product   = $product;
-        $this->eventName = $eventName;
-        $this->eventType = $eventType;
-        $this->lead      = $lead;
-        $this->email     = $lead->getEmail();
-        $this->eventDesc = $eventDesc;
+    public function __construct(
+        private string $product,
+        private string $eventName,
+        private string $eventDesc,
+        private string $eventType,
+        private Lead $lead
+    ) {
     }
 
-    /**
-     * @return mixed
-     */
-    public function getProduct()
+    public function getProduct(): string
     {
         return $this->product;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getEventName()
+    public function getEventName(): string
     {
         return $this->eventName;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getEmail()
+    public function getEmail(): string
     {
-        return $this->email;
+        return $this->lead->getEmail();
     }
 
-    /**
-     * @return mixed
-     */
-    public function getEventType()
+    public function getEventType(): string
     {
         return $this->eventType;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getEventDesc()
+    public function getEventDesc(): string
     {
         return $this->eventDesc;
     }
 
-    /**
-     * @return Lead
-     */
-    public function getLead()
+    public function getLead(): Lead
     {
         return $this->lead;
     }

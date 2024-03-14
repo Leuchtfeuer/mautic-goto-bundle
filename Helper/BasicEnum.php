@@ -1,23 +1,22 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Helper;
 
-use ReflectionClass;
-
 abstract class BasicEnum
 {
-    private static $constCacheArray;
+    /**
+     * @var mixed[]|null
+     */
+    private static ?array $constCacheArray = null;
 
-    private static function getConstants()
+    /**
+     * @return mixed[]
+     *
+     * @throws \ReflectionException
+     */
+    private static function getConstants(): array
     {
         if (null === self::$constCacheArray) {
             self::$constCacheArray = [];
@@ -25,20 +24,14 @@ abstract class BasicEnum
 
         $calledClass = static::class;
         if (!array_key_exists($calledClass, self::$constCacheArray)) {
-            $reflect                             = new ReflectionClass($calledClass);
+            $reflect                             = new \ReflectionClass($calledClass);
             self::$constCacheArray[$calledClass] = $reflect->getConstants();
         }
 
         return self::$constCacheArray[$calledClass];
     }
 
-    /**
-     * @param $name
-     * @param bool $strict
-     *
-     * @return bool
-     */
-    public static function isValidName($name, $strict = false)
+    public static function isValidName(string $name, bool $strict = false): bool
     {
         $constants = self::getConstants();
 
@@ -52,12 +45,9 @@ abstract class BasicEnum
     }
 
     /**
-     * @param $value
-     * @param bool $strict
-     *
-     * @return bool
+     * @param mixed $value
      */
-    public static function isValidValue($value, $strict = true)
+    public static function isValidValue($value, bool $strict = true): bool
     {
         $values = array_values(self::getConstants());
 
@@ -65,25 +55,25 @@ abstract class BasicEnum
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
-    public static function toArray()
+    public static function toArray(): array
     {
         return array_values(self::getConstants());
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
-    public static function toArrayOfNames()
+    public static function toArrayOfNames(): array
     {
         return array_keys(self::getConstants());
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
-    public static function getKeyPairs()
+    public static function getKeyPairs(): array
     {
         $a = self::getConstants();
 

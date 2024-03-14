@@ -1,17 +1,11 @@
 <?php
 
-/*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
- *
- * @link        http://mautic.org
- *
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\NotSupported;
 use Mautic\LeadBundle\Event\LeadListFilteringEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\Event\LeadListFiltersOperatorsEvent;
@@ -24,8 +18,11 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToProductRepository;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToHelper;
 use MauticPlugin\LeuchtfeuerGoToBundle\Helper\GoToProductTypes;
 use MauticPlugin\LeuchtfeuerGoToBundle\Model\GoToModel;
+use MauticPlugin\MauticSocialBundle\Entity\Lead;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class LeadSubscriber.
@@ -33,37 +30,17 @@ use Symfony\Component\Translation\TranslatorInterface;
 class LeadSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var GoToModel
-     */
-    protected $model;
-
-    /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
      * LeadSubscriber constructor.
      */
     public function __construct(
-        GoToModel $model,
-        EntityManager $entityManager,
-        TranslatorInterface $translator
+        private GoToModel $model,
+        private EntityManager $entityManager,
+        private TranslatorInterface $translator,
+        private GoToHelper $goToHelper
     ) {
-        $this->model         = $model;
-        $this->entityManager = $entityManager;
-        $this->translator    = $translator;
     }
 
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             LeadEvents::TIMELINE_ON_GENERATE               => ['onTimelineGenerate', 0],
@@ -73,23 +50,23 @@ class LeadSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onListOperatorsGenerate(LeadListFiltersOperatorsEvent $event)
+    public function onListOperatorsGenerate(LeadListFiltersOperatorsEvent $event): void
     {
         // TODO: add custom operators
     }
 
     /**
      * @throws \InvalidArgumentException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException|NotSupported
      */
-    public function onTimelineGenerate(LeadTimelineEvent $event)
+    public function onTimelineGenerate(LeadTimelineEvent $event): void
     {
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->entityManager->getRepository(GoToProduct::class);
         $activeProducts    = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -135,11 +112,11 @@ class LeadSubscriber implements EventSubscriberInterface
                                 'timestamp'  => $entity->getEventDate(),
                                 'extra'      => [
                                     'eventName' => $entity->getGoToProduct()->getName(),
-                                    'eventId'   => $entity->getId(),
+                                    'eventId'   => $citrixEvent['citrix_product_id'],
                                     'eventDesc' => $entity->getGoToProduct()->getDescription(),
-                                    'joinUrl'   => $entity->getJoinUrl(),
+                                    'joinUrl'   => $citrixEvent['join_url'],
                                 ],
-                                'contentTemplate' => 'LeuchtfeuerGoToBundle:SubscribedEvents\Timeline:citrix_event.html.php',
+                                'contentTemplate' => '@LeuchtfeuerGoTo\SubscribedEvents\Timeline\citrix_event.html.twig',
                                 'contactId'       => $event->getLeadId(),
                             ]
                         );
@@ -151,15 +128,15 @@ class LeadSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      * @throws \InvalidArgumentException
      */
-    public function onListChoicesGenerate(LeadListFiltersChoicesEvent $event)
+    public function onListChoicesGenerate(LeadListFiltersChoicesEvent $event): void
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -238,11 +215,11 @@ class LeadSubscriber implements EventSubscriberInterface
         // foreach $product
     }
 
-    public function onListFiltering(LeadListFilteringEvent $event)
+    public function onListFiltering(LeadListFilteringEvent $event): void
     {
         $activeProducts = [];
         foreach (GoToProductTypes::toArray() as $p) {
-            if (GoToHelper::isAuthorized('Goto'.$p)) {
+            if ($this->goToHelper->isAuthorized('Goto'.$p)) {
                 $activeProducts[] = $p;
             }
         }
@@ -258,9 +235,8 @@ class LeadSubscriber implements EventSubscriberInterface
         $alias               = $event->getAlias();
         $func                = $event->getFunc();
         $currentFilter       = $details['field'];
-
-        $citrixEventsTable   = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToEvent')->getTableName();
-        $citrixProductsTable = $em->getClassMetadata('LeuchtfeuerGoToBundle:GoToProduct')->getTableName();
+        $citrixEventsTable   = $em->getClassMetadata(GoToEvent::class)->getTableName();
+        $citrixProductsTable = $em->getClassMetadata(GoToProduct::class)->getTableName();
 
         foreach ($activeProducts as $product) {
             $eventFilters = [$product.'-registration', $product.'-attendance', $product.'-no-attendance'];
@@ -272,7 +248,7 @@ class LeadSubscriber implements EventSubscriberInterface
                 if (!$isAnyEvent) {
                     $eventIds = [];
                     foreach ($eventNameFilter as $filter) {
-                        $id = $this->model->getProductRepository()->findOneByProductKey($filter)->getId();
+                        $id = $this->model->getProductRepository()->findOneByProductKey((string) $filter)->getId();
                         if ($id) {
                             $eventIds[] = $id;
                         }
@@ -294,7 +270,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
                     if (!$isAnyEvent) {
                         $query->where(
-                            $q->expr()->andX(
+                            $q->expr()->and(
                                 $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
                                 $q->expr()->in($alias.$k.'.citrix_product_id', $eventIds),
                                 $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
@@ -302,7 +278,7 @@ class LeadSubscriber implements EventSubscriberInterface
                         );
                     } else {
                         $query->where(
-                            $q->expr()->andX(
+                            $q->expr()->and(
                                 $q->expr()->eq($alias.$k.'.event_type', $q->expr()->literal($eventType)),
                                 $q->expr()->eq($alias.$k.'.contact_id', 'l.id')
                             )
