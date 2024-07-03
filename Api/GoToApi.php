@@ -21,6 +21,16 @@ class GoToApi
         $this->integration = $integration;
     }
 
+    protected function cleanupValues($array) {
+         
+        foreach ($array as $key => $value) {
+                if (strpos($value, '|') !== false) {
+                        $array[$key] = str_replace('|', '', $value);
+                }
+        }
+        return $array;
+    }    
+
     /**
      * @return mixed|string
      *
@@ -46,6 +56,8 @@ class GoToApi
             $operation
         );
 
+        $settings['parameters'] =  $this->cleanupValues($settings['parameters']);
+        
         /** @var Response|array $request */
         $request = $this->integration->makeRequest(
             $url,
