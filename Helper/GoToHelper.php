@@ -30,7 +30,6 @@ class GoToHelper
         private RouterInterface $router
     ) {
     }
-
     public function log(string $msg, string $level = 'error'): void
     {
         //  Make sure the logs are in the same timezone

@@ -105,12 +105,17 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return 'https://api.getgo.com';
     }
 
+    public function getAuthBaseUrl(): string
+    {
+        return 'https://authentication.logmeininc.com';
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getAccessTokenUrl(): string
     {
-        return $this->getApiUrl().'/oauth/v2/token';
+        return $this->getAuthBaseUrl().'/oauth/token';
     }
 
     /**
@@ -118,7 +123,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
      */
     public function getAuthenticationUrl(): string
     {
-        return $this->getApiUrl().'/oauth/v2/authorize';
+        return $this->getAuthBaseUrl().'/oauth/authorize';
     }
 
     /**

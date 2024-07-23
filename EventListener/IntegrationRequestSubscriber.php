@@ -28,7 +28,7 @@ class IntegrationRequestSubscriber implements EventSubscriberInterface
      */
     public function getParameters(PluginIntegrationRequestEvent $requestEvent): void
     {
-        if (str_contains($requestEvent->getUrl(), 'oauth/v2/token')) {
+        if (str_contains($requestEvent->getUrl(), 'oauth/token')) {
             $authorization = $this->getAuthorization($requestEvent->getParameters());
             $requestEvent->setHeaders([
                 'Authorization' => sprintf('Basic %s', base64_encode($authorization)),
