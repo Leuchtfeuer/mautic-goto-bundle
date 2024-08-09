@@ -81,7 +81,7 @@ Just like with the old plugin, you can create a form with field type "Upcoming W
 * You will find all the options in the "properties" tab of the form field.
 * If you choose to display selected metadata of webinar(s) above form, you can also control the styling here.
 
-All the other options are unchanged, thus see existing docs such as https://docs.mautic.org/en/plugins/citrix:
+Other features that come with the plugin are the following:
 * Segment filters
 * Form actions
 * Campaign conditions and actions
