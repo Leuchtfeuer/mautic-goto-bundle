@@ -29,9 +29,9 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 * Download the plugin, say to you home directory, e.g. using wget, and prepare it
 
       cd ~
-      wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/master.zip
-      unzip master.zip
-      mv mautic-goto-bundle-master LeuchtfeuerGoToBundle
+      wget https://github.com/Leuchtfeuer/mautic-goto-bundle/archive/[required-branch].zip
+      unzip [zip-filename].zip
+      mv [filename] LeuchtfeuerGoToBundle
 
 * copy plugin to the Mautic installation
 
@@ -60,7 +60,7 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 
 ## Apply Authorization
 * Paste Client ID and Client Secret into the plugin settings in Mautic
-* Now click "Authorize App", log in to GoToWebinar (if requested), and confirm
+* Now click "Authorize App", log in to GoToWebinar (if requested), and confirm (it might be necessary to enable pop-ups and redirects in your browser for this step to work)
 
 ## Set up Syncing
 * Try a first manual Sync:
