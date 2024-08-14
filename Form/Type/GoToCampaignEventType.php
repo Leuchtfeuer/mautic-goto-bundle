@@ -30,8 +30,6 @@ class GoToCampaignEventType extends AbstractType
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      * @throws \InvalidArgumentException

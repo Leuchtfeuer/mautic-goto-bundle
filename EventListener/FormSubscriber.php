@@ -81,7 +81,7 @@ class FormSubscriber implements EventSubscriberInterface
     /**
      * @throws ValidationException
      */
-    private function _doRegistration(SubmissionEvent $event, string $product, string $startType = null): void
+    private function _doRegistration(SubmissionEvent $event, string $product, ?string $startType = null): void
     {
         $submission = $event->getSubmission();
         $form       = $submission->getForm();
@@ -224,11 +224,11 @@ class FormSubscriber implements EventSubscriberInterface
     public function onResponse(PluginIntegrationRequestEvent $event): void
     {
         //        /** @var Response $response */
-//        $response = $event->getResponse();
-//        $this->goToHelper->log(
-//            PHP_EOL. //$response->getStatusCode() . ' ' .
-//            print_r($response, true)
-//        );
+        //        $response = $event->getResponse();
+        //        $this->goToHelper->log(
+        //            PHP_EOL. //$response->getStatusCode() . ' ' .
+        //            print_r($response, true)
+        //        );
     }
 
     /**

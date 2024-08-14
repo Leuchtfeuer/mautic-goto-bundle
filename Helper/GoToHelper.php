@@ -242,12 +242,6 @@ class GoToHelper
     }
 
     /**
-     * @param mixed $productId
-     * @param mixed $email
-     * @param mixed $firstname
-     * @param mixed $lastname
-     * @param mixed $company
-     *
      * @throws BadRequestHttpException
      */
     public function registerToProduct(string $product, $productId, $email, $firstname, $lastname, $company): bool
@@ -287,11 +281,6 @@ class GoToHelper
     }
 
     /**
-     * @param mixed $productId
-     * @param mixed $email
-     * @param mixed $firstname
-     * @param mixed $lastname
-     *
      * @throws BadRequestHttpException
      */
     public function startToProduct(string $product, $productId, $email, $firstname, $lastname): bool|string

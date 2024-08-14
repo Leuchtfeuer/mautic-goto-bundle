@@ -44,9 +44,6 @@ abstract class BasicEnum
         return in_array(strtolower($name), $keys, true);
     }
 
-    /**
-     * @param mixed $value
-     */
     public static function isValidValue($value, bool $strict = true): bool
     {
         $values = array_values(self::getConstants());
