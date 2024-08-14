@@ -97,15 +97,10 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return 'https://api.getgo.com';
     }
 
-
     public function getAuthBaseUrl(): string
     {
         return 'https://authentication.logmeininc.com';
     }
-
-    /**
-     * {@inheritdoc}
-     */
 
     public function getAccessTokenUrl(): string
     {
