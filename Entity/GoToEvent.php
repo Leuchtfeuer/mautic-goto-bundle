@@ -102,9 +102,6 @@ class GoToEvent
         return $this;
     }
 
-    /**
-     * @param mixed $joinUrl
-     */
     public function setJoinUrl($joinUrl): void
     {
         $this->joinUrl = $joinUrl;

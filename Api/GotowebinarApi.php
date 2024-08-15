@@ -19,7 +19,7 @@ class GotowebinarApi
      *
      * @throws ApiErrorException
      */
-    public function request(string $operation, array $parameters = [], string $method = 'GET', string $organizerKey = null): mixed
+    public function request(string $operation, array $parameters = [], string $method = 'GET', ?string $organizerKey = null): mixed
     {
         $settings = [
             'module'          => 'G2W',

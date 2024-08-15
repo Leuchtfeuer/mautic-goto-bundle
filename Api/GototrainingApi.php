@@ -10,7 +10,7 @@ class GototrainingApi
     use GoToApi;
 
     public function __construct(
-      private GototrainingIntegration $integration
+        private GototrainingIntegration $integration
     ) {
     }
 

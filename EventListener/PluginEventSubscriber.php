@@ -22,9 +22,6 @@ class PluginEventSubscriber implements EventSubscriberInterface
         $this->logger     = $logger;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [

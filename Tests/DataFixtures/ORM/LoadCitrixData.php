@@ -20,7 +20,7 @@ class LoadCitrixData extends AbstractFixture implements OrderedFixtureInterface,
 {
     private ContainerInterface $container;
 
-    public function setContainer(ContainerInterface $container = null): void
+    public function setContainer(?ContainerInterface $container = null): void
     {
         $this->container = $container;
     }

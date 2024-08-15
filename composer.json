@@ -16,6 +16,10 @@
     "php": ">=8.0.0",
     "mautic/core-lib": "^5.0"
   },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.4",
+    "phpunit/phpunit": ">=9.5"
+  },
   "scripts": {
     "test": [
       "@phpunit",
@@ -41,6 +45,25 @@
     {
       "name": "Rahul Shinde",
       "email": "shinde.r.a@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MauticPlugin\\LeuchtfeuerGoToBundle\\": ""
+    }
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/mautic/FOSOAuthServerBundle.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/mautic/SpBundle.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/mautic/SymfonyBridgeBundle.git"
     }
   ]
 }

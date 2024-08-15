@@ -34,8 +34,6 @@ class GoToActionType extends AbstractType
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      * @throws ConstraintDefinitionException
@@ -44,9 +42,9 @@ class GoToActionType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr'])) ||
-            !GoToProductTypes::isValidValue($options['attr']['data-product']) ||
-            !$this->goToHelper->isAuthorized('Goto'.$options['attr']['data-product'])
+        if (!(array_key_exists('attr', $options) && array_key_exists('data-product', $options['attr']))
+            || !GoToProductTypes::isValidValue($options['attr']['data-product'])
+            || !$this->goToHelper->isAuthorized('Goto'.$options['attr']['data-product'])
         ) {
             return;
         }
@@ -76,9 +74,9 @@ class GoToActionType extends AbstractType
             $choices[$f['id']] = $f['label'];
         }
 
-        if (array_key_exists('data-product-action', $options['attr']) &&
-            ('register' === $options['attr']['data-product-action'] ||
-                'start' === $options['attr']['data-product-action'])
+        if (array_key_exists('data-product-action', $options['attr'])
+            && ('register' === $options['attr']['data-product-action']
+                || 'start' === $options['attr']['data-product-action'])
         ) {
             $products = [
                 'form' => 'User selection from form',
@@ -108,9 +106,9 @@ class GoToActionType extends AbstractType
             );
         }
 
-        if (array_key_exists('data-product-action', $options['attr']) &&
-            ('register' === $options['attr']['data-product-action'] ||
-                'screensharing' === $options['attr']['data-product-action'])
+        if (array_key_exists('data-product-action', $options['attr'])
+            && ('register' === $options['attr']['data-product-action']
+                || 'screensharing' === $options['attr']['data-product-action'])
         ) {
             $builder->add(
                 'firstname',
@@ -196,9 +194,9 @@ class GoToActionType extends AbstractType
             ]
         );
 
-        if (array_key_exists('data-product-action', $options['attr']) &&
-            ('start' === $options['attr']['data-product-action'] ||
-             'screensharing' === $options['attr']['data-product-action'])
+        if (array_key_exists('data-product-action', $options['attr'])
+            && ('start' === $options['attr']['data-product-action']
+             || 'screensharing' === $options['attr']['data-product-action'])
         ) {
             $defaultOptions = [
                 'label'      => 'plugin.citrix.emailtemplate',
