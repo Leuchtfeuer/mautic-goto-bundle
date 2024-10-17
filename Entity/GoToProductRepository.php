@@ -71,7 +71,7 @@ class GoToProductRepository extends CommonRepository
     /**
      * @throws \Exception
      */
-    public function getProductsBetweenSpecificDates(\DateTime $from = null, \DateTime $to = null): mixed
+    public function getProductsBetweenSpecificDates(?\DateTime $from = null, ?\DateTime $to = null): mixed
     {
         if (null === $to) {
             $to = new \DateTime('now + 50 years');
@@ -81,7 +81,7 @@ class GoToProductRepository extends CommonRepository
             $from = new \DateTime('now - 10 years');
         }
 
-        $qb = $this->createQueryBuilder('e');
+        $qb   = $this->createQueryBuilder('e');
         $expr = $qb->expr();
         $qb
             ->andWhere('e.date BETWEEN :from AND :to')

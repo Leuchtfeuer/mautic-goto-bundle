@@ -26,9 +26,6 @@ class GoToListType extends AbstractType
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $selectMessage = 'Please Select...';
@@ -222,8 +219,6 @@ class GoToListType extends AbstractType
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws AccessException
      */
     public function configureOptions(OptionsResolver $resolver): void

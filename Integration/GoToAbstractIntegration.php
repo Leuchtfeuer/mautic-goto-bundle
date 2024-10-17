@@ -48,9 +48,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAuthenticationType(): string
     {
         return 'oauth2';
@@ -68,9 +65,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function sortFieldsAlphabetically(): bool
     {
         return false;
@@ -78,8 +72,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * Get the API helper.
-     *
-     * @return mixed
      */
     public function getApiHelper()
     {
@@ -110,25 +102,16 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return 'https://authentication.logmeininc.com';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAccessTokenUrl(): string
     {
         return $this->getAuthBaseUrl().'/oauth/token';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAuthenticationUrl(): string
     {
         return $this->getAuthBaseUrl().'/oauth/authorize';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isAuthorized(): bool
     {
         $keys = $this->getKeys();

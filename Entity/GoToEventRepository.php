@@ -18,11 +18,9 @@ class GoToEventRepository extends CommonRepository
     /**
      * Fetch the base event data from the database.
      *
-     * @return mixed
-     *
      * @throws \InvalidArgumentException
      */
-    public function getEvents(string $product, string $eventType, \DateTime $fromDate = null)
+    public function getEvents(string $product, string $eventType, ?\DateTime $fromDate = null)
     {
         $q = $this->createQueryBuilder('c');
 
@@ -50,7 +48,7 @@ class GoToEventRepository extends CommonRepository
      *
      * @return mixed[]
      */
-    public function getEventsForTimeline(mixed $product, int $leadId = null, array $options = []): array
+    public function getEventsForTimeline(mixed $product, ?int $leadId = null, array $options = []): array
     {
         $eventType = null;
         if (is_array($product)) {
@@ -160,7 +158,6 @@ class GoToEventRepository extends CommonRepository
 
     /**
      * @param QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $qb
-     * @param mixed                                          $filter
      *
      * @return mixed[]
      */
@@ -172,7 +169,6 @@ class GoToEventRepository extends CommonRepository
 
     /**
      * @param QueryBuilder|\Doctrine\DBAL\Query\QueryBuilder $q
-     * @param mixed                                          $filter
      *
      * @return mixed[]
      */

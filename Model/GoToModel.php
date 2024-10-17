@@ -58,8 +58,6 @@ class GoToModel extends FormModel
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return \MauticPlugin\LeuchtfeuerGoToBundle\Entity\GoToEventRepository
      */
     public function getRepository()
@@ -74,7 +72,7 @@ class GoToModel extends FormModel
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    public function addEvent(string $product, string $email, string $eventName, string $eventDesc, string $eventType, Lead $lead, \DateTime $eventDate = null): void
+    public function addEvent(string $product, string $email, string $eventName, string $eventDesc, string $eventType, Lead $lead, ?\DateTime $eventDate = null): void
     {
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             $this->goToHelper->log('addEvent: incorrect data');
@@ -239,7 +237,7 @@ class GoToModel extends FormModel
         return (int) $query->getResult()[0]['cant'];
     }
 
-    public function syncEvent(string $product, string $productId, string $eventName, string $eventDesc, int &$count = 0, OutputInterface $output = null): void
+    public function syncEvent(string $product, string $productId, string $eventName, string $eventDesc, int &$count = 0, ?OutputInterface $output = null): void
     {
         $cpr = $this->getProductRepository();
         /** @var GoToProduct $product_result */
@@ -301,7 +299,7 @@ class GoToModel extends FormModel
         string $eventType,
         array $contactsToAdd = [],
         array $emailsToRemove = [],
-        OutputInterface $output = null
+        ?OutputInterface $output = null
     ): int {
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return 0;
@@ -415,7 +413,7 @@ class GoToModel extends FormModel
     /**
      * @param mixed[] $product
      */
-    public function syncProduct(string $productType, array $product, OutputInterface $output = null): void
+    public function syncProduct(string $productType, array $product, ?OutputInterface $output = null): void
     {
         /** @var GoToProductRepository $productRepository */
         $productRepository = $this->getProductRepository();
@@ -472,7 +470,7 @@ class GoToModel extends FormModel
     /**
      * @return mixed[]
      */
-    public function getProducts(string $product_name, \DateTime $from = null, \DateTime $to = null, bool $reduceSessions = false, bool $withDetails = null): array
+    public function getProducts(string $product_name, ?\DateTime $from = null, ?\DateTime $to = null, bool $reduceSessions = false, ?bool $withDetails = null): array
     {
         $cpr      = $this->getProductRepository();
         $products = $cpr->getCitrixChoices(true, $reduceSessions);
@@ -491,7 +489,7 @@ class GoToModel extends FormModel
         return $products;
     }
 
-    public function getIdByNameAndDate(string $name, string $date): int|null
+    public function getIdByNameAndDate(string $name, string $date): ?int
     {
         $productRepository = $this->getProductRepository();
         $result            = $productRepository->findOneBy(['name' => $name, 'date' => $date]);

@@ -44,49 +44,31 @@ class GoToProduct implements \JsonSerializable
         $builder->addNamedField('status', 'text', 'status', true);
     }
 
-    /**
-     * @return mixed
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $id
-     */
     public function setId($id): void
     {
         $this->id = $id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getProductKey()
     {
         return $this->product_key;
     }
 
-    /**
-     * @param mixed $product_key
-     */
     public function setProductKey($product_key): void
     {
         $this->product_key = $product_key;
     }
 
-    /**
-     * @return mixed
-     */
     public function getOrganizerKey()
     {
         return $this->organizer_key;
     }
 
-    /**
-     * @param mixed $organizer_key
-     */
     public function setOrganizerKey($organizer_key): void
     {
         $this->organizer_key = $organizer_key;

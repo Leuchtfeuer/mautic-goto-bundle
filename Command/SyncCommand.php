@@ -57,9 +57,6 @@ class SyncCommand extends ModeratedCommand
         parent::configure();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $options = $input->getOptions();
