@@ -34,7 +34,7 @@ class GoToHelper
     public function log(string $msg, string $level = 'error'): void
     {
         //  Make sure the logs are in the same timezone
-        Logger::setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        //Logger::setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
         try {
             $this->logger->log($level, $msg);

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerGoToBundle\Integration;
 
+use GuzzleHttp\RequestOptions;
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
+use PHPUnit\Framework\InvalidArgumentException;
 
 /**
  * Class GoToAbstractIntegration.
@@ -29,13 +31,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         if (array_key_exists('url', $keys) && str_ends_with($keys['url'], '/')) {
             $keys['url'] = substr($keys['url'], 0, -1);
         }
-        /*
-                // Fetch and set the account key
-                $accountKey = $this->fetchAccountKey();
-                if ($accountKey) {
-                    $keys['account_key'] = $accountKey;
-                }
-        */
 
         $this->encryptAndSetApiKeys($keys, $settings);
 
@@ -141,8 +136,9 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     public function getOrganizerUrl(): string
     {
-        return $this->getAuthBaseUrl().'/organizers';
+        return 'https://api.getgo.com/G2M/rest/organizers';
     }
+
 
     /**
      * {@inheritdoc}
@@ -175,14 +171,10 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $keys['account_key'] ?? null;
     }
 
-    public function fetchAccountKey(): ?string
+    public function fetchAccountData($accessToken): array
     {
         $options = [
             CURLOPT_HEADER         => 1,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_FOLLOWLOCATION => 0,
-            CURLOPT_REFERER        => $this->getRefererUrl(),
-            CURLOPT_USERAGENT      => $this->getUserAgent(),
         ];
         if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
             $options = $settings['curl_options'] + $options;
@@ -194,39 +186,80 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         $client = $this->makeHttpClient($options);
 
         $url = $this->getAccountUrl();
-        $headers = '';
-        $timeout = '';
-
-        //$apiKey = $_GET['code'] ?? null; //lieber error werfen?
-
+        $headers = [
+            'Authorization' => 'Bearer '. $accessToken,
+            'Accept' => 'application/json',
+            ];
+        $timeout = (isset($settings['request_timeout'])) ? (int) $settings['request_timeout'] : 10;
 
         $response = $client->get($url, [
             RequestOptions::HEADERS => $headers,
             RequestOptions::TIMEOUT => $timeout,
         ]);
 
-        if (isset($response['accounts']) && !empty($response['accounts'])) {
-            return $response['accounts'][0]['key'] ?? null;
+        $body = $response->getBody();
+        $result = $body->getContents();
+        $accountData =  json_decode($result, true);
+        if (!isset($accountData['accountKey']) || !isset($accountData['email'])) {
+            throw new \Exception('Missing data in $accountData');
         }
-
-        return null; //Lieber error?
+        return $accountData;
     }
 
-    public function fetchOrganizerKey(): ?string
+    public function fetchOrganizerKey($accessToken, $email): string
     {
-        return null;
+        $options = [
+            CURLOPT_HEADER         => 1,
+        ];
+        if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
+            $options = $settings['curl_options'] + $options;
+        }
+        if (isset($settings['ssl_verifypeer'])) {
+            $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
+        }
+
+        $client = $this->makeHttpClient($options);
+
+        $url = $this->getOrganizerUrl();
+
+        $headers = [
+            'Authorization' => 'Bearer '. $accessToken,
+            'Accept' => 'application/json',
+
+        ];
+        $timeout = (isset($settings['request_timeout'])) ? (int) $settings['request_timeout'] : 10;
+
+        $response = $client->get($url, [
+            RequestOptions::HEADERS => $headers,
+            RequestOptions::TIMEOUT => $timeout,
+        ]);
+
+        $body = $response->getBody();
+        $result = $body->getContents();
+        $organizerData =  json_decode($result, true);
+
+        if (!isset($organizerData[0]['organizerKey'])) {
+            throw new \Exception('Missing data in $organizerData');
+        }
+        return (string) $organizerData[0]['organizerKey'];
     }
 
     public function parseCallbackResponse($data, $postAuthorization = false)
     {
-        $accountKey = $this->fetchAccountKey();
-        $organizerKey = $this->fetchOrganizerKey();
+        $data = (string) $data;
         // remove control characters that will break json_decode from parsing
         $data = preg_replace('/[[:cntrl:]]/', '', $data);
         if (!$parsed = json_decode($data, true)) {
             parse_str($data, $parsed);
         }
 
+
+        $keys = $this->getKeys();
+        if(array_key_exists('accountKey', $this->getKeys())) {
+            $accountData = $this->fetchAccountData($parsed['access_token']);
+            $parsed['account_key'] = $accountData['accountKey'];
+            $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token'], $accountData['email']);
+        }
         return $parsed;
     }
 }
