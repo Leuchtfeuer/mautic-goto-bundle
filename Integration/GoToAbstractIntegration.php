@@ -150,7 +150,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return isset($keys[$this->getAuthTokenKey()]);
     }
 
-    public function getApiKey(): string
+    public function getApiKey(): ?string
     {
         $keys = $this->getKeys();
 
@@ -171,17 +171,19 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $keys['account_key'] ?? null;
     }
 
-    public function fetchAccountData($accessToken): array
+    public function fetchAccountKey(string $accessToken): string
     {
         $options = [
             CURLOPT_HEADER         => 1,
         ];
+        /*
         if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
             $options = $settings['curl_options'] + $options;
         }
         if (isset($settings['ssl_verifypeer'])) {
             $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
         }
+        */
 
         $client = $this->makeHttpClient($options);
 
@@ -200,13 +202,13 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         $body = $response->getBody();
         $result = $body->getContents();
         $accountData =  json_decode($result, true);
-        if (!isset($accountData['accountKey']) || !isset($accountData['email'])) {
+        if (!isset($accountData['accountKey'])) {
             throw new \Exception('Missing data in $accountData');
         }
-        return $accountData;
+        return $accountData['accountKey'];
     }
 
-    public function fetchOrganizerKey($accessToken, $email): string
+    public function fetchOrganizerKey(string $accessToken): string
     {
         $options = [
             CURLOPT_HEADER         => 1,
@@ -253,12 +255,9 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
             parse_str($data, $parsed);
         }
 
-
-        $keys = $this->getKeys();
         if(array_key_exists('accountKey', $this->getKeys())) {
-            $accountData = $this->fetchAccountData($parsed['access_token']);
-            $parsed['account_key'] = $accountData['accountKey'];
-            $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token'], $accountData['email']);
+            $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
+            $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
         }
         return $parsed;
     }
