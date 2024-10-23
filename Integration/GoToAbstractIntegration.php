@@ -177,33 +177,39 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     public function fetchAccountKey(): ?string
     {
-        $url = '';
-        $headers = '';
-        $timeout = '';
-
-        $options = [];
-        $apiKey = $_GET['code'] ?? null;
+        $options = [
+            CURLOPT_HEADER         => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_FOLLOWLOCATION => 0,
+            CURLOPT_REFERER        => $this->getRefererUrl(),
+            CURLOPT_USERAGENT      => $this->getUserAgent(),
+        ];
+        if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
+            $options = $settings['curl_options'] + $options;
+        }
+        if (isset($settings['ssl_verifypeer'])) {
+            $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
+        }
 
         $client = $this->makeHttpClient($options);
 
-        $result = $client->get($url, [
+        $url = $this->getAccountUrl();
+        $headers = '';
+        $timeout = '';
+
+        //$apiKey = $_GET['code'] ?? null; //lieber error werfen?
+
+
+        $response = $client->get($url, [
             RequestOptions::HEADERS => $headers,
             RequestOptions::TIMEOUT => $timeout,
         ]);
 
-        /*
-        $requestSettings = [
-            'encode_parameters'   => 'json',
-            'return_raw'          => 'true', // needed to get the HTTP status code in the response
-            'override_auth_token' => 'oauth_token='.$this->getApiKey(),
-        ];
-        $response = $this->makeRequest($this->getAccountUrl(), [], 'GET',$requestSettings);
-*/
         if (isset($response['accounts']) && !empty($response['accounts'])) {
             return $response['accounts'][0]['key'] ?? null;
         }
 
-        return null;
+        return null; //Lieber error?
     }
 
     public function fetchOrganizerKey(): ?string
