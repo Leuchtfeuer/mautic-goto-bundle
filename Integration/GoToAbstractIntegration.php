@@ -173,72 +173,17 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     public function fetchAccountKey(string $accessToken): string
     {
-        $options = [
-            CURLOPT_HEADER         => 1,
-        ];
-        /*
-        if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
-            $options = $settings['curl_options'] + $options;
-        }
-        if (isset($settings['ssl_verifypeer'])) {
-            $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
-        }
-        */
+        $accountData = $this->fetchKey($accessToken, $this->getAccountUrl());
 
-        $client = $this->makeHttpClient($options);
-
-        $url = $this->getAccountUrl();
-        $headers = [
-            'Authorization' => 'Bearer '. $accessToken,
-            'Accept' => 'application/json',
-            ];
-        $timeout = (isset($settings['request_timeout'])) ? (int) $settings['request_timeout'] : 10;
-
-        $response = $client->get($url, [
-            RequestOptions::HEADERS => $headers,
-            RequestOptions::TIMEOUT => $timeout,
-        ]);
-
-        $body = $response->getBody();
-        $result = $body->getContents();
-        $accountData =  json_decode($result, true);
         if (!isset($accountData['accountKey'])) {
             throw new \Exception('Missing data in $accountData');
         }
-        return $accountData['accountKey'];
+        return (string) $accountData['accountKey'];
     }
 
     public function fetchOrganizerKey(string $accessToken): string
     {
-        $options = [
-            CURLOPT_HEADER         => 1,
-        ];
-        if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
-            $options = $settings['curl_options'] + $options;
-        }
-        if (isset($settings['ssl_verifypeer'])) {
-            $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
-        }
-
-        $client = $this->makeHttpClient($options);
-
-        $url = $this->getOrganizerUrl();
-
-        $headers = [
-            'Authorization' => 'Bearer '. $accessToken,
-            'Accept' => 'application/json',
-
-        ];
-        $timeout = (isset($settings['request_timeout'])) ? (int) $settings['request_timeout'] : 10;
-
-        $response = $client->get($url, [
-            RequestOptions::HEADERS => $headers,
-            RequestOptions::TIMEOUT => $timeout,
-        ]);
-
-        $body = $response->getBody();
-        $result = $body->getContents();
-        $organizerData =  json_decode($result, true);
+        $organizerData = $this->fetchKey($accessToken, $this->getOrganizerUrl());
 
         if (!isset($organizerData[0]['organizerKey'])) {
             throw new \Exception('Missing data in $organizerData');
@@ -255,10 +200,70 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
             parse_str($data, $parsed);
         }
 
-        if(array_key_exists('accountKey', $this->getKeys())) {
-            $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
-            $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
+        //neu authentifizieren --> done
+        // reauthorize --> done
+        // user wechsel --> done
+        // refresh token --> done
+        // sync --> done
+        // x contacts synchronized
+
+        // when regular non-authentication request
+        if(!array_key_exists('access_token', $parsed)) {
+            return $parsed;
         }
+
+        /*
+        // when access_token was refreshed
+        if(array_key_exists('access_token', $this->getKeys()) && $parsed['access_token'] !== $this->getKeys()['access_token']) {
+            return $parsed;
+        }
+        */
+
+        // when first time authentication, token refresh or changing GoTo credentials
+        if(!array_key_exists('account_key', $this->getKeys()) || array_key_exists('access_token', $this->getKeys()) && $parsed['access_token'] !== $this->getKeys()['access_token']) {
+            $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
+            try{
+                $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
+            }
+            catch (\Exception $e) {
+                $parsed['organizer_key'] = '';
+            }
+        }
+
         return $parsed;
+    }
+
+    public function fetchKey(string $accessToken, string $url): array
+    {
+        $options = [
+            CURLOPT_HEADER         => 1,
+        ];
+
+        if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
+            $options = $settings['curl_options'] + $options;
+        }
+        if (isset($settings['ssl_verifypeer'])) {
+            $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
+        }
+
+
+        $client = $this->makeHttpClient($options);
+
+        $headers = [
+            'Authorization' => 'Bearer '. $accessToken,
+            'Accept' => 'application/json',
+
+        ];
+        $timeout = 10;
+
+
+        $response = $client->get($url, [
+            RequestOptions::HEADERS => $headers,
+            RequestOptions::TIMEOUT => $timeout,
+        ]);
+
+        $body = $response->getBody();
+        $result = $body->getContents();
+        return  json_decode($result, true);
     }
 }
