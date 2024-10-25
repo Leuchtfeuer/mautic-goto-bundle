@@ -7,7 +7,6 @@ namespace MauticPlugin\LeuchtfeuerGoToBundle\Integration;
 use GuzzleHttp\RequestOptions;
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
-use PHPUnit\Framework\InvalidArgumentException;
 
 /**
  * Class GoToAbstractIntegration.
@@ -51,9 +50,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAuthenticationType(): string
     {
         return 'oauth2';
@@ -71,9 +67,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function sortFieldsAlphabetically(): bool
     {
         return false;
@@ -81,8 +74,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     /**
      * Get the API helper.
-     *
-     * @return mixed
      */
     public function getApiHelper()
     {
@@ -113,17 +104,11 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return 'https://authentication.logmeininc.com';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAccessTokenUrl(): string
     {
         return $this->getAuthBaseUrl().'/oauth/token';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAuthenticationUrl(): string
     {
         return $this->getAuthBaseUrl().'/oauth/authorize';
@@ -139,10 +124,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $this->getApiUrl().'/G2M/rest/organizers';
     }
 
-
-    /**
-     * {@inheritdoc}
-     */
     public function isAuthorized(): bool
     {
         $keys = $this->getKeys();
@@ -178,6 +159,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         if (!isset($accountData['accountKey'])) {
             throw new \Exception('Missing data in $accountData');
         }
+
         return (string) $accountData['accountKey'];
     }
 
@@ -188,6 +170,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         if (!isset($organizerData[0]['organizerKey'])) {
             throw new \Exception('Missing data in $organizerData');
         }
+
         return (string) $organizerData[0]['organizerKey'];
     }
 
@@ -201,25 +184,23 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         }
 
         // when regular non-authentication request (e.g. leuchtfeuer:goto:sync)
-        if(!array_key_exists('access_token', $parsed)) {
+        if (!array_key_exists('access_token', $parsed)) {
             return $parsed;
         }
         // when authentication request (authorize, reauthorize, token refresh, changing credentials)
         else {
             $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
-            try{
+            try {
                 $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $parsed['organizer_key'] = '';
             }
+
             return $parsed;
         }
     }
 
-
     /**
-     *
      * @return array<string|int,mixed>
      */
     public function fetchKey(string $accessToken, string $url): array
@@ -228,24 +209,22 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
             CURLOPT_HEADER         => 1,
         ];
 
-
         $client = $this->makeHttpClient($options);
 
         $headers = [
-            'Authorization' => 'Bearer '. $accessToken,
-            'Accept' => 'application/json',
-
+            'Authorization' => 'Bearer '.$accessToken,
+            'Accept'        => 'application/json',
         ];
         $timeout = 10;
-
 
         $response = $client->get($url, [
             RequestOptions::HEADERS => $headers,
             RequestOptions::TIMEOUT => $timeout,
         ]);
 
-        $body = $response->getBody();
+        $body   = $response->getBody();
         $result = $body->getContents();
-        return  json_decode($result, true);
+
+        return json_decode($result, true);
     }
 }
