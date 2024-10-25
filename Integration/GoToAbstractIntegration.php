@@ -131,12 +131,12 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     public function getAccountUrl(): string
     {
-        return 'https://api.getgo.com/admin/rest/v1/me';
+        return $this->getApiUrl().'/admin/rest/v1/me';
     }
 
     public function getOrganizerUrl(): string
     {
-        return 'https://api.getgo.com/G2M/rest/organizers';
+        return $this->getApiUrl().'/G2M/rest/organizers';
     }
 
 
@@ -200,27 +200,12 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
             parse_str($data, $parsed);
         }
 
-        //neu authentifizieren --> done
-        // reauthorize --> done
-        // user wechsel --> done
-        // refresh token --> done
-        // sync --> done
-        // x contacts synchronized
-
-        // when regular non-authentication request
+        // when regular non-authentication request (e.g. leuchtfeuer:goto:sync)
         if(!array_key_exists('access_token', $parsed)) {
             return $parsed;
         }
-
-        /*
-        // when access_token was refreshed
-        if(array_key_exists('access_token', $this->getKeys()) && $parsed['access_token'] !== $this->getKeys()['access_token']) {
-            return $parsed;
-        }
-        */
-
-        // when first time authentication, token refresh or changing GoTo credentials
-        if(!array_key_exists('account_key', $this->getKeys()) || array_key_exists('access_token', $this->getKeys()) && $parsed['access_token'] !== $this->getKeys()['access_token']) {
+        // when authentication request (authorize, reauthorize, token refresh, changing credentials)
+        else {
             $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
             try{
                 $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
@@ -228,23 +213,20 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
             catch (\Exception $e) {
                 $parsed['organizer_key'] = '';
             }
+            return $parsed;
         }
-
-        return $parsed;
     }
 
+
+    /**
+     *
+     * @return array<string|int,mixed>
+     */
     public function fetchKey(string $accessToken, string $url): array
     {
         $options = [
             CURLOPT_HEADER         => 1,
         ];
-
-        if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
-            $options = $settings['curl_options'] + $options;
-        }
-        if (isset($settings['ssl_verifypeer'])) {
-            $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
-        }
 
 
         $client = $this->makeHttpClient($options);
