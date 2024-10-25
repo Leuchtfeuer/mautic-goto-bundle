@@ -31,7 +31,7 @@ class EmailSubscriber implements EventSubscriberInterface
         private TranslatorInterface $translator,
         private Environment $twig,
         private EventDispatcherInterface $dispatcher,
-        private GoToHelper $goToHelper
+        private GoToHelper $goToHelper,
     ) {
     }
 

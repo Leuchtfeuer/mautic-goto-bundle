@@ -10,7 +10,7 @@ class GotoassistApi
     use GoToApi;
 
     public function __construct(
-        private GotoassistIntegration $integration
+        private GotoassistIntegration $integration,
     ) {
     }
 

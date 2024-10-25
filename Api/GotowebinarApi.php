@@ -10,7 +10,7 @@ class GotowebinarApi
     use GoToApi;
 
     public function __construct(
-        private GotowebinarIntegration $integration
+        private GotowebinarIntegration $integration,
     ) {
     }
 

@@ -35,7 +35,7 @@ class CampaignSubscriber implements EventSubscriberInterface
         private GoToModel $goToModel,
         private GoToHelper $goToHelper,
         private Environment $twig,
-        private TranslatorInterface $translator
+        private TranslatorInterface $translator,
     ) {
     }
 

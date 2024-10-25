@@ -11,7 +11,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 class GotoApiBlacklistValidator extends ConstraintValidator
 {
     public function __construct(
-        private CoreParametersHelper $coreParametersHelper
+        private CoreParametersHelper $coreParametersHelper,
     ) {
     }
 

@@ -34,7 +34,7 @@ class SyncCommand extends ModeratedCommand
         private GoToModel $goToModel,
         private GoToHelper $goToHelper,
         PathsHelper $pathsHelper,
-        CoreParametersHelper $coreParametersHelper
+        CoreParametersHelper $coreParametersHelper,
     ) {
         parent::__construct($pathsHelper, $coreParametersHelper);
     }

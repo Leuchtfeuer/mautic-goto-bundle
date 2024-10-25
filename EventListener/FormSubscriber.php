@@ -53,7 +53,7 @@ class FormSubscriber implements EventSubscriberInterface
         private EntityManager $entityManager,
         private GoToHelper $goToHelper,
         private Environment $twig,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
     ) {
     }
 

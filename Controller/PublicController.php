@@ -44,7 +44,7 @@ class PublicController extends CommonController
 
         private GoToHelper $goToHelper,
         private GoToModel $goToModel,
-        private IntegrationHelper $integrationHelper
+        private IntegrationHelper $integrationHelper,
     ) {
         parent::__construct($doctrine, $factory, $modelFactory, $userHelper, $coreParametersHelper, $dispatcher, $translator, $flashBag, $requestStack, $security);
     }

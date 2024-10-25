@@ -27,7 +27,7 @@ class GoToHelper
         private GotomeetingApi $meetingClient,
         private GotowebinarApi $webinarClient,
         private GototrainingApi $trainingClient,
-        private RouterInterface $router
+        private RouterInterface $router,
     ) {
     }
 
