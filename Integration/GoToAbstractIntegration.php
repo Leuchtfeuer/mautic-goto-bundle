@@ -154,10 +154,10 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     public function fetchAccountKey(string $accessToken): string
     {
-        $accountData = $this->fetchKey($accessToken, $this->getAccountUrl());
+        $accountData = $this->fetchGoToData($accessToken, $this->getAccountUrl());
 
         if (!isset($accountData['accountKey'])) {
-            throw new \Exception('Missing data in $accountData');
+            throw new \Exception('Missing accountKey in $accountData');
         }
 
         return (string) $accountData['accountKey'];
@@ -165,10 +165,10 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
 
     public function fetchOrganizerKey(string $accessToken): string
     {
-        $organizerData = $this->fetchKey($accessToken, $this->getOrganizerUrl());
+        $organizerData = $this->fetchGoToData($accessToken, $this->getOrganizerUrl());
 
         if (!isset($organizerData[0]['organizerKey'])) {
-            throw new \Exception('Missing data in $organizerData');
+            throw new \Exception('Missing organizerKey in $organizerData');
         }
 
         return (string) $organizerData[0]['organizerKey'];
@@ -189,11 +189,11 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         }
         // when authentication request (authorize, reauthorize, token refresh, changing credentials)
         else {
-            $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
             try {
+                $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
                 $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
             } catch (\Exception $e) {
-                $parsed['organizer_key'] = '';
+                $this->logger->log('error', $e->getMessage());
             }
 
             return $parsed;
@@ -203,7 +203,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
     /**
      * @return array<string|int,mixed>
      */
-    public function fetchKey(string $accessToken, string $url): array
+    public function fetchGoToData(string $accessToken, string $url): array
     {
         $options = [
             CURLOPT_HEADER         => 1,
