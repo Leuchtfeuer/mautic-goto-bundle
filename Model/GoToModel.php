@@ -52,7 +52,7 @@ class GoToModel extends FormModel
         protected Translator $translator,
         protected UserHelper $userHelper,
         protected LoggerInterface $logger,
-        protected CoreParametersHelper $coreParametersHelper
+        protected CoreParametersHelper $coreParametersHelper,
     ) {
         parent::__construct($em, $security, $dispatcher, $router, $translator, $userHelper, $logger, $coreParametersHelper);
     }
@@ -299,7 +299,7 @@ class GoToModel extends FormModel
         string $eventType,
         array $contactsToAdd = [],
         array $emailsToRemove = [],
-        ?OutputInterface $output = null
+        ?OutputInterface $output = null,
     ): int {
         if (!GoToProductTypes::isValidValue($product) || !GoToEventTypes::isValidValue($eventType)) {
             return 0;

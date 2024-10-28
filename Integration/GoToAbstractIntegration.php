@@ -190,7 +190,7 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         // when authentication request (authorize, reauthorize, token refresh, changing credentials)
         else {
             try {
-                $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
+                $parsed['account_key']   = $this->fetchAccountKey($parsed['access_token']);
                 $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
             } catch (\Exception $e) {
                 $this->logger->log('error', $e->getMessage());

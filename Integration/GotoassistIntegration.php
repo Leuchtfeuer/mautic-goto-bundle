@@ -33,8 +33,7 @@ class GotoassistIntegration extends GoToAbstractIntegration
         else {
             try {
                 $parsed['account_key'] = $this->fetchAccountKey($parsed['access_token']);
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $this->logger->log('error', $e->getMessage());
             }
             try {
