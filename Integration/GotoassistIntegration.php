@@ -38,7 +38,7 @@ class GotoassistIntegration extends GoToAbstractIntegration
             }
             try {
                 $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $parsed['organizer_key'] = '';
             }
 

@@ -44,7 +44,7 @@ class GoToProduct implements \JsonSerializable
         $builder->addNamedField('status', 'text', 'status', true);
     }
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -54,7 +54,7 @@ class GoToProduct implements \JsonSerializable
         $this->id = $id;
     }
 
-    public function getProductKey()
+    public function getProductKey(): string
     {
         return $this->product_key;
     }
