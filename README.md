@@ -1,6 +1,6 @@
 # GoTo Integration by Leuchtfeuer
 
-We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoToTraining - formerly known as "Citrix plugin") a complete overhaul. It now comes with a bunch of new and previously missing features; highlights include
+We have given the GoTo plugin (formerly known as "Citrix plugin") a complete overhaul. It now comes with a bunch of new and previously missing features; highlights include
 - Editor can offer selected webinars in form, rather than "all current"
 - Support for recurring webinars (called "sessions" in GoToWebinar)
 - Honours events from multiple organizer accounts in GoToWebinar
@@ -9,6 +9,8 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
 - Optionally, display selected metadata of webinar(s) above form (e.g. title, description, duration, ...)
 - Automatically update webinar metadata from GoToWebinar
 - Caching of GoTo data - thus no wait time, no more "API calls exceeded" issues
+
+Note: Currently the bundle only covers GoToWebinar, the other GoTo products (GoToMeeting / GoToAssist / GoToTraining) appear on the 'Manage Plugins' page but are not supported.
 
 ## Requirements
 * Mautic 5.x
@@ -47,8 +49,8 @@ We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoTo
       sudo -u www-data php  bin/console doctrine:schema:update --force
 
 
-* In the Browser, go to "Settings" -> "Plugins" in the Mautic-Backend, klick on "Install/Update Plugins". The various "GoTo" cards appear in the Plugin list.
-* Open the desired plugin (e.g. GoToWebinar) and write down the "Callback URL" from the grey box
+* In the Browser, go to "Settings" -> "Plugins" in the Mautic-Backend, click on "Install/Update Plugins". The various "GoTo" cards appear in the Plugin list.
+* Open GoToWebinar and write down the "Callback URL" from the grey box
 
 ## Authorization in GoTo Dev Account
 * Go to https://developer.logmeininc.com/clients - using your main account in GoToWebinar (not just an organizer account!)
@@ -77,7 +79,7 @@ If you sync too frequently, you may run out of API calls on the GoTo side (numbe
 
 ## Using the plugin
 
-Just like with the old plugin, you can create a form with field type "Upcoming Webinars" (or Meeting, ....) - but this is now much more powerful, see feature list above.
+Just like with the old plugin, you can create a form with field type "Upcoming Webinars" - but this is now much more powerful, see feature list above.
 * You will find all the options in the "properties" tab of the form field.
 * If you choose to display selected metadata of webinar(s) above form, you can also control the styling here.
 

@@ -152,28 +152,6 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
         return $keys['account_key'] ?? null;
     }
 
-    public function fetchAccountKey(string $accessToken): string
-    {
-        $accountData = $this->fetchGoToData($accessToken, $this->getAccountUrl());
-
-        if (!isset($accountData['accountKey'])) {
-            throw new \Exception('Missing accountKey in $accountData');
-        }
-
-        return (string) $accountData['accountKey'];
-    }
-
-    public function fetchOrganizerKey(string $accessToken): string
-    {
-        $organizerData = $this->fetchGoToData($accessToken, $this->getOrganizerUrl());
-
-        if (!isset($organizerData[0]['organizerKey'])) {
-            throw new \Exception('Missing organizerKey in $organizerData');
-        }
-
-        return (string) $organizerData[0]['organizerKey'];
-    }
-
     public function parseCallbackResponse($data, $postAuthorization = false)
     {
         $data = (string) $data;
@@ -188,16 +166,37 @@ abstract class GoToAbstractIntegration extends AbstractIntegration
             return $parsed;
         }
         // when authentication request (authorize, reauthorize, token refresh, changing credentials)
-        else {
-            try {
-                $parsed['account_key']   = $this->fetchAccountKey($parsed['access_token']);
-                $parsed['organizer_key'] = $this->fetchOrganizerKey($parsed['access_token']);
-            } catch (\Exception $e) {
-                $this->logger->log('error', $e->getMessage());
-            }
+        $keys = $this->fetchKeys($parsed['access_token']);
+        if (false === $keys) {
+            $this->logger->log('error', 'Missing correct data');
 
             return $parsed;
         }
+        $parsed['account_key']   = $keys['account_key'];
+        $parsed['organizer_key'] = $keys['organizer_key'];
+
+        return $parsed;
+    }
+
+    /**
+     * @return array<string, string>|false
+     */
+    public function fetchKeys(string $accessToken): bool|array
+    {
+        try {
+            $accountData   = $this->fetchGoToData($accessToken, $this->getAccountUrl());
+            $organizerData = $this->fetchGoToData($accessToken, $this->getOrganizerUrl());
+        } catch (\Exception $e) {
+            throw new \Exception('Missing correct data');
+        }
+        if (!isset($organizerData[0]['organizerKey']) || !isset($accountData['accountKey'])) {
+            return false;
+        }
+
+        return [
+            'account_key'   => (string) $accountData['accountKey'],
+            'organizer_key' => (string) $organizerData[0]['organizerKey'],
+        ];
     }
 
     /**
