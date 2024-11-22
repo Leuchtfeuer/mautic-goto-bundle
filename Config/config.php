@@ -11,7 +11,7 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Integration\GotowebinarIntegration;
 return [
     'name'        => 'GoTo Integration by Leuchtfeuer',
     'description' => 'Enables integration with Mautic supported GoTo collaboration products.',
-    'version'     => '4.0.0',
+    'version'     => '4.0.2',
     'author'      => 'Leuchtfeuer Digital Marketing GmbH',
     'routes'      => [
         'public' => [

@@ -53,7 +53,7 @@ Note: Currently the bundle only covers GoToWebinar, the other GoTo products (GoT
 * Open GoToWebinar and write down the "Callback URL" from the grey box
 
 ## Authorization in GoTo Dev Account
-* Go to https://developer.logmeininc.com/clients - using your main account in GoToWebinar (not just an organizer account!)
+* Go to https://developer.logmeininc.com/clients - using your main account in GoToWebinar (not just an organizer account!). Note: When using just a developer account the authentication won't work.
 * From there, create a OAuth token to use for your Mautic, using the following steps:
 * The client name/description can be chosen freely
 * In "Forwarding URL", enter the "Callback URL" that you wrote down above (from the Mautic Plugin settings)
