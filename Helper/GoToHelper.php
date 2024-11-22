@@ -11,7 +11,6 @@ use MauticPlugin\LeuchtfeuerGoToBundle\Api\GotoassistApi;
 use MauticPlugin\LeuchtfeuerGoToBundle\Api\GotomeetingApi;
 use MauticPlugin\LeuchtfeuerGoToBundle\Api\GototrainingApi;
 use MauticPlugin\LeuchtfeuerGoToBundle\Api\GotowebinarApi;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -27,15 +26,12 @@ class GoToHelper
         private GotomeetingApi $meetingClient,
         private GotowebinarApi $webinarClient,
         private GototrainingApi $trainingClient,
-        private RouterInterface $router
+        private RouterInterface $router,
     ) {
     }
 
     public function log(string $msg, string $level = 'error'): void
     {
-        //  Make sure the logs are in the same timezone
-        Logger::setTimezone(new \DateTimeZone(date_default_timezone_get()));
-
         try {
             $this->logger->log($level, $msg);
         } catch (\Exception) {

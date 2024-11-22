@@ -53,7 +53,7 @@ class FormSubscriber implements EventSubscriberInterface
         private EntityManager $entityManager,
         private GoToHelper $goToHelper,
         private Environment $twig,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
     ) {
     }
 
@@ -263,13 +263,11 @@ class FormSubscriber implements EventSubscriberInterface
             }
 
             /** @phpstan-ignore-next-line */
-            if (is_array($values) || is_object($values)) {
-                foreach ($values as $value) {
-                    if (!array_key_exists($value, $list) && !empty($value)) {
-                        $event->failedValidation(
-                            $value.': '.$this->translator->trans('plugin.citrix.'.$eventType.'.nolongeravailable')
-                        );
-                    }
+            foreach ($values as $value) {
+                if (!array_key_exists($value, $list) && !empty($value)) {
+                    $event->failedValidation(
+                        $value.': '.$this->translator->trans('plugin.citrix.'.$eventType.'.nolongeravailable')
+                    );
                 }
             }
         }
@@ -302,20 +300,18 @@ class FormSubscriber implements EventSubscriberInterface
                 }
 
                 /** @phpstan-ignore-next-line */
-                if (is_array($productIds) || is_object($productIds)) {
-                    foreach ($productIds as $productId) {
-                        if (null === $productId) { // We do have to ignore optional fields
-                            continue;
-                        }
-                        $products[] = [
-                            'fieldName'    => $alias,
-                            'productId'    => $productId,
-                            'productTitle' => array_key_exists(
-                                $productId,
-                                $productList
-                            ) ? $productList[$productId] : 'untitled',
-                        ];
+                foreach ($productIds as $productId) {
+                    if (null === $productId) { // We do have to ignore optional fields
+                        continue;
                     }
+                    $products[] = [
+                        'fieldName'    => $alias,
+                        'productId'    => $productId,
+                        'productTitle' => array_key_exists(
+                            $productId,
+                            $productList
+                        ) ? $productList[$productId] : 'untitled',
+                    ];
                 }
             }
         }

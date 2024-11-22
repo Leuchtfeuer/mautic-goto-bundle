@@ -35,7 +35,7 @@ class LeadSubscriber implements EventSubscriberInterface
         private GoToModel $model,
         private EntityManager $entityManager,
         private TranslatorInterface $translator,
-        private GoToHelper $goToHelper
+        private GoToHelper $goToHelper,
     ) {
     }
 

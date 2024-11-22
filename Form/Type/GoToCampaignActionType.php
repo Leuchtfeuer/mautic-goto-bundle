@@ -25,7 +25,7 @@ class GoToCampaignActionType extends AbstractType
     public function __construct(
         protected GoToModel $model,
         protected TranslatorInterface $translator,
-        private GoToHelper $goToHelper
+        private GoToHelper $goToHelper,
     ) {
     }
 

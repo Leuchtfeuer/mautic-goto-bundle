@@ -29,7 +29,7 @@ class GoToActionType extends AbstractType
     public function __construct(
         private FieldModel $model,
         private GoToModel $goToModel,
-        private GoToHelper $goToHelper
+        private GoToHelper $goToHelper,
     ) {
     }
 

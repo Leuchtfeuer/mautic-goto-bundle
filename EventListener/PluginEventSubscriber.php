@@ -13,13 +13,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PluginEventSubscriber implements EventSubscriberInterface
 {
-    private Connection $connection;
-    private LoggerInterface $logger;
-
-    public function __construct(Connection $connection, LoggerInterface $logger)
+    public function __construct(private Connection $connection, private LoggerInterface $logger)
     {
-        $this->connection = $connection;
-        $this->logger     = $logger;
     }
 
     public static function getSubscribedEvents(): array
