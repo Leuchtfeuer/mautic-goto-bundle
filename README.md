@@ -1,5 +1,6 @@
 # GoTo Integration by Leuchtfeuer
 
+## Mautic 5 is EoS - There won't be support for Mautc 6 and further versions.
 We have given the GoTo plugin (for GoToWebinar / GoToMeeting / GoToAssist / GoToTraining - formerly known as "Citrix plugin") a complete overhaul. It now comes with a bunch of new and previously missing features; highlights include
 - Editor can offer selected webinars in form, rather than "all current"
 - Support for recurring webinars (called "sessions" in GoToWebinar)
