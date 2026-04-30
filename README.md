@@ -115,3 +115,6 @@ For Every Event there'll m Requests for m-Registrants and o Requests for o-Atten
 Leuchtfeuer Digital Marketing GmbH
 
 mautic@Leuchtfeuer.com
+
+## License
+This plugin is licensed under the GPL v3 License.
